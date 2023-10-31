@@ -3,10 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
 
     <Description>PosInformatique.Moq.Analyzers is a library to verify syntax and code design when writing the unit tests using the Moq library.</Description>
     <PackageIcon>Icon.png</PackageIcon>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
@@ -15,7 +19,9 @@
         - MQ1000: Verify() and VerifyAll() methods should be called when instantiate a Mock&lt;T&gt; instances
         - MQ1001: The Mock&lt;T&gt; instance behavior should be defined to Strict mode.
     </PackageReleaseNotes>
-    <PackageTags>moq analyzers unittest c# roselyn compiler source code</PackageTags>
+    <PackageTags>moq analyzers unittest c# roselyn compiler source code mock</PackageTags>
+
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
 
   </PropertyGroup>
 
@@ -34,5 +40,11 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+
+  <Target Name="_AddAnalyzersToOutput">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)\$(AssemblyName).dll" PackagePath="analyzers/dotnet/cs" />
+    </ItemGroup>
+  </Target>
 
 </Project>
