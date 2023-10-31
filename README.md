@@ -13,7 +13,7 @@ To download and install the library to your Visual Studio unit test projects use
 Install-Package PosInformatique.Moq.Analyzers
 ```
 
-The analyzers are automatically added and activated with their default warning levels.
+The analyzer is automatically added and activated with their default severity levels.
 
 ## Rules
 

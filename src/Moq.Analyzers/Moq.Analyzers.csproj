@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IsPackable>false</IsPackable>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 
     <Description>PosInformatique.Moq.Analyzers is a library to verify syntax and code design when writing the unit tests using the Moq library.</Description>
