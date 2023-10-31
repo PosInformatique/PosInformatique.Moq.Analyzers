@@ -89,7 +89,7 @@ namespace PosInformatique.Moq.Analyzers
 
             if (!SymbolEqualityComparer.Default.Equals(firstArgumentType.Symbol, mockBehaviorType))
             {
-                var diagnostic = Diagnostic.Create(Rule, objectCreation.GetLocation());
+                var diagnostic = Diagnostic.Create(Rule, firstArgument.GetLocation());
                 context.ReportDiagnostic(diagnostic);
 
                 return;

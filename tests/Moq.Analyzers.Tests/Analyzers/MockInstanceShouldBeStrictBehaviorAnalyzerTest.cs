@@ -24,6 +24,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
+                            var obj = new object();
                         }
                     }
 
@@ -179,7 +180,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>([|default|], 1, 2);
+                            var mock1 = [|new Mock<I>(default, 1, 2)|];
                         }
                     }
 
