@@ -1,4 +1,10 @@
-﻿namespace PosInformatique.Moq.Analyzers.Tests
+﻿//-----------------------------------------------------------------------
+// <copyright file="VerifyAllShouldBeCalledAnalyzerTest.cs" company="P.O.S Informatique">
+//     Copyright (c) P.O.S Informatique. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace PosInformatique.Moq.Analyzers.Tests
 {
     using System.Threading.Tasks;
     using Xunit;

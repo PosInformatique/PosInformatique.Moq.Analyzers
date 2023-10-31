@@ -1,21 +1,22 @@
-﻿namespace PosInformatique.Moq.Analyzers
+﻿//-----------------------------------------------------------------------
+// <copyright file="SetBehaviorToStrictCodeFixProvider.cs" company="P.O.S Informatique">
+//     Copyright (c) P.O.S Informatique. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace PosInformatique.Moq.Analyzers
 {
+    using System.Collections.Generic;
+    using System.Collections.Immutable;
+    using System.Composition;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CodeActions;
     using Microsoft.CodeAnalysis.CodeFixes;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
-    using Microsoft.CodeAnalysis.Rename;
-    using Microsoft.CodeAnalysis.Text;
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Immutable;
-    using System.Composition;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
 
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SetBehaviorToStrictCodeFixProvider)), Shared]
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SetBehaviorToStrictCodeFixProvider))]
+    [Shared]
     public class SetBehaviorToStrictCodeFixProvider : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
@@ -43,12 +44,12 @@
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: "Defines the MockBehavior to Strict",
-                    createChangedDocument: cancellationToken => AddMockBehiavorStrict(context.Document, mockCreationExpression, cancellationToken),
+                    createChangedDocument: cancellationToken => AddMockBehiavorStrictArgumentAsync(context.Document, mockCreationExpression, cancellationToken),
                     equivalenceKey: "Defines the MockBehavior to Strict"),
                 diagnostic);
         }
 
-        private async Task<Document> AddMockBehiavorStrict(Document document, ObjectCreationExpressionSyntax oldMockCreationExpression, CancellationToken cancellationToken)
+        private static async Task<Document> AddMockBehiavorStrictArgumentAsync(Document document, ObjectCreationExpressionSyntax oldMockCreationExpression, CancellationToken cancellationToken)
         {
             var mockBehaviorArgument = SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
@@ -87,7 +88,7 @@
             return document.WithSyntaxRoot(newRoot);
         }
 
-        private bool IsMockBehaviorArgument(ArgumentSyntax argument)
+        private static bool IsMockBehaviorArgument(ArgumentSyntax argument)
         {
             if (argument.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
             {

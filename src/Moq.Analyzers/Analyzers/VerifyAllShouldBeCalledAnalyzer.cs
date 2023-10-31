@@ -1,23 +1,28 @@
-﻿namespace PosInformatique.Moq.Analyzers
+﻿//-----------------------------------------------------------------------
+// <copyright file="VerifyAllShouldBeCalledAnalyzer.cs" company="P.O.S Informatique">
+//     Copyright (c) P.O.S Informatique. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace PosInformatique.Moq.Analyzers
 {
+    using System.Collections.Immutable;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.CodeAnalysis.Diagnostics;
-    using System.Collections.Immutable;
-    using System.Linq;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class VerifyAllShouldBeCalledAnalyzer : DiagnosticAnalyzer
     {
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
-            "MQ2000",
-            "Check Verify() or VerifyAll() methods are called when instantiate a Mock<T> instances",
-            "The Verify() or VerifyAll() method should be called",
+            "MQ1000",
+            "Verify() and VerifyAll() methods should be called when instantiate a Mock<T> instances",
+            "The Verify() or VerifyAll() method should be called at the end of the unit test",
             "Design",
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "VerifyAll() or VerifyAll() methods should be called in the test methods.");
+            description: "VerifyAll() or VerifyAll() methods should be called at the end of the unit test method.");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

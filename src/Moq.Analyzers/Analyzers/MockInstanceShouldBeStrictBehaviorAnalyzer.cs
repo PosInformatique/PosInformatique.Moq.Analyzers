@@ -1,21 +1,25 @@
-﻿namespace PosInformatique.Moq.Analyzers
+﻿//-----------------------------------------------------------------------
+// <copyright file="MockInstanceShouldBeStrictBehaviorAnalyzer.cs" company="P.O.S Informatique">
+//     Copyright (c) P.O.S Informatique. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace PosInformatique.Moq.Analyzers
 {
+    using System.Collections.Immutable;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.CodeAnalysis.Diagnostics;
-    using System;
-    using System.Collections.Immutable;
-    using System.Linq;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class MockInstanceShouldBeStrictBehaviorAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "MQ2001";
+        public const string DiagnosticId = "MQ1001";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             DiagnosticId,
-            "Check that Mock<T> instances are instantiate with the Strict behavior",
+            "The Mock<T> instance behavior should be defined to Strict mode",
             "The Mock<T> instance behavior should be defined to Strict mode",
             "Design",
             DiagnosticSeverity.Warning,
@@ -56,8 +60,8 @@
             if (firstArgument is null)
             {
                 var diagnostic = Diagnostic.Create(Rule, objectCreation.GetLocation());
-                context.ReportDiagnostic(diagnostic); 
-                
+                context.ReportDiagnostic(diagnostic);
+
                 return;
             }
 
@@ -65,7 +69,7 @@
             // (because we searching for MockBehavior.Strict).
             if (firstArgument.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
             {
-                var diagnostic = Diagnostic.Create(Rule, objectCreation.GetLocation()); 
+                var diagnostic = Diagnostic.Create(Rule, objectCreation.GetLocation());
                 context.ReportDiagnostic(diagnostic);
 
                 return;

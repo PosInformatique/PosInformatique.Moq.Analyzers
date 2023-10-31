@@ -9,9 +9,32 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moq.Analyzers", "src\Moq.An
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1D59B801-B4D3-44FC-A2BE-F2F53AC54061}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		CodeCoverage.runsettings = CodeCoverage.runsettings
+		Directory.Build.props = Directory.Build.props
 		LICENSE = LICENSE
 		README.md = README.md
+		stylecop.json = stylecop.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{4C3E1C72-8977-4ABD-8360-A8707DBBA5AE}"
+	ProjectSection(SolutionItems) = preProject
+		build\azure-pipelines-ci.yaml = build\azure-pipelines-ci.yaml
+		build\azure-pipelines-release.yaml = build\azure-pipelines-release.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DC2CDF77-88A9-490D-84ED-34832943104A}"
+	ProjectSection(SolutionItems) = preProject
+		tests\.editorconfig = tests\.editorconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3C20D95F-AB5F-44EC-8FB6-CB9827B7FD63}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "design", "design", "{815BE8D0-C7D5-4B4E-82E0-DE29C11F258E}"
+	ProjectSection(SolutionItems) = preProject
+		docs\design\MQ1000.md = docs\design\MQ1000.md
+		docs\design\MQ1001.md = docs\design\MQ1001.md
 	EndProjectSection
 EndProject
 Global
@@ -31,6 +54,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4C3E1C72-8977-4ABD-8360-A8707DBBA5AE} = {1D59B801-B4D3-44FC-A2BE-F2F53AC54061}
+		{DC2CDF77-88A9-490D-84ED-34832943104A} = {1D59B801-B4D3-44FC-A2BE-F2F53AC54061}
+		{3C20D95F-AB5F-44EC-8FB6-CB9827B7FD63} = {1D59B801-B4D3-44FC-A2BE-F2F53AC54061}
+		{815BE8D0-C7D5-4B4E-82E0-DE29C11F258E} = {3C20D95F-AB5F-44EC-8FB6-CB9827B7FD63}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3307E7F7-9CD7-4C12-B34A-943F5A8B62A4}

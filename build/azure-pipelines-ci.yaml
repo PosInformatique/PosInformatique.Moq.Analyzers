@@ -1,0 +1,24 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+- job: Build
+  displayName: Build the library
+  steps:
+  - task: DotNetCoreCLI@2
+    name: BuildLibrary
+    displayName: Build the library
+    inputs:
+      command: 'build'
+      projects: 'PosInformatique.Moq.Analyzers.sln'
+      arguments: '--property:Configuration=Debug'
+
+  - task: DotNetCoreCLI@2
+    name: ExecuteUnitTests
+    displayName: Execute the unit tests
+    inputs:
+      command: 'test'
+      projects: 'PosInformatique.Moq.Analyzers.sln'
+      arguments: '--property:Configuration=Debug'
