@@ -1,0 +1,109 @@
+﻿namespace PosInformatique.Moq.Analyzers
+{
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
+    using Microsoft.CodeAnalysis.Diagnostics;
+    using System.Collections.Immutable;
+    using System.Linq;
+
+    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    public class VerifyAllShouldBeCalledAnalyzer : DiagnosticAnalyzer
+    {
+        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+            "MQ2000",
+            "Check Verify() or VerifyAll() methods are called when instantiate a Mock<T> instances",
+            "The Verify() or VerifyAll() method should be called",
+            "Design",
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "VerifyAll() or VerifyAll() methods should be called in the test methods.");
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+
+        public override void Initialize(AnalysisContext context)
+        {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+            context.EnableConcurrentExecution();
+
+            context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.ObjectCreationExpression);
+        }
+
+        private static void Analyze(SyntaxNodeAnalysisContext context)
+        {
+            var objectCreation = (ObjectCreationExpressionSyntax)context.Node;
+
+            if (!MockExpressionHelper.IsMockCreation(objectCreation))
+            {
+                return;
+            }
+
+            // Retrieve the variable name
+            var variableName = objectCreation.Ancestors().OfType<VariableDeclaratorSyntax>().FirstOrDefault();
+
+            if (variableName is null)
+            {
+                // No variable set on the left for the "new Mock<T>()". Skip it.
+                return;
+            }
+
+            var variableNameModel = context.SemanticModel.GetDeclaredSymbol(variableName);
+
+            // Check if there is a VerifyAll() invocation in the method's parent block.
+            var parentMethod = objectCreation.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
+
+            if (parentMethod is null)
+            {
+                // Parent method not found, skip it.
+                return;
+            }
+
+            // Retrieve all method invocation expressions.
+            var invocationExpressions = parentMethod.DescendantNodes().OfType<InvocationExpressionSyntax>();
+
+            var verifyAllCalled = invocationExpressions.Any(expression => IsMockVerifyAllInvocation(expression, variableNameModel, context.SemanticModel));
+
+            if (!verifyAllCalled)
+            {
+                var diagnostic = Diagnostic.Create(Rule, objectCreation.GetLocation());
+                context.ReportDiagnostic(diagnostic);
+            }
+        }
+
+        private static bool IsMockVerifyAllInvocation(InvocationExpressionSyntax invocation, ISymbol variableNameSymbol, SemanticModel semanticModel)
+        {
+            if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
+            {
+                return false;
+            }
+
+            // We check if a "VerifyAll()" method is called (currently we don't know if it is on the Mock object, it can be on other object type)
+            // but we try to use this condition here to stop quickly the analysis.
+            if (!IsVerifyMethod(memberAccess.Name.Identifier.ValueText))
+            {
+                return false;
+            }
+
+            // Gets the variable name symbol.
+            var identifierSymbol = semanticModel.GetSymbolInfo(memberAccess.Expression);
+
+            // If the variable name of .VerifyAll() does not match the variable, so the VerifyAll() was for other Mock instance.
+            if (!SymbolEqualityComparer.Default.Equals(identifierSymbol.Symbol, variableNameSymbol))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsVerifyMethod(string name)
+        {
+            return name switch
+            {
+                "VerifyAll" => true,
+                "Verify" => true,
+                _ => false
+            };
+        }
+    }
+}

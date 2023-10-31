@@ -1,0 +1,287 @@
+﻿namespace PosInformatique.Moq.Analyzers.Tests
+{
+    using System.Threading.Tasks;
+    using Xunit;
+    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpCodeFixVerifier<
+        MockInstanceShouldBeStrictBehaviorAnalyzer,
+        SetBehaviorToStrictCodeFixProvider,
+        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+
+    public class SetBehaviorToStrictCodeFixProviderTest
+    {
+        [Fact]
+        public async Task Fix_Loose()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<I>(MockBehavior.[|Loose|]);
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }
+
+                namespace Moq
+                {
+                    public class Mock<T>
+                    {
+                        public Mock(MockBehavior _, params object[] args)
+                        {
+                        }
+
+                        public Mock(MockBehavior _)
+                        {
+                        }
+
+                        public Mock(params object[] args)
+                        {
+                        }
+
+                        public Mock()
+                        {
+                        }
+                    }
+
+                    public enum MockBehavior { Strict, Loose }
+                }";
+
+            var expectedFixedSource =
+            @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<I>(MockBehavior.Strict);
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }
+
+                namespace Moq
+                {
+                    public class Mock<T>
+                    {
+                        public Mock(MockBehavior _, params object[] args)
+                        {
+                        }
+
+                        public Mock(MockBehavior _)
+                        {
+                        }
+
+                        public Mock(params object[] args)
+                        {
+                        }
+
+                        public Mock()
+                        {
+                        }
+                    }
+
+                    public enum MockBehavior { Strict, Loose }
+                }";
+
+            await Verify.VerifyCodeFixAsync(source, expectedFixedSource);
+        }
+
+        [Fact]
+        public async Task Fix_MissingBehavior()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = [|new Mock<I>()|];
+                            var mock2 = [|new Mock<I> { }|];
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }
+
+                namespace Moq
+                {
+                    public class Mock<T>
+                    {
+                        public Mock(MockBehavior _, params object[] args)
+                        {
+                        }
+
+                        public Mock(MockBehavior _)
+                        {
+                        }
+
+                        public Mock(params object[] args)
+                        {
+                        }
+
+                        public Mock()
+                        {
+                        }
+                    }
+
+                    public enum MockBehavior { Strict, Loose }
+                }";
+
+            var expectedFixedSource =
+            @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>(MockBehavior.Strict);
+                            var mock2 = new Mock<I>(MockBehavior.Strict) { };
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }
+
+                namespace Moq
+                {
+                    public class Mock<T>
+                    {
+                        public Mock(MockBehavior _, params object[] args)
+                        {
+                        }
+
+                        public Mock(MockBehavior _)
+                        {
+                        }
+
+                        public Mock(params object[] args)
+                        {
+                        }
+
+                        public Mock()
+                        {
+                        }
+                    }
+
+                    public enum MockBehavior { Strict, Loose }
+                }";
+
+            await Verify.VerifyCodeFixAsync(source, expectedFixedSource);
+        }
+
+        [Fact]
+        public async Task Fix_MissingBehavior_WithArguments()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = [|new Mock<I>(1, 2, 3)|];
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }
+
+                namespace Moq
+                {
+                    public class Mock<T>
+                    {
+                        public Mock(MockBehavior _, params object[] args)
+                        {
+                        }
+
+                        public Mock(MockBehavior _)
+                        {
+                        }
+
+                        public Mock(params object[] args)
+                        {
+                        }
+
+                        public Mock()
+                        {
+                        }
+                    }
+
+                    public enum MockBehavior { Strict, Loose }
+                }";
+
+            var expectedFixedSource =
+            @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<I>(MockBehavior.Strict, 1, 2, 3);
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }
+
+                namespace Moq
+                {
+                    public class Mock<T>
+                    {
+                        public Mock(MockBehavior _, params object[] args)
+                        {
+                        }
+
+                        public Mock(MockBehavior _)
+                        {
+                        }
+
+                        public Mock(params object[] args)
+                        {
+                        }
+
+                        public Mock()
+                        {
+                        }
+                    }
+
+                    public enum MockBehavior { Strict, Loose }
+                }";
+
+            await Verify.VerifyCodeFixAsync(source, expectedFixedSource);
+        }
+    }
+}
