@@ -1,0 +1,54 @@
+parameters:
+- name: VersionPrefix
+  displayName: The version of the library
+  type: string
+  default: 1.0.0
+- name: VersionSuffix
+  displayName: The version suffix of the library (rc.1). Use a space ' ' if no suffix.
+  type: string
+  default: rc.1
+
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+- job: Build
+  displayName: Build the library
+  steps:
+    - task: PowerShell@2
+      name: UpdateBuildNumber
+      displayName: Update build number
+      inputs:
+        targetType: 'inline'
+        script: '
+          if ("${{parameters.VersionSuffix}}".Trim() -eq "")
+          {
+            Write-Host "##vso[build.updatebuildnumber]${{parameters.VersionPrefix}}"
+          }
+          else
+          {
+            Write-Host "##vso[build.updatebuildnumber]${{parameters.VersionPrefix}}-${{parameters.VersionSuffix}}"
+          }'
+
+    - task: DotNetCoreCLI@2
+      name: BuildLibrary
+      displayName: Build the library
+      inputs:
+        command: 'pack'
+        packagesToPack: 'src/Moq.Analyzers/Moq.Analyzers.csproj'
+        configuration: 'Release'
+        versioningScheme: 'off'
+        buildProperties: 'VersionPrefix=${{parameters.VersionPrefix}};VersionSuffix=${{parameters.VersionSuffix}}'
+        verbosityPack: 'Normal'
+
+    - task: NuGetCommand@2
+      name: PublishNuGetPackages
+      displayName: Publish to NuGet
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+        nuGetFeedType: 'external'
+        publishFeedCredentials: 'nuget.org'
