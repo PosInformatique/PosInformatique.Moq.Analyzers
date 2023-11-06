@@ -19,7 +19,7 @@
     <PackageReleaseNotes>
 	  1.1.0
 	  - Add new rules:
-        - Moq2000: The `Returns()` or `ReturnsAsync()` method must be called for Strict mocks
+        - Moq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks.
 
       1.0.0
       - Initial version with the followings rules:

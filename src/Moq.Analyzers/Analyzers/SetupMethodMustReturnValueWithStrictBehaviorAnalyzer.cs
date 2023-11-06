@@ -17,12 +17,12 @@ namespace PosInformatique.Moq.Analyzers
     {
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             "Moq2000",
-            "The Returns() or ReturnsAsync() method must be called for Strict mocks",
-            "The Returns() or ReturnsAsync() method must be called for Strict mocks",
+            "The Returns() or ReturnsAsync() methods must be call for Strict mocks",
+            "The Returns() or ReturnsAsync() methods must be call for Strict mocks",
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "The Returns() or ReturnsAsync() method must be called for Strict mocks.");
+            description: "The Returns() or ReturnsAsync() methods must be call for Strict mocks.");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

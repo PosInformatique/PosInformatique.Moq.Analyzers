@@ -36,4 +36,4 @@ Compilation rules check some error during the compilation to be sure that the ex
 
 | Rule | Description |
 | - | - |
-| [Moq2000: The `Returns()` or `ReturnsAsync()` method must be called for Strict mocks](docs/design/Moq2000.md) | When a `Mock<T>` has been defined with the `Strict` behavior, the `Returns()` or `ReturnsAsync()` method must be called when setup a method to mock which returns a value. |
+| [Moq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks](docs/design/Moq2000.md) | When a `Mock<T>` has been defined with the `Strict` behavior, the `Returns()` or `ReturnsAsync()` method must be called when setup a method to mock which returns a value. |
