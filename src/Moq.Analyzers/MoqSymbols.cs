@@ -46,8 +46,13 @@ namespace PosInformatique.Moq.Analyzers
             return new MoqSymbols(mockClass, mockBehaviorEnum);
         }
 
-        public bool IsMock(ITypeSymbol typeSymbol)
+        public bool IsMock(ISymbol symbol)
         {
+            if (symbol is not ITypeSymbol typeSymbol)
+            {
+                return false;
+            }
+
             if (SymbolEqualityComparer.Default.Equals(typeSymbol.OriginalDefinition, this.mockClass))
             {
                 return true;

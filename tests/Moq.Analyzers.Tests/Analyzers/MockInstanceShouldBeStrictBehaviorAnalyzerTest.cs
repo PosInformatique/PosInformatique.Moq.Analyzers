@@ -124,14 +124,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock() { }
-                    }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -156,14 +149,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock() { }
-                    }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -273,40 +259,6 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
 
                     public enum MockBehavior { Strict, Loose }
-                }";
-
-            await Verify.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoBehaviorStrict_InMoq()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(MockBehavior.Loose);
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _) { }
-                    }
-
-                    public enum MockBehavior { Loose }
                 }";
 
             await Verify.VerifyAnalyzerAsync(source);

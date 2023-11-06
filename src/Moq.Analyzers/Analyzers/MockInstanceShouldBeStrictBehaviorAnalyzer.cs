@@ -40,8 +40,15 @@ namespace PosInformatique.Moq.Analyzers
         {
             var objectCreation = (ObjectCreationExpressionSyntax)context.Node;
 
+            var moqSymbols = MoqSymbols.FromCompilation(context.Compilation);
+
+            if (moqSymbols is null)
+            {
+                return;
+            }
+
             // Check there is "new Mock<I>()" statement.
-            if (!MockExpressionHelper.IsMockCreation(objectCreation))
+            if (!MockExpressionHelper.IsMockCreation(moqSymbols, context.SemanticModel, objectCreation))
             {
                 return;
             }

@@ -11,14 +11,11 @@ namespace PosInformatique.Moq.Analyzers
 
     internal static class MockExpressionHelper
     {
-        public static bool IsMockCreation(ObjectCreationExpressionSyntax expression)
+        public static bool IsMockCreation(MoqSymbols moqSymbols, SemanticModel semanticModel, ObjectCreationExpressionSyntax expression)
         {
-            if (expression.Type is not GenericNameSyntax genericName)
-            {
-                return false;
-            }
+            var symbolInfo = semanticModel.GetSymbolInfo(expression.Type);
 
-            if (genericName.Identifier.ValueText != "Mock")
+            if (!moqSymbols.IsMock(symbolInfo.Symbol))
             {
                 return false;
             }
@@ -70,7 +67,7 @@ namespace PosInformatique.Moq.Analyzers
         {
             foreach (var block in localVariableExpression.Ancestors().OfType<BlockSyntax>())
             {
-                var mockCreation = FindMockCreation(block);
+                var mockCreation = FindMockCreation(moqSymbols, semanticModel, block);
 
                 if (mockCreation is not null)
                 {
@@ -147,13 +144,13 @@ namespace PosInformatique.Moq.Analyzers
             return methodSymbol.ReturnType;
         }
 
-        private static ObjectCreationExpressionSyntax FindMockCreation(BlockSyntax block)
+        private static ObjectCreationExpressionSyntax FindMockCreation(MoqSymbols moqSymbols, SemanticModel semanticModel, BlockSyntax block)
         {
             foreach (var statement in block.Statements)
             {
                 foreach (var objectCreationExpressionSyntax in statement.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
                 {
-                    if (IsMockCreation(objectCreationExpressionSyntax))
+                    if (IsMockCreation(moqSymbols, semanticModel, objectCreationExpressionSyntax))
                     {
                         return objectCreationExpressionSyntax;
                     }

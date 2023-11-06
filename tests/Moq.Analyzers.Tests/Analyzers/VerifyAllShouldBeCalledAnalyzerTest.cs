@@ -48,16 +48,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public void VerifyAll() { }
-                        public void Verify(int a, int b) { }
-                        public object Property { get; set; }
-                    }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -78,8 +69,6 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock2 = [|new Mock<I>()|];
 
                             new Mock<I>();  // No variable (ignored)
-
-                            mock1.Property = 1234;  // Property access are ignored.
                         }
                     }
 
@@ -87,14 +76,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public object Property { get; set; }
-                    }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -120,16 +102,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(params object[] args)
-                        {
-                        }
-                    }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -148,7 +121,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             o.ToString();
                         }
                     }
-                }";
+                }
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -175,7 +149,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public class Generic<T>
                     {
                     }
-                }";
+                }
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -197,14 +172,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public object Property { get; set; }
-                    }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }

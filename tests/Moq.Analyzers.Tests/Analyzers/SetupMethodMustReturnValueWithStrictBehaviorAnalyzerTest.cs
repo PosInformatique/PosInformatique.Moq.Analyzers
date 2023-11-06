@@ -14,36 +14,6 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
     public class SetupMethodMustReturnValueWithStrictBehaviorAnalyzerTest
     {
-        private static readonly string MoqLibraryCode = @"
-            namespace Moq
-            {
-                using System;
-
-                public class Mock<T>
-                {
-                    public Mock(MockBehavior _ = MockBehavior.Loose, params object[] args) { }
-
-                    public Mock(params object[] args) { }
-
-                    public ISetup Setup(Action<T> act) { return null; }
-
-                    public void Verify() { }
-                }
-
-                public enum MockBehavior { Strict, Loose }
-
-                public interface ISetup
-                {
-                    ISetup Callback();
-
-                    ISetup Returns();
-
-                    ISetup ReturnsAsync();
-
-                    ISetup Property { get; }
-                }
-            }";
-
         [Fact]
         public async Task Returns_NoDiagnosticReported()
         {
@@ -86,7 +56,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         int TestMethod();
                     }
                 }
-                " + MoqLibraryCode;
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -116,7 +86,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
                 }
                 "
-                + MoqLibraryCode;
+                + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -152,7 +122,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public enum OtherEnum { A, B }
                 }
-                " + MoqLibraryCode;
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -186,7 +156,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         void TestMethod();
                     }
                 }
-                " + MoqLibraryCode;
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -220,7 +190,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         int Property { get; set; }
                     }
                 }
-                " + MoqLibraryCode;
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -246,7 +216,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-                " + MoqLibraryCode;
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
