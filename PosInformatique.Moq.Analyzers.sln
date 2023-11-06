@@ -31,7 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DC2CDF77
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3C20D95F-AB5F-44EC-8FB6-CB9827B7FD63}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "design", "design", "{815BE8D0-C7D5-4B4E-82E0-DE29C11F258E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design", "Design", "{815BE8D0-C7D5-4B4E-82E0-DE29C11F258E}"
 	ProjectSection(SolutionItems) = preProject
 		docs\design\Moq1000.md = docs\design\Moq1000.md
 		docs\design\Moq1001.md = docs\design\Moq1001.md
