@@ -62,6 +62,47 @@ namespace PosInformatique.Moq.Analyzers.Tests
         }
 
         [Fact]
+        public async Task NoReturns_WithBlocksAndMixedBeahviors_DiagnosticReported()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+                    using System;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<I>();
+
+                            var mock1 = new Mock<I>(MockBehavior.Strict);
+                            var mock2 = new Mock<I>(MockBehavior.Strict);
+                            {
+                                {
+                                    [|mock1.Setup(i => i.TestMethod())|]
+                                        .Callback()
+                                        .Callback();
+                                }
+                            }
+
+                            [|mock2.Setup(i => i.TestMethod())|]
+                                .Callback()
+                                .Callback();
+                        }
+                    }
+
+                    public interface I
+                    {
+                        int TestMethod();
+                    }
+                }
+                " + MoqLibrary.Code;
+
+            await Verify.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
         public async Task NoReturns_StrictMode_DiagnosticReported()
         {
             var source = @"

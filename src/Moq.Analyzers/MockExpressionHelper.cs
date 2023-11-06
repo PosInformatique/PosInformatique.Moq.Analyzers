@@ -65,9 +65,11 @@ namespace PosInformatique.Moq.Analyzers
 
         public static bool IsStrictBehavior(MoqSymbols moqSymbols, SemanticModel semanticModel, IdentifierNameSyntax localVariableExpression)
         {
+            // Go back to the parents nodes and iterate all the statements in the parents blocks to find
+            // the Mock instantiation.
             foreach (var block in localVariableExpression.Ancestors().OfType<BlockSyntax>())
             {
-                var mockCreation = FindMockCreation(moqSymbols, semanticModel, block);
+                var mockCreation = FindMockCreation(block, localVariableExpression.Identifier.ValueText);
 
                 if (mockCreation is not null)
                 {
@@ -144,16 +146,23 @@ namespace PosInformatique.Moq.Analyzers
             return methodSymbol.ReturnType;
         }
 
-        private static ObjectCreationExpressionSyntax FindMockCreation(MoqSymbols moqSymbols, SemanticModel semanticModel, BlockSyntax block)
+        private static ObjectCreationExpressionSyntax FindMockCreation(BlockSyntax block, string variableName)
         {
-            foreach (var statement in block.Statements)
+            foreach (var statement in block.Statements.OfType<LocalDeclarationStatementSyntax>())
             {
-                foreach (var objectCreationExpressionSyntax in statement.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
+                foreach (var variable in statement.Declaration.Variables)
                 {
-                    if (IsMockCreation(moqSymbols, semanticModel, objectCreationExpressionSyntax))
+                    if (variable.Identifier.Text != variableName)
                     {
-                        return objectCreationExpressionSyntax;
+                        continue;
                     }
+
+                    if (variable.Initializer.Value is not ObjectCreationExpressionSyntax objectCreationExpressionSyntax)
+                    {
+                        continue;
+                    }
+
+                    return objectCreationExpressionSyntax;
                 }
             }
 

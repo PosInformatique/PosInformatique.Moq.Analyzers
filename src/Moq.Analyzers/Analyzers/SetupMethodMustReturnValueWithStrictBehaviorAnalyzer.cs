@@ -40,6 +40,11 @@ namespace PosInformatique.Moq.Analyzers
 
             var moqSymbols = MoqSymbols.FromCompilation(context.Compilation);
 
+            if (moqSymbols is null)
+            {
+                return;
+            }
+
             // Check is Setup() method.
             if (!MockExpressionHelper.IsMockSetupMethod(moqSymbols, context.SemanticModel, invocationExpression, out var localVariableExpression))
             {
