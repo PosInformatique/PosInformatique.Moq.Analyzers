@@ -26,14 +26,15 @@ Design rules used to make your unit tests more strongly strict.
 
 | Rule | Description |
 | - | - |
-| [Moq1000: `Verify()` and `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances](docs/design/Moq1000.md) | When instantiating a `Mock<T>` in the *Arrange* phase of an unit test, `Verify()` or `VerifyAll()` method should be called in the *Assert* phase to check the setup methods has been called. |
-| [Moq1001: The `Mock<T>` instance behavior should be defined to Strict mode](docs/design/Moq1001.md) | When instantiating a `Mock<T>` instance, the `MockBehavior` of the `Mock` instance should be defined to `Strict`. |
+| [PosInfoMoq1000: `Verify()` and `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances](docs/Design/PosInfoMoq1000.md) | When instantiating a `Mock<T>` in the *Arrange* phase of an unit test, `Verify()` or `VerifyAll()` method should be called in the *Assert* phase to check the setup methods has been called. |
+| [PosInfoMoq1001: The `Mock<T>` instance behavior should be defined to Strict mode](docs/Design/PosInfoMoq1001.md) | When instantiating a `Mock<T>` instance, the `MockBehavior` of the `Mock` instance should be defined to `Strict`. |
 
 
 ### Compilation
 
 Compilation rules check some error during the compilation to be sure that the execution of the unit tests with `Mock<T>` will not raise exceptions.
+All the rules of this category should not be disabled (or changed their severity differently of **Error**).
 
 | Rule | Description |
 | - | - |
-| [Moq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks](docs/design/Moq2000.md) | When a `Mock<T>` has been defined with the `Strict` behavior, the `Returns()` or `ReturnsAsync()` method must be called when setup a method to mock which returns a value. |
+| [PosInfoMoq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks](docs/Compilation/PosInfoMoq2000.md) | When a `Mock<T>` has been defined with the `Strict` behavior, the `Returns()` or `ReturnsAsync()` method must be called when setup a method to mock which returns a value. |

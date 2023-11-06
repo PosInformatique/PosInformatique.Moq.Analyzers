@@ -19,12 +19,12 @@
     <PackageReleaseNotes>
 	  1.1.0
 	  - Add new rules:
-        - Moq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks.
+        - PosInfoMoq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks.
 
       1.0.0
       - Initial version with the followings rules:
-        - Moq1000: Verify() and VerifyAll() methods should be called when instantiate a Mock&lt;T&gt; instances
-        - Moq1001: The Mock&lt;T&gt; instance behavior should be defined to Strict mode.
+        - PosInfoMoq1000: Verify() and VerifyAll() methods should be called when instantiate a Mock&lt;T&gt; instances
+        - PosInfoMoq1001: The Mock&lt;T&gt; instance behavior should be defined to Strict mode.
     </PackageReleaseNotes>
     <PackageTags>moq analyzers unittest c# roselyn compiler source code mock</PackageTags>
 

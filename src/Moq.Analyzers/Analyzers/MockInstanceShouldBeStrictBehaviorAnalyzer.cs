@@ -15,7 +15,7 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class MockInstanceShouldBeStrictBehaviorAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "Moq1001";
+        public const string DiagnosticId = "PosInfoMoq1001";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             DiagnosticId,

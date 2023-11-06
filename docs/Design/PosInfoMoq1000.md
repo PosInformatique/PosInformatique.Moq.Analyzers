@@ -1,8 +1,8 @@
-# Moq1000: `Verify()` and `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances
+# PosInfoMoq1000: `Verify()` and `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances
 
 | Property                            | Value                                                                                      |
 |-------------------------------------|--------------------------------------------------------------------------------------------|
-| **Rule ID**                         | Moq1000                                                                                     |
+| **Rule ID**                         | PosInfoMoq1000                                                                                     |
 | **Title**                           | `Verify()` and `VerifyAll()` methods should be called when instantiate a Mock<T> instances |
 | **Category**                        | Design																				       |
 | **Default severity**				  | Warning																				       |

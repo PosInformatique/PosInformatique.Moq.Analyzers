@@ -1,8 +1,8 @@
-# Moq1001: The `Mock<T>` instance behavior should be defined to Strict mode
+# PosInfoMoq1001: The `Mock<T>` instance behavior should be defined to Strict mode
 
 | Property                            | Value                                                            |
 |-------------------------------------|------------------------------------------------------------------|
-| **Rule ID**                         | Moq1001                                                           |
+| **Rule ID**                         | PosInfoMoq1001                                                           |
 | **Title**                           | The `Mock<T>` instance behavior should be defined to Strict mode |
 | **Category**                        | Design															 |
 | **Default severity**				  | Warning															 |

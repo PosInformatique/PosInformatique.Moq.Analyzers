@@ -33,13 +33,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3C20D95F-A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design", "Design", "{815BE8D0-C7D5-4B4E-82E0-DE29C11F258E}"
 	ProjectSection(SolutionItems) = preProject
-		docs\design\Moq1000.md = docs\design\Moq1000.md
-		docs\design\Moq1001.md = docs\design\Moq1001.md
+		docs\design\PosInfoMoq1001.md = docs\design\PosInfoMoq1001.md
+		docs\design\PosInfoMoq1000.md = docs\design\PosInfoMoq1000.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Compilation", "Compilation", "{D9C84D36-7F9C-4EFB-BE6F-9F7A05FE957D}"
 	ProjectSection(SolutionItems) = preProject
-		docs\Compilation\Moq2000.md = docs\Compilation\Moq2000.md
+		docs\Compilation\PosInfoMoq2000.md = docs\Compilation\PosInfoMoq2000.md
 	EndProjectSection
 EndProject
 Global
