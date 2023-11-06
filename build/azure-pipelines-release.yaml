@@ -2,7 +2,7 @@ parameters:
 - name: VersionPrefix
   displayName: The version of the library
   type: string
-  default: 1.0.0
+  default: 1.1.0
 - name: VersionSuffix
   displayName: The version suffix of the library (rc.1). Use a space ' ' if no suffix.
   type: string
