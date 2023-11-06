@@ -261,5 +261,39 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
             await Verify.VerifyAnalyzerAsync(source);
         }
+
+        [Fact]
+        public async Task NoMoqLibrary()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using OtherNamespace;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>(MockBehavior.Strict);
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }
+
+                namespace OtherNamespace
+                {
+                    public class Mock<T>
+                    {
+                        public Mock(MockBehavior _) { }
+                    }
+
+                    public enum MockBehavior { Strict, Loose }
+                }";
+
+            await Verify.VerifyAnalyzerAsync(source);
+        }
     }
 }

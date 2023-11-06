@@ -48,12 +48,7 @@ namespace PosInformatique.Moq.Analyzers
 
         public bool IsMock(ISymbol symbol)
         {
-            if (symbol is not ITypeSymbol typeSymbol)
-            {
-                return false;
-            }
-
-            if (SymbolEqualityComparer.Default.Equals(typeSymbol.OriginalDefinition, this.mockClass))
+            if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.mockClass))
             {
                 return true;
             }
@@ -63,12 +58,7 @@ namespace PosInformatique.Moq.Analyzers
 
         public bool IsSetupMethod(ISymbol symbol)
         {
-            if (symbol is not IMethodSymbol methodSymbol)
-            {
-                return false;
-            }
-
-            var originalDefinition = methodSymbol.OriginalDefinition;
+            var originalDefinition = symbol.OriginalDefinition;
 
             foreach (var setupMethod in this.setupMethods)
             {

@@ -63,55 +63,65 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
+        public static bool IsStrictBehavior(MoqSymbols moqSymbols, SemanticModel semanticModel, ObjectCreationExpressionSyntax mockCreationExpression)
+        {
+            // Check that the "new Mock<I>()" statement have at least one argument (else Strict is missing...).
+            if (mockCreationExpression.ArgumentList is null)
+            {
+                return false;
+            }
+
+            var firstArgument = mockCreationExpression.ArgumentList.Arguments.FirstOrDefault();
+
+            if (firstArgument is null)
+            {
+                return false;
+            }
+
+            // Gets the first argument of "new Mock<I>(...)" and ensures it is a MemberAccessExpressionSyntax
+            // (because we searching for MockBehavior.Strict).
+            if (firstArgument.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
+            {
+                return false;
+            }
+
+            // Check that the "memberAccessExpression.Expression" is applied on the Moq MockBehavior type.
+            var firstArgumentType = semanticModel.GetSymbolInfo(memberAccessExpression.Expression);
+
+            if (!moqSymbols.IsMockBehaviorEnum(firstArgumentType.Symbol))
+            {
+                return false;
+            }
+
+            // Check that the memberAccessExpression.Name reference the Strict field
+            var firstArgumentField = semanticModel.GetSymbolInfo(memberAccessExpression.Name);
+
+            if (!moqSymbols.IsMockBehaviorStrictField(firstArgumentField.Symbol))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public static bool IsStrictBehavior(MoqSymbols moqSymbols, SemanticModel semanticModel, IdentifierNameSyntax localVariableExpression)
         {
             // Go back to the parents nodes and iterate all the statements in the parents blocks to find
-            // the Mock instantiation.
+            // the Mock instantiation (new Mock<I>(...) to determines the mock behavior.
             foreach (var block in localVariableExpression.Ancestors().OfType<BlockSyntax>())
             {
                 var mockCreation = FindMockCreation(block, localVariableExpression.Identifier.ValueText);
 
                 if (mockCreation is not null)
                 {
-                    // Check that the "new Mock<I>()" statement have at least one argument (else Strict is missing...).
-                    if (mockCreation.ArgumentList is null)
+                    if (IsStrictBehavior(moqSymbols, semanticModel, mockCreation))
                     {
-                        return false;
-                    }
-
-                    var firstArgument = mockCreation.ArgumentList.Arguments.FirstOrDefault();
-
-                    if (firstArgument is null)
-                    {
-                        return false;
-                    }
-
-                    // Gets the first argument of "new Mock<I>(...)" and ensures it is a MemberAccessExpressionSyntax
-                    // (because we searching for MockBehavior.Strict).
-                    if (firstArgument.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
-                    {
-                        return false;
-                    }
-
-                    // Check that the "memberAccessExpression.Expression" is applied on the Moq MockBehavior type.
-                    var firstArgumentType = semanticModel.GetSymbolInfo(memberAccessExpression.Expression);
-
-                    if (!moqSymbols.IsMockBehaviorEnum(firstArgumentType.Symbol))
-                    {
-                        return false;
-                    }
-
-                    // Check that the memberAccessExpression.Name reference the Strict field
-                    var firstArgumentField = semanticModel.GetSymbolInfo(memberAccessExpression.Name);
-
-                    if (!moqSymbols.IsMockBehaviorStrictField(firstArgumentField.Symbol))
-                    {
-                        return false;
+                        return true;
                     }
                 }
             }
 
-            return true;
+            return false;
         }
 
         public static ITypeSymbol? GetSetupMethodReturnSymbol(MoqSymbols moqSymbols, SemanticModel semanticModel, InvocationExpressionSyntax setupInvocationExpression)
