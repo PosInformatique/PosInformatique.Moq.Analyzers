@@ -61,6 +61,11 @@ namespace PosInformatique.Moq.Analyzers
 
             var variableNameModel = context.SemanticModel.GetDeclaredSymbol(variableName);
 
+            if (variableNameModel is null)
+            {
+                return;
+            }
+
             // Check if there is a VerifyAll() invocation in the method's parent block.
             var parentMethod = objectCreation.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
 

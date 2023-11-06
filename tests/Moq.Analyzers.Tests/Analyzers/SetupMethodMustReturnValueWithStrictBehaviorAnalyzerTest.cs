@@ -43,6 +43,19 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                             var mock3 = new Mock<I>(MockBehavior.Strict);
 
+                            // This scenario is not supported because the declaration is separated of the initialization.
+                            // So here, no error should be raised (Missing Returns() with Strict behavior).
+                            Mock<I> mock4;
+                            mock4 = new Mock<I>(MockBehavior.Strict);
+                            mock4.Setup(i => i.TestMethod())
+                                .Callback();
+
+                            // This scenario is not supported because the declaration is separated of the initialization.
+                            // So here, no error should be raised (Missing Returns() with Strict behavior).
+                            Mock<I> mock5 = mock1;
+                            mock5.Setup(i => i.TestMethod())
+                                .Callback();
+
                             var obj = new object();     // Ignored because not a Mock<T>
                             obj.ToString();
 

@@ -23,7 +23,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public static bool IsMockSetupMethod(MoqSymbols moqSymbols, SemanticModel semanticModel, InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax localVariableExpression)
+        public static bool IsMockSetupMethod(MoqSymbols moqSymbols, SemanticModel semanticModel, InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression)
         {
             localVariableExpression = null;
 
@@ -156,13 +156,18 @@ namespace PosInformatique.Moq.Analyzers
             return methodSymbol.ReturnType;
         }
 
-        private static ObjectCreationExpressionSyntax FindMockCreation(BlockSyntax block, string variableName)
+        private static ObjectCreationExpressionSyntax? FindMockCreation(BlockSyntax block, string variableName)
         {
             foreach (var statement in block.Statements.OfType<LocalDeclarationStatementSyntax>())
             {
                 foreach (var variable in statement.Declaration.Variables)
                 {
                     if (variable.Identifier.Text != variableName)
+                    {
+                        continue;
+                    }
+
+                    if (variable.Initializer is null)
                     {
                         continue;
                     }

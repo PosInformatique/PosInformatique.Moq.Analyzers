@@ -46,18 +46,28 @@ namespace PosInformatique.Moq.Analyzers
             return new MoqSymbols(mockClass, mockBehaviorEnum);
         }
 
-        public bool IsMock(ISymbol symbol)
+        public bool IsMock(ISymbol? symbol)
         {
-            if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.mockClass))
+            if (symbol is null)
             {
-                return true;
+                return false;
             }
 
-            return false;
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.mockClass))
+            {
+                return false;
+            }
+
+            return true;
         }
 
-        public bool IsSetupMethod(ISymbol symbol)
+        public bool IsSetupMethod(ISymbol? symbol)
         {
+            if (symbol is null)
+            {
+                return false;
+            }
+
             var originalDefinition = symbol.OriginalDefinition;
 
             foreach (var setupMethod in this.setupMethods)
@@ -71,8 +81,13 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
-        public bool IsReturnsMethod(ISymbol symbol)
+        public bool IsReturnsMethod(ISymbol? symbol)
         {
+            if (symbol is null)
+            {
+                return false;
+            }
+
             if (symbol.Name != "Returns")
             {
                 return false;
@@ -81,8 +96,13 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsReturnsAsyncMethod(ISymbol symbol)
+        public bool IsReturnsAsyncMethod(ISymbol? symbol)
         {
+            if (symbol is null)
+            {
+                return false;
+            }
+
             if (symbol.Name != "ReturnsAsync")
             {
                 return false;
@@ -91,8 +111,13 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsMockBehaviorEnum(ISymbol symbol)
+        public bool IsMockBehaviorEnum(ISymbol? symbol)
         {
+            if (symbol is null)
+            {
+                return false;
+            }
+
             if (!SymbolEqualityComparer.Default.Equals(symbol, this.mockBehaviorEnum))
             {
                 return false;
@@ -101,8 +126,13 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsMockBehaviorStrictField(ISymbol symbol)
+        public bool IsMockBehaviorStrictField(ISymbol? symbol)
         {
+            if (symbol is null)
+            {
+                return false;
+            }
+
             if (!SymbolEqualityComparer.Default.Equals(symbol, this.mockBehaviorStrictField))
             {
                 return false;

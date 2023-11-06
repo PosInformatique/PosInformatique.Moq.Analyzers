@@ -64,7 +64,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check the behavior of the mock instance is Strict.
-            if (!MockExpressionHelper.IsStrictBehavior(moqSymbols, context.SemanticModel, localVariableExpression))
+            if (!MockExpressionHelper.IsStrictBehavior(moqSymbols, context.SemanticModel, localVariableExpression!))
             {
                 return;
             }
