@@ -16,8 +16,8 @@
     <PackageReleaseNotes>
       1.0.0
       - Initial version with the followings rules:
-        - MQ1000: Verify() and VerifyAll() methods should be called when instantiate a Mock&lt;T&gt; instances
-        - MQ1001: The Mock&lt;T&gt; instance behavior should be defined to Strict mode.
+        - Moq1000: Verify() and VerifyAll() methods should be called when instantiate a Mock&lt;T&gt; instances
+        - Moq1001: The Mock&lt;T&gt; instance behavior should be defined to Strict mode.
     </PackageReleaseNotes>
     <PackageTags>moq analyzers unittest c# roselyn compiler source code mock</PackageTags>
 

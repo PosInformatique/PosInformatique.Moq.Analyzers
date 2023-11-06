@@ -16,7 +16,7 @@ namespace PosInformatique.Moq.Analyzers
     public class SetupMethodMustReturnValueWithStrictBehaviorAnalyzer : DiagnosticAnalyzer
     {
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
-            "MQ2000",
+            "Moq2000",
             "The Returns() or ReturnsAsync() method must be called for Strict mocks",
             "The Returns() or ReturnsAsync() method must be called for Strict mocks",
             "Compilation",
