@@ -33,12 +33,24 @@ namespace PosInformatique.Moq.Analyzers
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
+            if (root is null)
+            {
+                return;
+            }
+
             // Gets the location where is the issue in the code.
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             // Find the "ObjectCreationExpressionSyntax" in the parent of the location where is located the issue in the code.
-            var mockCreationExpression = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<ObjectCreationExpressionSyntax>().First();
+            var parent = root.FindToken(diagnosticSpan.Start).Parent;
+
+            if (parent is null)
+            {
+                return;
+            }
+
+            var mockCreationExpression = parent.AncestorsAndSelf().OfType<ObjectCreationExpressionSyntax>().First();
 
             // Register a code to fix the enumeration.
             context.RegisterCodeFix(
@@ -83,6 +95,12 @@ namespace PosInformatique.Moq.Analyzers
                 SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments)));
 
             var oldRoot = await document.GetSyntaxRootAsync(cancellationToken);
+
+            if (oldRoot is null)
+            {
+                return document;
+            }
+
             var newRoot = oldRoot.ReplaceNode(oldMockCreationExpression, newMockCreationExpression);
 
             return document.WithSyntaxRoot(newRoot);

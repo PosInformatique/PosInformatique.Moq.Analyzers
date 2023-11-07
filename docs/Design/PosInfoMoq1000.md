@@ -1,8 +1,8 @@
-# MQ1000: `Verify()` and `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances
+# PosInfoMoq1000: `Verify()` and `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances
 
 | Property                            | Value                                                                                      |
 |-------------------------------------|--------------------------------------------------------------------------------------------|
-| **Rule ID**                         | MQ1000                                                                                     |
+| **Rule ID**                         | PosInfoMoq1000                                                                                     |
 | **Title**                           | `Verify()` and `VerifyAll()` methods should be called when instantiate a Mock<T> instances |
 | **Category**                        | Design																				       |
 | **Default severity**				  | Warning																				       |
@@ -30,7 +30,7 @@ public void GetCustomer_ShouldCallRepository()
 	// Act
 	service.SendMail("Gilles");
 
-	// Arrange
+	// Assert
 	smtpService.VerifyAll();	// The VerifyAll() will check that the mocked ISmtpService.SendMail() has been called.
 }
 ```
@@ -42,4 +42,4 @@ on the `Mock<T>` instances created during the *Arrange* phase.
 
 ## When to suppress warnings
 
-Do not suppress a warning from this rule. Normally all setup methods must be called.
+Do not suppress a warning from this rule. Normally all setup methods must be call.

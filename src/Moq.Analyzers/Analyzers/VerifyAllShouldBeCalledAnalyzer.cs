@@ -16,7 +16,7 @@ namespace PosInformatique.Moq.Analyzers
     public class VerifyAllShouldBeCalledAnalyzer : DiagnosticAnalyzer
     {
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
-            "MQ1000",
+            "PosInfoMoq1000",
             "Verify() and VerifyAll() methods should be called when instantiate a Mock<T> instances",
             "The Verify() or VerifyAll() method should be called at the end of the unit test",
             "Design",
@@ -38,7 +38,14 @@ namespace PosInformatique.Moq.Analyzers
         {
             var objectCreation = (ObjectCreationExpressionSyntax)context.Node;
 
-            if (!MockExpressionHelper.IsMockCreation(objectCreation))
+            var moqSymbols = MoqSymbols.FromCompilation(context.Compilation);
+
+            if (moqSymbols is null)
+            {
+                return;
+            }
+
+            if (!MockExpressionHelper.IsMockCreation(moqSymbols, context.SemanticModel, objectCreation))
             {
                 return;
             }
@@ -53,6 +60,11 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             var variableNameModel = context.SemanticModel.GetDeclaredSymbol(variableName);
+
+            if (variableNameModel is null)
+            {
+                return;
+            }
 
             // Check if there is a VerifyAll() invocation in the method's parent block.
             var parentMethod = objectCreation.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();

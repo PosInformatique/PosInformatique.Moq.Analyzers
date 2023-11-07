@@ -27,7 +27,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock = new Mock<I>(MockBehavior.[|Loose|]);
+                            var mock = [|new Mock<I>(MockBehavior.Loose)|];
                         }
                     }
 
@@ -212,9 +212,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = [|new Mock<I>(1, 2, 3)|];
-                            var mock2 = new Mock<I>(MockBehavior.[|Loose|], 1, 2, 3);
-                            var mock3 = new Mock<I>([|OtherEnum.A|], 1, 2, 3);
-                            var mock4 = new Mock<I>([|int.MaxValue|], 1, 2, 3);
+                            var mock2 = [|new Mock<I>(MockBehavior.Loose, 1, 2, 3)|];
+                            var mock3 = [|new Mock<I>(OtherEnum.A, 1, 2, 3)|];
+                            var mock4 = [|new Mock<I>(int.MaxValue, 1, 2, 3)|];
                         }
                     }
 
