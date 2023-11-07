@@ -188,6 +188,11 @@ namespace PosInformatique.Moq.Analyzers
                 return true;
             }
 
+            if (method.IsOverride)
+            {
+                return true;
+            }
+
             return false;
         }
     }

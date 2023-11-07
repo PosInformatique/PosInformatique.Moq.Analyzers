@@ -40,6 +40,18 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock3.Setup(i => i.VirtualProperty);
                             mock3.Setup(i => i.AbstractMethod());
                             mock3.Setup(i => i.AbstractProperty);
+
+                            var mock4 = new Mock<InheritedFromAbstractClass>();
+                            mock4.Setup(i => i.VirtualMethod());
+                            mock4.Setup(i => i.VirtualProperty);
+                            mock4.Setup(i => i.AbstractMethod());
+                            mock4.Setup(i => i.AbstractProperty);
+
+                            var mock5 = new Mock<InheritedFromAbstractClassDontOverrideVirtual>();
+                            mock5.Setup(i => i.VirtualMethod());
+                            mock5.Setup(i => i.VirtualProperty);
+                            mock5.Setup(i => i.AbstractMethod());
+                            mock5.Setup(i => i.AbstractProperty);
                         }
                     }
 
@@ -66,6 +78,24 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public abstract void AbstractMethod();
 
                         public abstract string AbstractProperty { get; }
+                    }
+
+                    public class InheritedFromAbstractClass : AbstractClass
+                    {
+                        public override void AbstractMethod() { }
+
+                        public override string AbstractProperty => null;
+
+                        public override void VirtualMethod() { }
+
+                        public override string VirtualProperty => null;
+                    }
+
+                    public class InheritedFromAbstractClassDontOverrideVirtual : AbstractClass
+                    {
+                        public override void AbstractMethod() { }
+
+                        public override string AbstractProperty => null;
                     }
                 }
                 " + MoqLibrary.Code;
