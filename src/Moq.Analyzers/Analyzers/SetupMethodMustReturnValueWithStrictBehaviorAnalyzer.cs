@@ -51,7 +51,7 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            // Check the mocked method return type.
+            // Check the mocked method return type (if "void", we skip the analysis, because no Returns() is required).
             var mockedMethodReturnTypeSymbol = MockExpressionHelper.GetSetupMethodReturnSymbol(moqSymbols, context.SemanticModel, invocationExpression);
             if (mockedMethodReturnTypeSymbol is null)
             {
@@ -69,14 +69,29 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            // Check there Returns() method for the following calls.
+            // Check there Returns() method for the following calls (or Throws()).
             var followingMethods = invocationExpression.Ancestors().OfType<InvocationExpressionSyntax>();
 
             foreach (var followingMethod in followingMethods)
             {
                 var methodSymbol = context.SemanticModel.GetSymbolInfo(followingMethod);
 
-                if (moqSymbols.IsReturnsMethod(methodSymbol.Symbol) || moqSymbols.IsReturnsAsyncMethod(methodSymbol.Symbol))
+                if (moqSymbols.IsReturnsMethod(methodSymbol.Symbol))
+                {
+                    return;
+                }
+
+                if (moqSymbols.IsReturnsAsyncMethod(methodSymbol.Symbol))
+                {
+                    return;
+                }
+
+                if (moqSymbols.IsThrowsMethod(methodSymbol.Symbol))
+                {
+                    return;
+                }
+
+                if (moqSymbols.IsThrowsAsyncMethod(methodSymbol.Symbol))
                 {
                     return;
                 }

@@ -36,11 +36,15 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 {
                     ISetup Callback();
 
+                    ISetup Property { get; }
+
                     ISetup Returns();
 
                     ISetup ReturnsAsync();
 
-                    ISetup Property { get; }
+                    ISetup Throws();
+
+                    ISetup ThrowsAsync();
                 }
             }";
     }

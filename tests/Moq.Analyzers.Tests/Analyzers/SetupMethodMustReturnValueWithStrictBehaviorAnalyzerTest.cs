@@ -56,6 +56,16 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock5.Setup(i => i.TestMethod())
                                 .Callback();
 
+                            Mock<I> mock6 = new Mock<I>(MockBehavior.Strict);
+                            mock6.Setup(i => i.TestMethod())
+                                .Callback()
+                                .Throws();
+
+                            Mock<I> mock7 = new Mock<I>(MockBehavior.Strict);
+                            mock7.Setup(i => i.TestMethod())
+                                .Callback()
+                                .ThrowsAsync();
+
                             var obj = new object();     // Ignored because not a Mock<T>
                             obj.ToString();
 

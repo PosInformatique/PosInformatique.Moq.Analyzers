@@ -111,6 +111,36 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
+        public bool IsThrowsMethod(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            if (symbol.Name != "Throws")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsThrowsAsyncMethod(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            if (symbol.Name != "ThrowsAsync")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public bool IsMockBehaviorEnum(ISymbol? symbol)
         {
             if (symbol is null)
