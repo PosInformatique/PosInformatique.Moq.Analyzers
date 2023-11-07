@@ -6,7 +6,6 @@
 
 namespace PosInformatique.Moq.Analyzers
 {
-    using System;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -21,14 +20,38 @@ namespace PosInformatique.Moq.Analyzers
 
         public bool IsMockCreation(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression)
         {
-            var symbolInfo = this.semanticModel.GetSymbolInfo(expression.Type);
-
-            if (!moqSymbols.IsMock(symbolInfo.Symbol))
+            if (this.GetMockedType(moqSymbols, expression, out var _) is null)
             {
                 return false;
             }
 
             return true;
+        }
+
+        public ITypeSymbol? GetMockedType(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression, out TypeSyntax? typeExpression)
+        {
+            typeExpression = null;
+
+            var symbolInfo = this.semanticModel.GetSymbolInfo(expression.Type);
+
+            if (symbolInfo.Symbol is not INamedTypeSymbol typeSymbol)
+            {
+                return null;
+            }
+
+            if (!moqSymbols.IsMock(typeSymbol))
+            {
+                return null;
+            }
+
+            if (typeSymbol.TypeArguments.Length != 1)
+            {
+                return null;
+            }
+
+            typeExpression = ((GenericNameSyntax)expression.Type).TypeArgumentList.Arguments[0];
+
+            return typeSymbol.TypeArguments[0];
         }
 
         public bool IsMockSetupMethod(MoqSymbols moqSymbols, InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression)

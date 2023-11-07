@@ -41,6 +41,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Compilation", "Compilation"
 	ProjectSection(SolutionItems) = preProject
 		docs\Compilation\PosInfoMoq2000.md = docs\Compilation\PosInfoMoq2000.md
 		docs\Compilation\PosInfoMoq2001.md = docs\Compilation\PosInfoMoq2001.md
+		docs\Compilation\PosInfoMoq2002.md = docs\Compilation\PosInfoMoq2002.md
 	EndProjectSection
 EndProject
 Global

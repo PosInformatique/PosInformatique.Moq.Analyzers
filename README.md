@@ -38,3 +38,6 @@ All the rules of this category should not be disabled (or changed their severity
 | Rule | Description |
 | - | - |
 | [PosInfoMoq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks](docs/Compilation/PosInfoMoq2000.md) | When a `Mock<T>` has been defined with the `Strict` behavior, the `Returns()` or `ReturnsAsync()` method must be called when setup a method to mock which returns a value. |
+| [PosInfoMoq2001: The `Setup()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2001.md)) | The `Setup()` method must be applied only for overridable members. |
+| [PosInfoMoq2002: `Mock<T>` class can be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2002.md) | The `Mock<T>` can mock only interfaces or non-`sealed` classes. |
+
