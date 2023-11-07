@@ -45,14 +45,16 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+
             // Check is Setup() method.
-            if (!MockExpressionHelper.IsMockSetupMethod(moqSymbols, context.SemanticModel, invocationExpression, out var _))
+            if (!moqExpressionAnalyzer.IsMockSetupMethod(moqSymbols, invocationExpression, out var _))
             {
                 return;
             }
 
             // Extracts the method in the lambda expression of the Setup() method
-            var memberSetup = MockExpressionHelper.ExtractSetupMember(context.SemanticModel, invocationExpression, out var memberExpression);
+            var memberSetup = moqExpressionAnalyzer.ExtractSetupMember(invocationExpression, out var memberExpression);
 
             if (memberSetup is null)
             {
