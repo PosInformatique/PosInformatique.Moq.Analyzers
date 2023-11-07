@@ -45,14 +45,16 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+
             // Check is Setup() method.
-            if (!MockExpressionHelper.IsMockSetupMethod(moqSymbols, context.SemanticModel, invocationExpression, out var localVariableExpression))
+            if (!moqExpressionAnalyzer.IsMockSetupMethod(moqSymbols, invocationExpression, out var localVariableExpression))
             {
                 return;
             }
 
             // Check the mocked method return type (if "void", we skip the analysis, because no Returns() is required).
-            var mockedMethodReturnTypeSymbol = MockExpressionHelper.GetSetupMethodReturnSymbol(moqSymbols, context.SemanticModel, invocationExpression);
+            var mockedMethodReturnTypeSymbol = moqExpressionAnalyzer.GetSetupMethodReturnSymbol(moqSymbols, invocationExpression);
             if (mockedMethodReturnTypeSymbol is null)
             {
                 return;
@@ -64,7 +66,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check the behavior of the mock instance is Strict.
-            if (!MockExpressionHelper.IsStrictBehavior(moqSymbols, context.SemanticModel, localVariableExpression!))
+            if (!moqExpressionAnalyzer.IsStrictBehavior(moqSymbols, localVariableExpression!))
             {
                 return;
             }

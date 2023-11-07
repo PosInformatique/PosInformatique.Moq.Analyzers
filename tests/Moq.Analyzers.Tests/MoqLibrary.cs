@@ -21,6 +21,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public ISetup Setup(Action<T> act) { return null; }
 
+                    public ISetup Setup(Func<T, object> func) { return null; }
+
                     public void VerifyAll() { }
 
                     public void Verify() { }

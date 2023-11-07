@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="MockInstanceShouldBeStrictBehaviorAnalyzer.cs" company="P.O.S Informatique">
+// <copyright file="NoSealedClassAnalyzer.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,18 +13,16 @@ namespace PosInformatique.Moq.Analyzers
     using Microsoft.CodeAnalysis.Diagnostics;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class MockInstanceShouldBeStrictBehaviorAnalyzer : DiagnosticAnalyzer
+    public class NoSealedClassAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "PosInfoMoq1001";
-
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
-            DiagnosticId,
-            "The Mock<T> instance behavior should be defined to Strict mode",
-            "The Mock<T> instance behavior should be defined to Strict mode",
-            "Design",
-            DiagnosticSeverity.Warning,
+            "PosInfoMoq2002",
+            "Mock<T> class can be used only to mock non-sealed class",
+            "Mock<T> class can be used only to mock non-sealed class",
+            "Compilation",
+            DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "The Mock<T> instance behavior should be defined to Strict mode.");
+            description: "Mock<T> class can be used only to mock non-sealed class.");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -38,7 +36,7 @@ namespace PosInformatique.Moq.Analyzers
 
         private static void Analyze(SyntaxNodeAnalysisContext context)
         {
-            var objectCreation = (ObjectCreationExpressionSyntax)context.Node;
+            var objectCreationExpression = (ObjectCreationExpressionSyntax)context.Node;
 
             var moqSymbols = MoqSymbols.FromCompilation(context.Compilation);
 
@@ -49,17 +47,32 @@ namespace PosInformatique.Moq.Analyzers
 
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
 
-            // Check there is "new Mock<I>()" statement.
-            if (!moqExpressionAnalyzer.IsMockCreation(moqSymbols, objectCreation))
+            // Check the expression is a Mock<T> instance creation.
+            var mockedType = moqExpressionAnalyzer.GetMockedType(moqSymbols, objectCreationExpression, out var typeExpression);
+
+            if (mockedType is null)
             {
                 return;
             }
 
-            if (!moqExpressionAnalyzer.IsStrictBehavior(moqSymbols, objectCreation))
+            if (mockedType.TypeKind == TypeKind.Interface)
             {
-                var diagnostic = Diagnostic.Create(Rule, objectCreation.GetLocation());
-                context.ReportDiagnostic(diagnostic);
+                return;
             }
+
+            if (mockedType.IsAbstract)
+            {
+                return;
+            }
+
+            if (!mockedType.IsSealed)
+            {
+                return;
+            }
+
+            // No returns method has been specified with Strict mode. Report the diagnostic issue.
+            var diagnostic = Diagnostic.Create(Rule, typeExpression!.GetLocation());
+            context.ReportDiagnostic(diagnostic);
         }
     }
 }

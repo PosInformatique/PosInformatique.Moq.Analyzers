@@ -1,11 +1,11 @@
 # PosInfoMoq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks
 
-| Property                            | Value                                                                                      |
-|-------------------------------------|--------------------------------------------------------------------------------------------|
-| **Rule ID**                         | PosInfoMoq2000                                                                                    |
-| **Title**                           | The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks                |
-| **Category**                        | Compilation																			       |
-| **Default severity**				  | Error																				       |
+| Property                            | Value                                                                       |
+|-------------------------------------|-----------------------------------------------------------------------------|
+| **Rule ID**                         | PosInfoMoq2000                                                              |
+| **Title**                           | The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks   |
+| **Category**                        | Compilation																	|
+| **Default severity**				  | Error																		|
 
 ## Cause
 

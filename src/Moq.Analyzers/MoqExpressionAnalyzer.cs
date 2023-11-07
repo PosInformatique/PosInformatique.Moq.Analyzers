@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="MockExpressionHelper.cs" company="P.O.S Informatique">
+// <copyright file="MoqExpressionAnalyzer.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -9,13 +9,18 @@ namespace PosInformatique.Moq.Analyzers
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-    internal static class MockExpressionHelper
+    internal class MoqExpressionAnalyzer
     {
-        public static bool IsMockCreation(MoqSymbols moqSymbols, SemanticModel semanticModel, ObjectCreationExpressionSyntax expression)
-        {
-            var symbolInfo = semanticModel.GetSymbolInfo(expression.Type);
+        private readonly SemanticModel semanticModel;
 
-            if (!moqSymbols.IsMock(symbolInfo.Symbol))
+        public MoqExpressionAnalyzer(SemanticModel semanticModel)
+        {
+            this.semanticModel = semanticModel;
+        }
+
+        public bool IsMockCreation(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression)
+        {
+            if (this.GetMockedType(moqSymbols, expression, out var _) is null)
             {
                 return false;
             }
@@ -23,7 +28,33 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public static bool IsMockSetupMethod(MoqSymbols moqSymbols, SemanticModel semanticModel, InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression)
+        public ITypeSymbol? GetMockedType(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression, out TypeSyntax? typeExpression)
+        {
+            typeExpression = null;
+
+            var symbolInfo = this.semanticModel.GetSymbolInfo(expression.Type);
+
+            if (symbolInfo.Symbol is not INamedTypeSymbol typeSymbol)
+            {
+                return null;
+            }
+
+            if (!moqSymbols.IsMock(typeSymbol))
+            {
+                return null;
+            }
+
+            if (typeSymbol.TypeArguments.Length != 1)
+            {
+                return null;
+            }
+
+            typeExpression = ((GenericNameSyntax)expression.Type).TypeArgumentList.Arguments[0];
+
+            return typeSymbol.TypeArguments[0];
+        }
+
+        public bool IsMockSetupMethod(MoqSymbols moqSymbols, InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression)
         {
             localVariableExpression = null;
 
@@ -33,14 +64,14 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            if (memberAccessExpression.Expression is not IdentifierNameSyntax lv)
+            if (memberAccessExpression.Expression is not IdentifierNameSyntax identifierName)
             {
                 return false;
             }
 
-            localVariableExpression = lv;
+            localVariableExpression = identifierName;
 
-            var instanceVariable = semanticModel.GetSymbolInfo(memberAccessExpression.Expression);
+            var instanceVariable = this.semanticModel.GetSymbolInfo(memberAccessExpression.Expression);
 
             if (instanceVariable.Symbol is not ILocalSymbol instanceVariableSymbol)
             {
@@ -53,7 +84,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Gets the method and check it is Setup() method.
-            var methodSymbolInfo = semanticModel.GetSymbolInfo(invocationExpression.Expression);
+            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(invocationExpression.Expression);
 
             if (!moqSymbols.IsSetupMethod(methodSymbolInfo.Symbol))
             {
@@ -63,7 +94,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public static bool IsStrictBehavior(MoqSymbols moqSymbols, SemanticModel semanticModel, ObjectCreationExpressionSyntax mockCreationExpression)
+        public bool IsStrictBehavior(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax mockCreationExpression)
         {
             // Check that the "new Mock<I>()" statement have at least one argument (else Strict is missing...).
             if (mockCreationExpression.ArgumentList is null)
@@ -86,7 +117,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check that the "memberAccessExpression.Expression" is applied on the Moq MockBehavior type.
-            var firstArgumentType = semanticModel.GetSymbolInfo(memberAccessExpression.Expression);
+            var firstArgumentType = this.semanticModel.GetSymbolInfo(memberAccessExpression.Expression);
 
             if (!moqSymbols.IsMockBehaviorEnum(firstArgumentType.Symbol))
             {
@@ -94,7 +125,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check that the memberAccessExpression.Name reference the Strict field
-            var firstArgumentField = semanticModel.GetSymbolInfo(memberAccessExpression.Name);
+            var firstArgumentField = this.semanticModel.GetSymbolInfo(memberAccessExpression.Name);
 
             if (!moqSymbols.IsMockBehaviorStrictField(firstArgumentField.Symbol))
             {
@@ -104,7 +135,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public static bool IsStrictBehavior(MoqSymbols moqSymbols, SemanticModel semanticModel, IdentifierNameSyntax localVariableExpression)
+        public bool IsStrictBehavior(MoqSymbols moqSymbols, IdentifierNameSyntax localVariableExpression)
         {
             // Go back to the parents nodes and iterate all the statements in the parents blocks to find
             // the Mock instantiation (new Mock<I>(...) to determines the mock behavior.
@@ -114,7 +145,7 @@ namespace PosInformatique.Moq.Analyzers
 
                 if (mockCreation is not null)
                 {
-                    if (IsStrictBehavior(moqSymbols, semanticModel, mockCreation))
+                    if (this.IsStrictBehavior(moqSymbols, mockCreation))
                     {
                         return true;
                     }
@@ -124,7 +155,7 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
-        public static ITypeSymbol? GetSetupMethodReturnSymbol(MoqSymbols moqSymbols, SemanticModel semanticModel, InvocationExpressionSyntax setupInvocationExpression)
+        public ITypeSymbol? GetSetupMethodReturnSymbol(MoqSymbols moqSymbols, InvocationExpressionSyntax setupInvocationExpression)
         {
             if (setupInvocationExpression.ArgumentList is null)
             {
@@ -146,7 +177,7 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            var methodSymbolInfo = semanticModel.GetSymbolInfo(methodExpression);
+            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(methodExpression);
 
             if (methodSymbolInfo.Symbol is not IMethodSymbol methodSymbol)
             {
@@ -154,6 +185,50 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return methodSymbol.ReturnType;
+        }
+
+        public ISymbol? ExtractSetupMember(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName)
+        {
+            memberIdentifierName = null;
+
+            if (invocationExpression.ArgumentList.Arguments.Count != 1)
+            {
+                return null;
+            }
+
+            if (invocationExpression.ArgumentList.Arguments[0].Expression is not SimpleLambdaExpressionSyntax lambdaExpression)
+            {
+                return null;
+            }
+
+            ExpressionSyntax bodyExpression;
+
+            if (lambdaExpression.Body is InvocationExpressionSyntax invocationMemberExpression)
+            {
+                // It is a method in the Setup() method.
+                bodyExpression = invocationMemberExpression.Expression;
+            }
+            else
+            {
+                // It is a property in the Setup() method.
+                if (lambdaExpression.ExpressionBody is null)
+                {
+                    return null;
+                }
+
+                bodyExpression = lambdaExpression.ExpressionBody;
+            }
+
+            if (bodyExpression is not MemberAccessExpressionSyntax memberExpression)
+            {
+                return null;
+            }
+
+            memberIdentifierName = memberExpression.Name;
+
+            var symbol = this.semanticModel.GetSymbolInfo(memberExpression);
+
+            return symbol.Symbol;
         }
 
         private static ObjectCreationExpressionSyntax? FindMockCreation(BlockSyntax block, string variableName)
