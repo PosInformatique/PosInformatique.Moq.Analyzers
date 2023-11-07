@@ -17,8 +17,8 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-	  1.1.0
-	  - Add new rules:
+      1.1.0
+      - Add new rules:
         - PosInfoMoq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks.
 
       1.0.0

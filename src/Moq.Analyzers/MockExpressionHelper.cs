@@ -6,6 +6,7 @@
 
 namespace PosInformatique.Moq.Analyzers
 {
+    using System;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -33,12 +34,12 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            if (memberAccessExpression.Expression is not IdentifierNameSyntax lv)
+            if (memberAccessExpression.Expression is not IdentifierNameSyntax identifierName)
             {
                 return false;
             }
 
-            localVariableExpression = lv;
+            localVariableExpression = identifierName;
 
             var instanceVariable = semanticModel.GetSymbolInfo(memberAccessExpression.Expression);
 
@@ -154,6 +155,50 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return methodSymbol.ReturnType;
+        }
+
+        public static ISymbol? ExtractSetupMember(SemanticModel semanticModel, InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName)
+        {
+            memberIdentifierName = null;
+
+            if (invocationExpression.ArgumentList.Arguments.Count != 1)
+            {
+                return null;
+            }
+
+            if (invocationExpression.ArgumentList.Arguments[0].Expression is not SimpleLambdaExpressionSyntax lambdaExpression)
+            {
+                return null;
+            }
+
+            ExpressionSyntax bodyExpression;
+
+            if (lambdaExpression.Body is InvocationExpressionSyntax invocationMemberExpression)
+            {
+                // It is a method in the Setup() method.
+                bodyExpression = invocationMemberExpression.Expression;
+            }
+            else
+            {
+                // It is a property in the Setup() method.
+                if (lambdaExpression.ExpressionBody is null)
+                {
+                    return null;
+                }
+
+                bodyExpression = lambdaExpression.ExpressionBody;
+            }
+
+            if (bodyExpression is not MemberAccessExpressionSyntax memberExpression)
+            {
+                return null;
+            }
+
+            memberIdentifierName = memberExpression.Name;
+
+            var symbol = semanticModel.GetSymbolInfo(memberExpression);
+
+            return symbol.Symbol;
         }
 
         private static ObjectCreationExpressionSyntax? FindMockCreation(BlockSyntax block, string variableName)

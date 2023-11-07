@@ -1,4 +1,12 @@
-﻿## Release 1.1.0
+﻿## Release 1.2.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|--------------------
+PosInfoMoq2001  | Compilation | Error  | The `Setup()` method can be used only on overridable members
+
+## Release 1.1.0
 
 ### New Rules
 

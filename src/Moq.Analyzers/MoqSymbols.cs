@@ -170,5 +170,25 @@ namespace PosInformatique.Moq.Analyzers
 
             return true;
         }
+
+        public bool IsOverridable(ISymbol method)
+        {
+            if (method.ContainingType.TypeKind == TypeKind.Interface)
+            {
+                return true;
+            }
+
+            if (method.IsAbstract)
+            {
+                return true;
+            }
+
+            if (method.IsVirtual)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }
