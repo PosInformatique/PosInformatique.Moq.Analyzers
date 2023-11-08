@@ -172,19 +172,19 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            if (lambdaExpression.Body is not InvocationExpressionSyntax methodExpression)
+            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(lambdaExpression.Body);
+
+            if (methodSymbolInfo.Symbol is IMethodSymbol methodSymbol)
             {
-                return null;
+                return methodSymbol.ReturnType;
             }
 
-            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(methodExpression);
-
-            if (methodSymbolInfo.Symbol is not IMethodSymbol methodSymbol)
+            if (methodSymbolInfo.Symbol is IPropertySymbol propertySymbol)
             {
-                return null;
+                return propertySymbol.Type;
             }
 
-            return methodSymbol.ReturnType;
+            return null;
         }
 
         public ISymbol? ExtractSetupMember(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName)
