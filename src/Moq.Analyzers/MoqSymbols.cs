@@ -81,6 +81,21 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
+        public bool IsCallback(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            if (symbol.Name != "Callback")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public bool IsReturnsMethod(ISymbol? symbol)
         {
             if (symbol is null)

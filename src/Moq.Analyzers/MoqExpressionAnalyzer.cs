@@ -187,6 +187,18 @@ namespace PosInformatique.Moq.Analyzers
             return null;
         }
 
+        public IMethodSymbol? ExtractSetupMethod(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName)
+        {
+            var symbol = this.ExtractSetupMember(invocationExpression, out memberIdentifierName);
+
+            if (symbol is not IMethodSymbol methodSymbol)
+            {
+                return null;
+            }
+
+            return methodSymbol;
+        }
+
         public ISymbol? ExtractSetupMember(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName)
         {
             memberIdentifierName = null;
@@ -229,6 +241,32 @@ namespace PosInformatique.Moq.Analyzers
             var symbol = this.semanticModel.GetSymbolInfo(memberExpression);
 
             return symbol.Symbol;
+        }
+
+        public IMethodSymbol? ExtractCallBackLambdaExpressionMethod(InvocationExpressionSyntax invocationExpression, out ParenthesizedLambdaExpressionSyntax? lambdaExpression)
+        {
+            lambdaExpression = null;
+
+            if (invocationExpression.ArgumentList.Arguments.Count != 1)
+            {
+                return null;
+            }
+
+            if (invocationExpression.ArgumentList.Arguments[0].Expression is not ParenthesizedLambdaExpressionSyntax lambdaExpressionFound)
+            {
+                return null;
+            }
+
+            var symbol = this.semanticModel.GetSymbolInfo(lambdaExpressionFound);
+
+            if (symbol.Symbol is not IMethodSymbol methodSymbol)
+            {
+                return null;
+            }
+
+            lambdaExpression = lambdaExpressionFound;
+
+            return methodSymbol;
         }
 
         private static ObjectCreationExpressionSyntax? FindMockCreation(BlockSyntax block, string variableName)

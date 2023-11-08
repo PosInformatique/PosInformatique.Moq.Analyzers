@@ -38,6 +38,20 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 {
                     ISetup Callback();
 
+                    ISetup Callback(Action _);
+
+                    ISetup Callback<T1>(Action<T1> _);
+
+                    ISetup Callback<T1, T2>(Action<T1, T2> _);
+
+                    ISetup Callback<T1, T2, T3>(Action<T1, T2, T3> _);
+
+                    ISetup Callback<T1, TReturn>(Func<T1, TReturn> _);
+
+                    ISetup Callback<T1, T2, TReturn>(Func<T1, T2, TReturn> _);
+
+                    ISetup Callback<T1, T2, T3, TReturn>(Func<T1, T2, T3, TReturn> _);
+
                     ISetup Property { get; }
 
                     ISetup Returns();
