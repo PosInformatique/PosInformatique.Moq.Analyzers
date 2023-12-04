@@ -95,7 +95,19 @@ namespace PosInformatique.Moq.Analyzers
                 // 2- Iterate for each parameter
                 for (var i = 0; i < callBackLambdaExpressionSymbol.Parameters.Length; i++)
                 {
-                    if (!SymbolEqualityComparer.Default.Equals(callBackLambdaExpressionSymbol.Parameters[i].Type, mockedMethod.Parameters[i].Type))
+                    // Special case, if the argument is IsAnyType
+                    if (moqSymbols.IsAnyType(mockedMethod.Parameters[i].Type))
+                    {
+                        // The callback parameter associated must be an object.
+                        if (callBackLambdaExpressionSymbol.Parameters[i].Type.SpecialType != SpecialType.System_Object)
+                        {
+                            var diagnostic = Diagnostic.Create(Rule, lambdaExpression!.ParameterList.GetLocation());
+                            context.ReportDiagnostic(diagnostic);
+
+                            continue;
+                        }
+                    }
+                    else if (!SymbolEqualityComparer.Default.Equals(callBackLambdaExpressionSymbol.Parameters[i].Type, mockedMethod.Parameters[i].Type))
                     {
                         var diagnostic = Diagnostic.Create(Rule, lambdaExpression!.ParameterList.GetLocation());
                         context.ReportDiagnostic(diagnostic);

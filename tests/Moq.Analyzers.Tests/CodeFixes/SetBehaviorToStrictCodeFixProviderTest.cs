@@ -35,30 +35,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _, params object[] args)
-                        {
-                        }
-
-                        public Mock(MockBehavior _)
-                        {
-                        }
-
-                        public Mock(params object[] args)
-                        {
-                        }
-
-                        public Mock()
-                        {
-                        }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                " + MoqLibrary.Code;
 
             var expectedFixedSource =
             @"
@@ -78,30 +55,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _, params object[] args)
-                        {
-                        }
-
-                        public Mock(MockBehavior _)
-                        {
-                        }
-
-                        public Mock(params object[] args)
-                        {
-                        }
-
-                        public Mock()
-                        {
-                        }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyCodeFixAsync(source, expectedFixedSource);
         }
@@ -127,30 +81,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _, params object[] args)
-                        {
-                        }
-
-                        public Mock(MockBehavior _)
-                        {
-                        }
-
-                        public Mock(params object[] args)
-                        {
-                        }
-
-                        public Mock()
-                        {
-                        }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                " + MoqLibrary.Code;
 
             var expectedFixedSource =
             @"
@@ -171,30 +102,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _, params object[] args)
-                        {
-                        }
-
-                        public Mock(MockBehavior _)
-                        {
-                        }
-
-                        public Mock(params object[] args)
-                        {
-                        }
-
-                        public Mock()
-                        {
-                        }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyCodeFixAsync(source, expectedFixedSource);
         }
@@ -224,30 +132,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public enum OtherEnum { A }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _, params object[] args)
-                        {
-                        }
-
-                        public Mock(MockBehavior _)
-                        {
-                        }
-
-                        public Mock(params object[] args)
-                        {
-                        }
-
-                        public Mock()
-                        {
-                        }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                " + MoqLibrary.Code;
 
             var expectedFixedSource =
             @"
@@ -272,30 +157,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public enum OtherEnum { A }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _, params object[] args)
-                        {
-                        }
-
-                        public Mock(MockBehavior _)
-                        {
-                        }
-
-                        public Mock(params object[] args)
-                        {
-                        }
-
-                        public Mock()
-                        {
-                        }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyCodeFixAsync(source, expectedFixedSource);
         }

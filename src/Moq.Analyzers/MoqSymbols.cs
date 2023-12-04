@@ -18,10 +18,13 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly ISymbol mockBehaviorStrictField;
 
-        private MoqSymbols(INamedTypeSymbol mockClass, INamedTypeSymbol mockBehaviorEnum)
+        private readonly ISymbol isAnyTypeClass;
+
+        private MoqSymbols(INamedTypeSymbol mockClass, INamedTypeSymbol mockBehaviorEnum, ISymbol isAnyTypeClass)
         {
             this.mockClass = mockClass;
             this.mockBehaviorEnum = mockBehaviorEnum;
+            this.isAnyTypeClass = isAnyTypeClass;
 
             this.setupMethods = mockClass.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
             this.mockBehaviorStrictField = mockBehaviorEnum.GetMembers("Strict").First();
@@ -43,7 +46,24 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            return new MoqSymbols(mockClass, mockBehaviorEnum);
+            var isAnyTypeClass = compilation.GetTypeByMetadataName("Moq.It+IsAnyType");
+
+            if (isAnyTypeClass is null)
+            {
+                return null;
+            }
+
+            return new MoqSymbols(mockClass, mockBehaviorEnum, isAnyTypeClass);
+        }
+
+        public bool IsAnyType(ITypeSymbol symbol)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(symbol, this.isAnyTypeClass))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool IsMock(ISymbol? symbol)

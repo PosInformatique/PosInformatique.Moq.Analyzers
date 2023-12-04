@@ -44,6 +44,16 @@ namespace PosInformatique.Moq.Analyzers.Tests
                                 .Throws()
                                 .Callback((string x, int y) => { })
                                 .Returns();
+                            mock1.Setup(m => m.TestGenericMethod(1234))
+                                .Callback((int x) => { })
+                                .Throws()
+                                .Callback((int x) => { })
+                                .Returns();
+                            mock1.Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
+                                .Callback((object x) => { })
+                                .Throws()
+                                .Callback((object x) => { })
+                                .Returns();
 
                             mock1.Setup(m => m.TestMethodReturn())
                                 .Callback(() => { })
@@ -70,6 +80,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         void TestMethod(string a);
 
                         void TestMethod(string a, int b);
+
+                        void TestGenericMethod<T>(T value);
 
                         int TestMethodReturn();
 
@@ -117,6 +129,16 @@ namespace PosInformatique.Moq.Analyzers.Tests
                                 .Throws()
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Returns();
+                            mock1.Setup(m => m.TestGenericMethod(1234))
+                                .Callback([|(string x)|] => { })
+                                .Throws()
+                                .Callback([|(string x)|] => { })
+                                .Returns();
+                            mock1.Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
+                                .Callback([|(string x)|] => { })
+                                .Throws()
+                                .Callback([|(string x)|] => { })
+                                .Returns();
 
                             mock1.Setup(m => m.TestMethodReturn())
                                 .Callback([|(int too, int much, int parameters)|] => { })
@@ -148,6 +170,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         void TestMethod(string a);
 
                         void TestMethod(string a, int b);
+
+                        void TestGenericMethod<T>(T value);
 
                         int TestMethodReturn();
 

@@ -90,16 +90,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _) { }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }
@@ -174,16 +165,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-
-                namespace Moq
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _, int a, int b) { }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
         }

@@ -62,6 +62,15 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     ISetup ThrowsAsync();
                 }
+
+                public static class It
+                {
+                    public static TValue IsAny<TValue>() { return default; }
+
+                    public sealed class IsAnyType
+                    {
+                    }
+                }
             }";
     }
 }
