@@ -70,6 +70,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
                                 .Throws()
                                 .Callback((string x, int y) => { })
                                 .Returns();
+
+                            mock1.Setup(m => m.TestMethod(default))
+                                .Callback()
+                                .Throws()
+                                .Callback()
+                                .Returns();
                         }
                     }
 
@@ -121,23 +127,23 @@ namespace PosInformatique.Moq.Analyzers.Tests
                                 .Callback([|()|] => { })
                                 .Returns();
                             mock1.Setup(m => m.TestMethod(default))
-                                .Callback([|(int otherType)|] => { })
+                                .Callback(([|int otherType|]) => { })
                                 .Throws()
-                                .Callback([|(int otherType)|] => { });
+                                .Callback(([|int otherType|]) => { });
                             mock1.Setup(m => m.TestMethod(default))
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Throws()
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Returns();
                             mock1.Setup(m => m.TestGenericMethod(1234))
-                                .Callback([|(string x)|] => { })
+                                .Callback(([|string x|]) => { })
                                 .Throws()
-                                .Callback([|(string x)|] => { })
+                                .Callback(([|string x|]) => { })
                                 .Returns();
                             mock1.Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
-                                .Callback([|(string x)|] => { })
+                                .Callback(([|string x|]) => { })
                                 .Throws()
-                                .Callback([|(string x)|] => { })
+                                .Callback(([|string x|]) => { })
                                 .Returns();
 
                             mock1.Setup(m => m.TestMethodReturn())
@@ -151,9 +157,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                                 .Callback([|()|] => { })
                                 .Returns();
                             mock1.Setup(m => m.TestMethodReturn(default))
-                                .Callback([|(int otherType)|] => { })
+                                .Callback(([|int otherType|]) => { })
                                 .Throws()
-                                .Callback([|(int otherType)|] => { })
+                                .Callback(([|int otherType|]) => { })
                                 .Returns();
                             mock1.Setup(m => m.TestMethodReturn(default))
                                 .Callback([|(int too, int much, int parameters)|] => { })
@@ -198,20 +204,26 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<I>(MockBehavior.Strict);
+                            mock1.Setup(m => m.TestMethod());
                         }
                     }
 
                     public interface I
                     {
+                        void TestMethod();
                     }
                 }
 
                 namespace OtherNamespace
                 {
+                    using System;
+
                     public class Mock<T>
                     {
                         public Mock(MockBehavior _) { }
-                    }
+ 
+                        public void Setup(Action<T> act) { }
+                   }
 
                     public enum MockBehavior { Strict, Loose }
                 }";
