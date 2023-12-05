@@ -66,6 +66,20 @@ namespace PosInformatique.Moq.Analyzers.Tests
                                 .Callback()
                                 .ThrowsAsync();
 
+                            var mock8 = new Mock<I>(MockBehavior.Strict);
+                            mock8.Setup(i => i.TestProperty)
+                                .Callback()
+                                .Callback()
+                                .Property
+                                .Returns();
+
+                            var mock9 = new Mock<I>(MockBehavior.Strict);
+                            mock9.Setup(i => i.TestProperty)
+                                .Callback()
+                                .Callback()
+                                .Property
+                                .ReturnsAsync();
+
                             var obj = new object();     // Ignored because not a Mock<T>
                             obj.ToString();
 
@@ -77,6 +91,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                         int TestMethod();
+
+                        int TestProperty { get; set; }
                     }
                 }
                 " + MoqLibrary.Code;
@@ -106,10 +122,18 @@ namespace PosInformatique.Moq.Analyzers.Tests
                                     [|mock1.Setup(i => i.TestMethod())|]
                                         .Callback()
                                         .Callback();
+
+                                    [|mock1.Setup(i => i.TestProperty)|]
+                                        .Callback()
+                                        .Callback();
                                 }
                             }
 
                             [|mock2.Setup(i => i.TestMethod())|]
+                                .Callback()
+                                .Callback();
+
+                            [|mock2.Setup(i => i.TestProperty)|]
                                 .Callback()
                                 .Callback();
                         }
@@ -118,6 +142,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                         int TestMethod();
+
+                        int TestProperty { get; set; }
                     }
                 }
                 " + MoqLibrary.Code;
@@ -141,12 +167,17 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             [|mock1.Setup(i => i.TestMethod())|]
                                 .Callback()
                                 .Callback();
+                            [|mock1.Setup(i => i.TestProperty)|]
+                                .Callback()
+                                .Callback();
                         }
                     }
 
                     public interface I
                     {
                         int TestMethod();
+
+                        int TestProperty { get; set; }
                     }
                 }
                 "
@@ -176,12 +207,19 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock1.Setup(i => i.TestMethod())
                                 .Callback()
                                 .Callback();
+
+                            var mock2 = new Mock<I>("" + mockArguments + @"");
+                            mock2.Setup(i => i.TestProperty)
+                                .Callback()
+                                .Callback();
                         }
                     }
 
                     public interface I
                     {
                         int TestMethod();
+
+                        int TestProperty { get; set; }
                     }
 
                     public enum OtherEnum { A, B }

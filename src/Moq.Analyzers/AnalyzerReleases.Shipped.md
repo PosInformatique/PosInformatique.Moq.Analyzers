@@ -1,4 +1,12 @@
-﻿## Release 1.2.0
+﻿## Release 1.3.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|--------------------
+PosInfoMoq2003  | Compilation | Error  | The `Callback()` delegate expression must match the signature of the mocked method.
+
+## Release 1.2.0
 
 ### New Rules
 
