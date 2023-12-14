@@ -17,9 +17,19 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      1.3.0
+      - Add new rules:
+        - PosInfoMoq2003 rule to check the Callback() signature method (fixes #3).
+      - Fixes the PosInfoMoq2000 rule to check the call of the Returns()/ReturnsAsync() methods for the mocked properties for the mock with Strict behavior.
+      
+      1.2.0
+      - Add new rules:
+        - PosInfoMoq2001: The Setup() method must be used only on overridable members.
+        - PosInfoMoq2002: Mock&lt;T&gt; class can be used only to mock non-sealed class.
+      
       1.1.0
       - Add new rules:
-        - PosInfoMoq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks.
+        - PosInfoMoq2000: The Returns() or ReturnsAsync() methods must be call for Strict mocks.
 
       1.0.0
       - Initial version with the followings rules:
