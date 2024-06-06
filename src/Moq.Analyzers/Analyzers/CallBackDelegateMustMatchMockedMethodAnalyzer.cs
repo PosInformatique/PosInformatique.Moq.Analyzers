@@ -48,7 +48,7 @@ namespace PosInformatique.Moq.Analyzers
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
 
             // Try to determine if the invocation expression is a Callback() expression.
-            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression);
+            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
 
             if (!moqSymbols.IsCallback(methodSymbol.Symbol))
             {
@@ -56,7 +56,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // If yes, we extract the lambda expression of it.
-            var callBackLambdaExpressionSymbol = moqExpressionAnalyzer.ExtractCallBackLambdaExpressionMethod(invocationExpression, out var lambdaExpression);
+            var callBackLambdaExpressionSymbol = moqExpressionAnalyzer.ExtractCallBackLambdaExpressionMethod(invocationExpression, out var lambdaExpression, context.CancellationToken);
 
             if (callBackLambdaExpressionSymbol is null)
             {
@@ -70,7 +70,7 @@ namespace PosInformatique.Moq.Analyzers
             {
                 // Find the symbol of the mocked method (if not symbol found, it is mean we Setup() method that not currently compile)
                 // so we skip the analysis.
-                var mockedMethod = moqExpressionAnalyzer.ExtractSetupMethod(followingMethod, out var _);
+                var mockedMethod = moqExpressionAnalyzer.ExtractSetupMethod(followingMethod, out var _, context.CancellationToken);
 
                 if (mockedMethod is null)
                 {

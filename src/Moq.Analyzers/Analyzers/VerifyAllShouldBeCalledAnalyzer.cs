@@ -47,7 +47,7 @@ namespace PosInformatique.Moq.Analyzers
 
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
 
-            if (!moqExpressionAnalyzer.IsMockCreation(moqSymbols, objectCreation))
+            if (!moqExpressionAnalyzer.IsMockCreation(moqSymbols, objectCreation, context.CancellationToken))
             {
                 return;
             }

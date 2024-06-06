@@ -18,9 +18,9 @@ namespace PosInformatique.Moq.Analyzers
             this.semanticModel = semanticModel;
         }
 
-        public bool IsMockCreation(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression)
+        public bool IsMockCreation(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression, CancellationToken cancellationToken)
         {
-            if (this.GetMockedType(moqSymbols, expression, out var _) is null)
+            if (this.GetMockedType(moqSymbols, expression, out var _, cancellationToken) is null)
             {
                 return false;
             }
@@ -28,11 +28,11 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public ITypeSymbol? GetMockedType(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression, out TypeSyntax? typeExpression)
+        public ITypeSymbol? GetMockedType(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression, out TypeSyntax? typeExpression, CancellationToken cancellationToken)
         {
             typeExpression = null;
 
-            var symbolInfo = this.semanticModel.GetSymbolInfo(expression.Type);
+            var symbolInfo = this.semanticModel.GetSymbolInfo(expression.Type, cancellationToken);
 
             if (symbolInfo.Symbol is not INamedTypeSymbol typeSymbol)
             {
@@ -54,7 +54,7 @@ namespace PosInformatique.Moq.Analyzers
             return typeSymbol.TypeArguments[0];
         }
 
-        public bool IsMockSetupMethod(MoqSymbols moqSymbols, InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression)
+        public bool IsMockSetupMethod(MoqSymbols moqSymbols, InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression, CancellationToken cancellationToken)
         {
             localVariableExpression = null;
 
@@ -71,7 +71,7 @@ namespace PosInformatique.Moq.Analyzers
 
             localVariableExpression = identifierName;
 
-            var instanceVariable = this.semanticModel.GetSymbolInfo(memberAccessExpression.Expression);
+            var instanceVariable = this.semanticModel.GetSymbolInfo(memberAccessExpression.Expression, cancellationToken);
 
             if (instanceVariable.Symbol is not ILocalSymbol instanceVariableSymbol)
             {
@@ -84,7 +84,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Gets the method and check it is Setup() method.
-            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(invocationExpression.Expression);
+            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(invocationExpression.Expression, cancellationToken);
 
             if (!moqSymbols.IsSetupMethod(methodSymbolInfo.Symbol))
             {
@@ -94,7 +94,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsStrictBehavior(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax mockCreationExpression)
+        public bool IsStrictBehavior(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax mockCreationExpression, CancellationToken cancellationToken)
         {
             // Check that the "new Mock<I>()" statement have at least one argument (else Strict is missing...).
             if (mockCreationExpression.ArgumentList is null)
@@ -117,7 +117,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check that the "memberAccessExpression.Expression" is applied on the Moq MockBehavior type.
-            var firstArgumentType = this.semanticModel.GetSymbolInfo(memberAccessExpression.Expression);
+            var firstArgumentType = this.semanticModel.GetSymbolInfo(memberAccessExpression.Expression, cancellationToken);
 
             if (!moqSymbols.IsMockBehaviorEnum(firstArgumentType.Symbol))
             {
@@ -125,7 +125,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check that the memberAccessExpression.Name reference the Strict field
-            var firstArgumentField = this.semanticModel.GetSymbolInfo(memberAccessExpression.Name);
+            var firstArgumentField = this.semanticModel.GetSymbolInfo(memberAccessExpression.Name, cancellationToken);
 
             if (!moqSymbols.IsMockBehaviorStrictField(firstArgumentField.Symbol))
             {
@@ -135,7 +135,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsStrictBehavior(MoqSymbols moqSymbols, IdentifierNameSyntax localVariableExpression)
+        public bool IsStrictBehavior(MoqSymbols moqSymbols, IdentifierNameSyntax localVariableExpression, CancellationToken cancellationToken)
         {
             // Go back to the parents nodes and iterate all the statements in the parents blocks to find
             // the Mock instantiation (new Mock<I>(...) to determines the mock behavior.
@@ -145,7 +145,7 @@ namespace PosInformatique.Moq.Analyzers
 
                 if (mockCreation is not null)
                 {
-                    if (this.IsStrictBehavior(moqSymbols, mockCreation))
+                    if (this.IsStrictBehavior(moqSymbols, mockCreation, cancellationToken))
                     {
                         return true;
                     }
@@ -155,7 +155,7 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
-        public ITypeSymbol? GetSetupMethodReturnSymbol(MoqSymbols moqSymbols, InvocationExpressionSyntax setupInvocationExpression)
+        public ITypeSymbol? GetSetupMethodReturnSymbol(InvocationExpressionSyntax setupInvocationExpression, CancellationToken cancellationToken)
         {
             if (setupInvocationExpression.ArgumentList is null)
             {
@@ -172,7 +172,7 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(lambdaExpression.Body);
+            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(lambdaExpression.Body, cancellationToken);
 
             if (methodSymbolInfo.Symbol is IMethodSymbol methodSymbol)
             {
@@ -187,9 +187,9 @@ namespace PosInformatique.Moq.Analyzers
             return null;
         }
 
-        public IMethodSymbol? ExtractSetupMethod(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName)
+        public IMethodSymbol? ExtractSetupMethod(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName, CancellationToken cancellationToken)
         {
-            var symbol = this.ExtractSetupMember(invocationExpression, out memberIdentifierName);
+            var symbol = this.ExtractSetupMember(invocationExpression, out memberIdentifierName, cancellationToken);
 
             if (symbol is not IMethodSymbol methodSymbol)
             {
@@ -199,7 +199,7 @@ namespace PosInformatique.Moq.Analyzers
             return methodSymbol;
         }
 
-        public ISymbol? ExtractSetupMember(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName)
+        public ISymbol? ExtractSetupMember(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName, CancellationToken cancellationToken)
         {
             memberIdentifierName = null;
 
@@ -238,12 +238,12 @@ namespace PosInformatique.Moq.Analyzers
 
             memberIdentifierName = memberExpression.Name;
 
-            var symbol = this.semanticModel.GetSymbolInfo(memberExpression);
+            var symbol = this.semanticModel.GetSymbolInfo(memberExpression, cancellationToken);
 
             return symbol.Symbol;
         }
 
-        public IMethodSymbol? ExtractCallBackLambdaExpressionMethod(InvocationExpressionSyntax invocationExpression, out ParenthesizedLambdaExpressionSyntax? lambdaExpression)
+        public IMethodSymbol? ExtractCallBackLambdaExpressionMethod(InvocationExpressionSyntax invocationExpression, out ParenthesizedLambdaExpressionSyntax? lambdaExpression, CancellationToken cancellationToken)
         {
             lambdaExpression = null;
 
@@ -257,7 +257,7 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            var symbol = this.semanticModel.GetSymbolInfo(lambdaExpressionFound);
+            var symbol = this.semanticModel.GetSymbolInfo(lambdaExpressionFound, cancellationToken);
 
             if (symbol.Symbol is not IMethodSymbol methodSymbol)
             {

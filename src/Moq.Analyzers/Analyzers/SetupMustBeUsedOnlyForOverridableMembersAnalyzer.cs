@@ -48,13 +48,13 @@ namespace PosInformatique.Moq.Analyzers
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
 
             // Check is Setup() method.
-            if (!moqExpressionAnalyzer.IsMockSetupMethod(moqSymbols, invocationExpression, out var _))
+            if (!moqExpressionAnalyzer.IsMockSetupMethod(moqSymbols, invocationExpression, out var _, context.CancellationToken))
             {
                 return;
             }
 
             // Extracts the method in the lambda expression of the Setup() method
-            var memberSetup = moqExpressionAnalyzer.ExtractSetupMember(invocationExpression, out var memberExpression);
+            var memberSetup = moqExpressionAnalyzer.ExtractSetupMember(invocationExpression, out var memberExpression, context.CancellationToken);
 
             if (memberSetup is null)
             {
