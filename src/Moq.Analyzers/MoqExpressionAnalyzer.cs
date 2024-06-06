@@ -111,23 +111,38 @@ namespace PosInformatique.Moq.Analyzers
 
             // Gets the first argument of "new Mock<I>(...)" and ensures it is a MemberAccessExpressionSyntax
             // (because we searching for MockBehavior.Strict).
-            if (firstArgument.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
-            {
-                return false;
-            }
-
-            // Check that the "memberAccessExpression.Expression" is applied on the Moq MockBehavior type.
-            var firstArgumentType = this.semanticModel.GetSymbolInfo(memberAccessExpression.Expression, cancellationToken);
-
-            if (!moqSymbols.IsMockBehaviorEnum(firstArgumentType.Symbol))
+            if (!this.IsStrictBehaviorArgument(moqSymbols, firstArgument, out var memberAccessExpression, cancellationToken))
             {
                 return false;
             }
 
             // Check that the memberAccessExpression.Name reference the Strict field
-            var firstArgumentField = this.semanticModel.GetSymbolInfo(memberAccessExpression.Name, cancellationToken);
+            var firstArgumentField = this.semanticModel.GetSymbolInfo(memberAccessExpression!.Name, cancellationToken);
 
             if (!moqSymbols.IsMockBehaviorStrictField(firstArgumentField.Symbol))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsStrictBehaviorArgument(MoqSymbols moqSymbols, ArgumentSyntax argument, out MemberAccessExpressionSyntax? memberAccessExpression, CancellationToken cancellationToken)
+        {
+            memberAccessExpression = null;
+
+            // Check it is a MemberAccessExpressionSyntax (because we searching for MockBehavior.XXXXX).
+            if (argument.Expression is not MemberAccessExpressionSyntax expression)
+            {
+                return false;
+            }
+
+            memberAccessExpression = expression;
+
+            // Check that the "memberAccessExpression.Expression" is applied on the Moq MockBehavior type.
+            var firstArgumentType = this.semanticModel.GetSymbolInfo(memberAccessExpression.Expression, cancellationToken);
+
+            if (!moqSymbols.IsMockBehaviorEnum(firstArgumentType.Symbol))
             {
                 return false;
             }

@@ -1,4 +1,12 @@
-﻿## Release 1.3.0
+﻿## Release 1.5.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|--------------------
+PosInfoMoq2004 | Compilation | Error | ConstructorArgumentCannotBeParsedForInterfaceAnalyzer
+
+## Release 1.3.0
 
 ### New Rules
 
