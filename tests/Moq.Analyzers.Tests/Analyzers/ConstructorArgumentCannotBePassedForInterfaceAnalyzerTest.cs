@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="ConstructorArgumentCannotBeParsedForInterfaceAnalyzerTest.cs" company="P.O.S Informatique">
+// <copyright file="ConstructorArgumentCannotBePassedForInterfaceAnalyzerTest.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -11,10 +11,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
     using Microsoft.CodeAnalysis.Testing;
     using Xunit;
     using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        ConstructorArgumentCannotBeParsedForInterfaceAnalyzer,
+        ConstructorArgumentCannotBePassedForInterfaceAnalyzer,
         Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
 
-    public class ConstructorArgumentCannotBeParsedForInterfaceAnalyzerTest
+    public class ConstructorArgumentCannotBePassedForInterfaceAnalyzerTest
     {
         [Fact]
         public async Task Interface_NoMock()
@@ -65,7 +65,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [Fact]
         public async Task Interface_WithoutBehaviorStrict()
         {
-            var context = new CSharpAnalyzerTest<ConstructorArgumentCannotBeParsedForInterfaceAnalyzer, DefaultVerifier>();
+            var context = new CSharpAnalyzerTest<ConstructorArgumentCannotBePassedForInterfaceAnalyzer, DefaultVerifier>();
 
             context.TestCode = @"
                 namespace ConsoleApplication1
@@ -85,7 +85,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
                 }" + MoqLibrary.Code;
 
-            context.ExpectedDiagnostics.Add(new DiagnosticResult(ConstructorArgumentCannotBeParsedForInterfaceAnalyzer.Rule)
+            context.ExpectedDiagnostics.Add(new DiagnosticResult(ConstructorArgumentCannotBePassedForInterfaceAnalyzer.Rule)
                 .WithLocation(0).WithArguments("1")
                 .WithLocation(1).WithArguments("2"));
 
@@ -95,7 +95,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [Fact]
         public async Task Interface_WithBehaviorStrict()
         {
-            var context = new CSharpAnalyzerTest<ConstructorArgumentCannotBeParsedForInterfaceAnalyzer, DefaultVerifier>();
+            var context = new CSharpAnalyzerTest<ConstructorArgumentCannotBePassedForInterfaceAnalyzer, DefaultVerifier>();
 
             context.TestCode = @"
                 namespace ConsoleApplication1
@@ -115,7 +115,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
                 }" + MoqLibrary.Code;
 
-            context.ExpectedDiagnostics.Add(new DiagnosticResult(ConstructorArgumentCannotBeParsedForInterfaceAnalyzer.Rule)
+            context.ExpectedDiagnostics.Add(new DiagnosticResult(ConstructorArgumentCannotBePassedForInterfaceAnalyzer.Rule)
                 .WithLocation(0).WithArguments("1")
                 .WithLocation(1).WithArguments("2"));
 
