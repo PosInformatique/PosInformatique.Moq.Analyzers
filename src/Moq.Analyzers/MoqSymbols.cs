@@ -230,5 +230,25 @@ namespace PosInformatique.Moq.Analyzers
 
             return false;
         }
+
+        public bool IsMockable(ITypeSymbol type)
+        {
+            if (type.TypeKind == TypeKind.Interface)
+            {
+                return true;
+            }
+
+            if (type.IsAbstract)
+            {
+                return true;
+            }
+
+            if (!type.IsSealed)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

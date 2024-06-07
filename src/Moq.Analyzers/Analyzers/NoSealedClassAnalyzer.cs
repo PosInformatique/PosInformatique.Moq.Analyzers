@@ -55,17 +55,7 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            if (mockedType.TypeKind == TypeKind.Interface)
-            {
-                return;
-            }
-
-            if (mockedType.IsAbstract)
-            {
-                return;
-            }
-
-            if (!mockedType.IsSealed)
+            if (moqSymbols.IsMockable(mockedType))
             {
                 return;
             }

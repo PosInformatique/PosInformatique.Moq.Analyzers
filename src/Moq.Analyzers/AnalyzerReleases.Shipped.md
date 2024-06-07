@@ -4,7 +4,8 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
-PosInfoMoq2004 | Compilation | Error | ConstructorArgumentCannotBeParsedForInterfaceAnalyzer
+PosInfoMoq2004 | Compilation | Error | Constructor arguments cannot be passed for interface mocks.
+PosInfoMoq2005 | Compilation | Error | Constructor arguments must match the constructors of the mocked class.
 
 ## Release 1.3.0
 
