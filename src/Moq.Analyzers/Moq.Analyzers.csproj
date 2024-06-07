@@ -17,18 +17,23 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      1.5.0
+      - Add new rules:
+        - PosInfoMoq2004: Check that constructor arguments can not be passed to a mocked interface.
+        - PosInfoMoq2005: Check the constructors arguments passed to mocked class.
+
       1.4.0
       - Reduce the dependency of Microsoft.CodeAnalysis.CSharp to the release 4.0.1.
 
       1.3.0
       - Add new rules:
-      - PosInfoMoq2003 rule to check the Callback() signature method (fixes #3).
+        - PosInfoMoq2003: Check the Callback() signature method (fixes #3).
       - Fixes the PosInfoMoq2000 rule to check the call of the Returns()/ReturnsAsync() methods for the mocked properties for the mock with Strict behavior.
 
       1.2.0
       - Add new rules:
-      - PosInfoMoq2001: The Setup() method must be used only on overridable members.
-      - PosInfoMoq2002: Mock&lt;T&gt; class can be used only to mock non-sealed class.
+        - PosInfoMoq2001: The Setup() method must be used only on overridable members.
+        - PosInfoMoq2002: Mock&lt;T&gt; class can be used only to mock non-sealed class.
       
       1.1.0
       - Add new rules:
