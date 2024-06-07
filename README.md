@@ -43,4 +43,5 @@ All the rules of this category should not be disabled (or changed their severity
 | [PosInfoMoq2003: The `Callback()` delegate expression must match the signature of the mocked method](docs/Compilation/PosInfoMoq2003.md) | The delegate in the argument of the `Callback()` method must match the signature of the mocked method. |
 | [PosInfoMoq2004: Constructor arguments cannot be passed for interface mocks](docs/Compilation/PosInfoMoq2004.md) | No arguments can be passed to a mocked interface. |
 | [PosInfoMoq2005: Constructor arguments must match the constructors of the mocked class](docs/Compilation/PosInfoMoq2005.md) | When instantiating a `Mock<T>`, the parameters must match one of the constructors of the mocked type.  |
+| [PosInfoMoq2006: The Protected().Setup() method must be use with overridable protected or internal methods](docs/Compilation/PosInfoMoq2006.md) | When using the `Protected().Setup()` configuration, the method mocked must be overridable and protected or internal. |
 

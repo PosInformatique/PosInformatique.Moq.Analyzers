@@ -71,6 +71,26 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                     }
                 }
-            }";
+            }
+            namespace Moq.Protected
+            {
+                public static class ProtectedExtension
+                {
+                    /// <summary>
+                    public static IProtectedMock<T> Protected<T>(this Mock<T> mock)
+                        where T : class
+                    {
+                        return null;
+                    }
+                }
+
+                public interface IProtectedMock<TMock>
+                {
+                    ISetup Setup(string voidMethodName, params object[] args);
+
+                    ISetup Setup<TResult>(string voidMethodName, params object[] args);
+                }
+            }
+";
     }
 }

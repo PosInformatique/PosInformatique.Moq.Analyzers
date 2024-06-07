@@ -16,11 +16,13 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly IReadOnlyList<IMethodSymbol> setupMethods;
 
+        private readonly IReadOnlyList<IMethodSymbol> setupProtectedMethods;
+
         private readonly ISymbol mockBehaviorStrictField;
 
         private readonly ISymbol isAnyTypeClass;
 
-        private MoqSymbols(INamedTypeSymbol mockClass, INamedTypeSymbol mockBehaviorEnum, ISymbol isAnyTypeClass)
+        private MoqSymbols(INamedTypeSymbol mockClass, INamedTypeSymbol mockBehaviorEnum, ISymbol isAnyTypeClass, INamedTypeSymbol protectedMockInterface)
         {
             this.mockClass = mockClass;
             this.mockBehaviorEnum = mockBehaviorEnum;
@@ -28,6 +30,7 @@ namespace PosInformatique.Moq.Analyzers
 
             this.setupMethods = mockClass.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
             this.mockBehaviorStrictField = mockBehaviorEnum.GetMembers("Strict").First();
+            this.setupProtectedMethods = protectedMockInterface.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
@@ -53,7 +56,14 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            return new MoqSymbols(mockClass, mockBehaviorEnum, isAnyTypeClass);
+            var protectedMockInterface = compilation.GetTypeByMetadataName("Moq.Protected.IProtectedMock`1");
+
+            if (protectedMockInterface is null)
+            {
+                return null;
+            }
+
+            return new MoqSymbols(mockClass, mockBehaviorEnum, isAnyTypeClass, protectedMockInterface);
         }
 
         public bool IsAnyType(ITypeSymbol symbol)
@@ -101,6 +111,26 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
+        public bool IsSetupProtectedMethod(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            var originalDefinition = symbol.OriginalDefinition;
+
+            foreach (var setupProtectedMethod in this.setupProtectedMethods)
+            {
+                if (SymbolEqualityComparer.Default.Equals(originalDefinition, setupProtectedMethod))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool IsCallback(ISymbol? symbol)
         {
             if (symbol is null)
@@ -109,6 +139,21 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             if (symbol.Name != "Callback")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsProtectedMethod(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            if (symbol.Name != "Protected")
             {
                 return false;
             }

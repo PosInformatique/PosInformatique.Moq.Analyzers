@@ -6,6 +6,7 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
 PosInfoMoq2004 | Compilation | Error | Constructor arguments cannot be passed for interface mocks.
 PosInfoMoq2005 | Compilation | Error | Constructor arguments must match the constructors of the mocked class.
+PosInfoMoq2006 | Compilation | Error | The `Protected().Setup()` method must be use with overridable protected or internal methods.
 
 ## Release 1.3.0
 

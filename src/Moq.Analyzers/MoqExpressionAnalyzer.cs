@@ -6,6 +6,7 @@
 
 namespace PosInformatique.Moq.Analyzers
 {
+    using System.Data;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -26,6 +27,33 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return true;
+        }
+
+        public ITypeSymbol? GetMockedType(MoqSymbols moqSymbols, IdentifierNameSyntax expression, CancellationToken cancellationToken)
+        {
+            var symbolInfo = this.semanticModel.GetSymbolInfo(expression, cancellationToken);
+
+            if (symbolInfo.Symbol is not ILocalSymbol localVariableSymbol)
+            {
+                return null;
+            }
+
+            if (localVariableSymbol.Type is not INamedTypeSymbol typeSymbol)
+            {
+                return null;
+            }
+
+            if (!moqSymbols.IsMock(typeSymbol))
+            {
+                return null;
+            }
+
+            if (typeSymbol.TypeArguments.Length != 1)
+            {
+                return null;
+            }
+
+            return typeSymbol.TypeArguments[0];
         }
 
         public ITypeSymbol? GetMockedType(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression, out TypeSyntax? typeExpression, CancellationToken cancellationToken)
@@ -87,6 +115,65 @@ namespace PosInformatique.Moq.Analyzers
             var methodSymbolInfo = this.semanticModel.GetSymbolInfo(invocationExpression.Expression, cancellationToken);
 
             if (!moqSymbols.IsSetupMethod(methodSymbolInfo.Symbol))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsMockSetupMethodProtected(MoqSymbols moqSymbols, InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression, CancellationToken cancellationToken)
+        {
+            localVariableExpression = null;
+
+            // Gets the member access expression "mock.XXXXX"
+            if (invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
+            {
+                return false;
+            }
+
+            if (memberAccessExpression.Expression is not InvocationExpressionSyntax protectedInvocationExpression)
+            {
+                return false;
+            }
+
+            // Check it is a Protected() method
+            var method = this.semanticModel.GetSymbolInfo(protectedInvocationExpression.Expression, cancellationToken);
+
+            if (!moqSymbols.IsProtectedMethod(method.Symbol))
+            {
+                return false;
+            }
+
+            // Retrieve the "mock" variable
+            if (protectedInvocationExpression.Expression is not MemberAccessExpressionSyntax protectedMemberAccessExpression)
+            {
+                return false;
+            }
+
+            if (protectedMemberAccessExpression.Expression is not IdentifierNameSyntax identifierName)
+            {
+                return false;
+            }
+
+            localVariableExpression = identifierName;
+
+            var instanceVariable = this.semanticModel.GetSymbolInfo(identifierName, cancellationToken);
+
+            if (instanceVariable.Symbol is not ILocalSymbol instanceVariableSymbol)
+            {
+                return false;
+            }
+
+            if (!moqSymbols.IsMock(instanceVariableSymbol.Type))
+            {
+                return false;
+            }
+
+            // Gets the method and check it is Setup() method.
+            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(invocationExpression.Expression, cancellationToken);
+
+            if (!moqSymbols.IsSetupProtectedMethod(methodSymbolInfo.Symbol))
             {
                 return false;
             }
