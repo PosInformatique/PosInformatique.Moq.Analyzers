@@ -102,6 +102,24 @@ namespace PosInformatique.Moq.Analyzers
 
                 for (var i = 0; i < constructorArguments.Count; i++)
                 {
+                    if (constructorArguments[i].Expression.IsKind(SyntaxKind.NullLiteralExpression))
+                    {
+                        // Null parameter, just check the parameter type is a class.
+                        if (constructor.Parameters[i].Type.TypeKind != TypeKind.Class && constructor.Parameters[i].Type.TypeKind != TypeKind.Array)
+                        {
+                            matchedConstructor = false;
+                            break;
+                        }
+
+                        continue;
+                    }
+
+                    if (constructorArguments[i].Expression.IsKind(SyntaxKind.DefaultLiteralExpression))
+                    {
+                        // Default parameter, skip the parameter.
+                        continue;
+                    }
+
                     var constructorArgumentSymbol = context.SemanticModel.GetTypeInfo(constructorArguments[i].Expression, context.CancellationToken);
 
                     if (!SymbolEqualityComparer.Default.Equals(constructorArgumentSymbol.Type, constructor.Parameters[i].Type))

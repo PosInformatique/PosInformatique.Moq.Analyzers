@@ -100,6 +100,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<C>(1, ""B"");
+                            var mock2 = new Mock<C>(1, null);
+                            var mock3 = new Mock<C>(default, ""B"");
+                            var mock4 = new Mock<C>(default, default);
+                            var mock5 = new Mock<C>(default, null, 1234);
                         }
                     }
 
@@ -113,7 +117,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
 
-                        public C(int a, object c)
+                        public C(int a, object b)
+                        {
+                        }
+
+                        public C(int a, int[] b, int c)
                         {
                         }
                     }
