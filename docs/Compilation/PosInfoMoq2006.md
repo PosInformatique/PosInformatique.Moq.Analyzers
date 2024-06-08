@@ -9,15 +9,15 @@
 
 ## Cause
 
-A `Protected().Setup()` reference a method in the mocked type which have the following criteria:
-- Is not existing
-- Is not virtual
-- Is not abstract
+A `Protected().Setup()` reference a method in the mocked type which is:
+- Not existing in the mocked type.
+- Not overridable (`abstract`, `virtual` or `override`, but not `sealed`).
+- Not `protected` or `internal`.
 
 ## Rule description
 
 When using the `Protected().Setup()`, the method mocked must be `protected`, `internal` or `protected internal`,
-and must be overridable (`virtual` or `abstract`).
+and must be overridable (`virtual`, `abstract` and `override`, but not `sealed`).
 
 ```csharp
 [Fact]
@@ -46,7 +46,7 @@ To fix a violation of this rule, use the `Protected().Setup()` to mock method wh
 - `protected`
 - `internal`
 - `protected internal`
-- Overridable (`virtual` or `abstract`).
+- Overridable (`virtual`, `abstract` or `override`, but not `sealed`).
 
 Else use the standard mocking feature without the `Protected()` method.
 
