@@ -104,8 +104,8 @@ namespace PosInformatique.Moq.Analyzers
                 {
                     if (constructorArguments[i].Expression.IsKind(SyntaxKind.NullLiteralExpression))
                     {
-                        // Null parameter, just check the parameter type is a class.
-                        if (constructor.Parameters[i].Type.TypeKind != TypeKind.Class && constructor.Parameters[i].Type.TypeKind != TypeKind.Array)
+                        // Null parameter, just check the parameter type is a reference type.
+                        if (!constructor.Parameters[i].Type.IsReferenceType)
                         {
                             matchedConstructor = false;
                             break;
@@ -122,7 +122,7 @@ namespace PosInformatique.Moq.Analyzers
 
                     var constructorArgumentSymbol = context.SemanticModel.GetTypeInfo(constructorArguments[i].Expression, context.CancellationToken);
 
-                    if (!SymbolEqualityComparer.Default.Equals(constructorArgumentSymbol.Type, constructor.Parameters[i].Type))
+                    if (!constructorArgumentSymbol.Type.IsOrInheritFrom(constructor.Parameters[i].Type))
                     {
                         matchedConstructor = false;
                         break;

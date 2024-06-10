@@ -104,6 +104,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock3 = new Mock<C>(default, ""B"");
                             var mock4 = new Mock<C>(default, default);
                             var mock5 = new Mock<C>(default, null, 1234);
+                            var mock6 = new Mock<C>(1, ""An object"", 3, null);
+                            var mock7 = new Mock<C>(1, ""An object"", 3, new System.IO.MemoryStream());
                         }
                     }
 
@@ -122,6 +124,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         }
 
                         public C(int a, int[] b, int c)
+                        {
+                        }
+
+                        public C(int a, object b, int c, System.IDisposable d)
                         {
                         }
                     }
@@ -143,6 +149,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<C>(MockBehavior.Strict, 1, ""B"");
+                            var mock6 = new Mock<C>(MockBehavior.Strict, 1, ""An object"", 3, null);
+                            var mock7 = new Mock<C>(MockBehavior.Strict, 1, ""An object"", 3, new System.IO.MemoryStream());
                         }
                     }
 
@@ -157,6 +165,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         }
 
                         public C(int a, object c)
+                        {
+                        }
+
+                        public C(int a, object b, int c, System.IDisposable d)
                         {
                         }
                     }
@@ -177,8 +189,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>([|1, 2|]);
+                            var mock1 = new Mock<C>([|1, 2, 3|]);
                             var mock2 = new Mock<C>([|null|]);
+                            var mock3 = new Mock<C>([|""The string"", 2|]);
+                            var mock4 = new Mock<C>([|1, 2, 3, ""The string""|]);
                         }
                     }
 
@@ -193,6 +207,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         }
 
                         public C(int a, object c)
+                        {
+                        }
+
+                        public C(int a, object b, int c, System.IDisposable d)
                         {
                         }
                     }
@@ -213,8 +231,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>(MockBehavior.Strict, [|1, 2|]);
+                            var mock1 = new Mock<C>(MockBehavior.Strict, [|1, 2, 3|]);
                             var mock2 = new Mock<C>(MockBehavior.Strict, [|null|]);
+                            var mock3 = new Mock<C>(MockBehavior.Strict, [|""The string"", 2|]);
+                            var mock4 = new Mock<C>(MockBehavior.Strict, [|1, 2, 3, ""The string""|]);
                         }
                     }
 
