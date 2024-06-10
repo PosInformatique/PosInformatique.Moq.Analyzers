@@ -22,7 +22,8 @@
         - PosInfoMoq2004: Check that constructor arguments can not be passed to a mocked interface.
         - PosInfoMoq2005: Check the constructors arguments passed to mocked class.
         - PosInfoMoq2006: Check that the setup method with Protected() exists, are overridable and is protected or internal.
-      - Fix the PosInfoMoq2000 to not raise an error when the Returns()/ReturnsAsync() in invalided by the compiler.
+      - Fix the PosInfoMoq2000 rule to not raise an error when the Returns()/ReturnsAsync() in invalided by the compiler.
+      - Fix the PosInfoMoq2001 rule to raise error when Setup() is defined to chained members calls which are not overridable.
 
       1.4.0
       - Reduce the dependency of Microsoft.CodeAnalysis.CSharp to the release 4.0.1.
