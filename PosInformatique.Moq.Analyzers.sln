@@ -18,12 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		stylecop.json = stylecop.json
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{4C3E1C72-8977-4ABD-8360-A8707DBBA5AE}"
-	ProjectSection(SolutionItems) = preProject
-		build\azure-pipelines-ci.yaml = build\azure-pipelines-ci.yaml
-		build\azure-pipelines-release.yaml = build\azure-pipelines-release.yaml
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DC2CDF77-88A9-490D-84ED-34832943104A}"
 	ProjectSection(SolutionItems) = preProject
 		tests\.editorconfig = tests\.editorconfig
@@ -73,7 +67,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{4C3E1C72-8977-4ABD-8360-A8707DBBA5AE} = {1D59B801-B4D3-44FC-A2BE-F2F53AC54061}
 		{DC2CDF77-88A9-490D-84ED-34832943104A} = {1D59B801-B4D3-44FC-A2BE-F2F53AC54061}
 		{3C20D95F-AB5F-44EC-8FB6-CB9827B7FD63} = {1D59B801-B4D3-44FC-A2BE-F2F53AC54061}
 		{815BE8D0-C7D5-4B4E-82E0-DE29C11F258E} = {3C20D95F-AB5F-44EC-8FB6-CB9827B7FD63}
