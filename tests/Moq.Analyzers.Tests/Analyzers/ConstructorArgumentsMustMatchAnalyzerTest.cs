@@ -178,6 +178,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<C>([|1, 2|]);
+                            var mock2 = new Mock<C>([|null|]);
                         }
                     }
 
@@ -213,6 +214,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<C>(MockBehavior.Strict, [|1, 2|]);
+                            var mock2 = new Mock<C>(MockBehavior.Strict, [|null|]);
                         }
                     }
 
