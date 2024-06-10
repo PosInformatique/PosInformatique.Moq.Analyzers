@@ -21,7 +21,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public ISetup Setup(Action<T> act) { return null; }
 
-                    public ISetup Setup(Func<T, object> func) { return null; }
+                    public ISetup<TResult> Setup<TResult>(Func<T, TResult> func) { return default; }
 
                     public void VerifyAll() { }
 
@@ -54,13 +54,38 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     ISetup Property { get; }
 
-                    ISetup Returns();
-
-                    ISetup ReturnsAsync();
-
                     ISetup Throws();
 
                     ISetup ThrowsAsync();
+                }
+
+                public interface ISetup<TResult>
+                {
+                    ISetup<TResult> Callback();
+
+                    ISetup<TResult> Callback(Action _);
+
+                    ISetup<TResult> Callback<T1>(Action<T1> _);
+
+                    ISetup<TResult> Callback<T1, T2>(Action<T1, T2> _);
+
+                    ISetup<TResult> Callback<T1, T2, T3>(Action<T1, T2, T3> _);
+
+                    ISetup<TResult> Callback<T1, TReturn>(Func<T1, TReturn> _);
+
+                    ISetup<TResult> Callback<T1, T2, TReturn>(Func<T1, T2, TReturn> _);
+
+                    ISetup<TResult> Callback<T1, T2, T3, TReturn>(Func<T1, T2, T3, TReturn> _);
+
+                    ISetup<TResult> Property { get; }
+
+                    ISetup<TResult> Returns(TResult result);
+
+                    ISetup<TResult> ReturnsAsync(TResult result);
+
+                    ISetup<TResult> Throws();
+
+                    ISetup<TResult> ThrowsAsync();
                 }
 
                 public static class It

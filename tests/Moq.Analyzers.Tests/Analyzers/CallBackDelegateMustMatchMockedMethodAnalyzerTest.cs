@@ -32,50 +32,44 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock1.Setup(m => m.TestMethod())
                                 .Callback(() => { })
                                 .Throws()
-                                .Callback(() => { })
-                                .Returns();
+                                .Callback(() => { });
                             mock1.Setup(m => m.TestMethod(default))
                                 .Callback((string x) => { })
                                 .Throws()
-                                .Callback((string x) => { })
-                                .Returns();
+                                .Callback((string x) => { });
                             mock1.Setup(m => m.TestMethod(default, default))
                                 .Callback((string x, int y) => { })
                                 .Throws()
-                                .Callback((string x, int y) => { })
-                                .Returns();
+                                .Callback((string x, int y) => { });
                             mock1.Setup(m => m.TestGenericMethod(1234))
                                 .Callback((int x) => { })
                                 .Throws()
-                                .Callback((int x) => { })
-                                .Returns();
+                                .Callback((int x) => { });
                             mock1.Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
                                 .Callback((object x) => { })
                                 .Throws()
-                                .Callback((object x) => { })
-                                .Returns();
+                                .Callback((object x) => { });
 
                             mock1.Setup(m => m.TestMethodReturn())
                                 .Callback(() => { })
                                 .Throws()
                                 .Callback(() => { })
-                                .Returns();
+                                .Returns(1234);
                             mock1.Setup(m => m.TestMethodReturn(default))
                                 .Callback((string x) => { })
                                 .Throws()
                                 .Callback((string x) => { })
-                                .Returns();
+                                .Returns(1234);
                             mock1.Setup(m => m.TestMethodReturn(default, default))
                                 .Callback((string x, int y) => { })
                                 .Throws()
                                 .Callback((string x, int y) => { })
-                                .Returns();
+                                .Returns(1234);
 
                             mock1.Setup(m => m.TestMethod(default))
                                 .Callback()
                                 .Throws()
-                                .Callback()
-                                .Returns();
+                                .Callback();
                         }
                     }
 
@@ -119,13 +113,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock1.Setup(m => m.TestMethod())
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Throws()
-                                .Callback([|(int too, int much, int parameters)|] => { })
-                                .Returns();
+                                .Callback([|(int too, int much, int parameters)|] => { });
                             mock1.Setup(m => m.TestMethod(default))
                                 .Callback([|()|] => { })
                                 .Throws()
-                                .Callback([|()|] => { })
-                                .Returns();
+                                .Callback([|()|] => { });
                             mock1.Setup(m => m.TestMethod(default))
                                 .Callback(([|int otherType|]) => { })
                                 .Throws()
@@ -133,39 +125,36 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock1.Setup(m => m.TestMethod(default))
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Throws()
-                                .Callback([|(int too, int much, int parameters)|] => { })
-                                .Returns();
+                                .Callback([|(int too, int much, int parameters)|] => { });
                             mock1.Setup(m => m.TestGenericMethod(1234))
                                 .Callback(([|string x|]) => { })
                                 .Throws()
-                                .Callback(([|string x|]) => { })
-                                .Returns();
+                                .Callback(([|string x|]) => { });
                             mock1.Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
                                 .Callback(([|string x|]) => { })
                                 .Throws()
-                                .Callback(([|string x|]) => { })
-                                .Returns();
+                                .Callback(([|string x|]) => { });
 
                             mock1.Setup(m => m.TestMethodReturn())
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Throws()
                                 .Callback([|(int too, int much, int parameters)|] => { })
-                                .Returns();
+                                .Returns(1234);
                             mock1.Setup(m => m.TestMethodReturn(default))
                                 .Callback([|()|] => { })
                                 .Throws()
                                 .Callback([|()|] => { })
-                                .Returns();
+                                .Returns(1234);
                             mock1.Setup(m => m.TestMethodReturn(default))
                                 .Callback(([|int otherType|]) => { })
                                 .Throws()
                                 .Callback(([|int otherType|]) => { })
-                                .Returns();
+                                .Returns(1234);
                             mock1.Setup(m => m.TestMethodReturn(default))
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Throws()
                                 .Callback([|(int too, int much, int parameters)|] => { })
-                                .Returns();
+                                .Returns(1234);
                         }
                     }
 

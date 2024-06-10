@@ -7,7 +7,7 @@
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 
     <LangVersion>latest</LangVersion>
-	<Nullable>enable</Nullable>
+	  <Nullable>enable</Nullable>
 
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoPackageAnalysis>true</NoPackageAnalysis>
@@ -22,6 +22,7 @@
         - PosInfoMoq2004: Check that constructor arguments can not be passed to a mocked interface.
         - PosInfoMoq2005: Check the constructors arguments passed to mocked class.
         - PosInfoMoq2006: Check that the setup method with Protected() exists, are overridable and is protected or internal.
+      - Fix the PosInfoMoq2000 to not raise an error when the Returns()/ReturnsAsync() in invalided by the compiler.
 
       1.4.0
       - Reduce the dependency of Microsoft.CodeAnalysis.CSharp to the release 4.0.1.

@@ -161,13 +161,8 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsReturnsMethod(ISymbol? symbol)
+        public bool IsReturnsMethod(ISymbol symbol)
         {
-            if (symbol is null)
-            {
-                return false;
-            }
-
             if (symbol.Name != "Returns")
             {
                 return false;
@@ -176,13 +171,8 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsReturnsAsyncMethod(ISymbol? symbol)
+        public bool IsReturnsAsyncMethod(ISymbol symbol)
         {
-            if (symbol is null)
-            {
-                return false;
-            }
-
             if (symbol.Name != "ReturnsAsync")
             {
                 return false;
@@ -191,13 +181,8 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsThrowsMethod(ISymbol? symbol)
+        public bool IsThrowsMethod(ISymbol symbol)
         {
-            if (symbol is null)
-            {
-                return false;
-            }
-
             if (symbol.Name != "Throws")
             {
                 return false;
@@ -206,13 +191,8 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsThrowsAsyncMethod(ISymbol? symbol)
+        public bool IsThrowsAsyncMethod(ISymbol symbol)
         {
-            if (symbol is null)
-            {
-                return false;
-            }
-
             if (symbol.Name != "ThrowsAsync")
             {
                 return false;

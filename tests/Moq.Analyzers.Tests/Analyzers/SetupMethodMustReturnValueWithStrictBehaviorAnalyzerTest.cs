@@ -7,6 +7,8 @@
 namespace PosInformatique.Moq.Analyzers.Tests
 {
     using System.Threading.Tasks;
+    using Microsoft.CodeAnalysis.CSharp.Testing;
+    using Microsoft.CodeAnalysis.Testing;
     using Xunit;
     using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
         SetupMethodMustReturnValueWithStrictBehaviorAnalyzer,
@@ -15,7 +17,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
     public class SetupMethodMustReturnValueWithStrictBehaviorAnalyzerTest
     {
         [Fact]
-        public async Task Returns_NoDiagnosticReported()
+        public async Task Returns_StrictMode_NoDiagnosticReported()
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -32,14 +34,14 @@ namespace PosInformatique.Moq.Analyzers.Tests
                                 .Callback()
                                 .Callback()
                                 .Property
-                                .Returns();
+                                .Returns(1234);
 
                             var mock2 = new Mock<I>(MockBehavior.Strict);
                             mock2.Setup(i => i.TestMethod())
                                 .Callback()
                                 .Callback()
                                 .Property
-                                .ReturnsAsync();
+                                .ReturnsAsync(1234);
 
                             var mock3 = new Mock<I>(MockBehavior.Strict);
 
@@ -71,14 +73,14 @@ namespace PosInformatique.Moq.Analyzers.Tests
                                 .Callback()
                                 .Callback()
                                 .Property
-                                .Returns();
+                                .Returns(1234);
 
                             var mock9 = new Mock<I>(MockBehavior.Strict);
                             mock9.Setup(i => i.TestProperty)
                                 .Callback()
                                 .Callback()
                                 .Property
-                                .ReturnsAsync();
+                                .ReturnsAsync(1234);
 
                             var obj = new object();     // Ignored because not a Mock<T>
                             obj.ToString();
@@ -98,6 +100,51 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 " + MoqLibrary.Code;
 
             await Verify.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Returns_StrictMode_InvalidReturnsType_NoDiagnosticReported()
+        {
+            var context = new CSharpAnalyzerTest<ConstructorArgumentCannotBePassedForInterfaceAnalyzer, DefaultVerifier>();
+
+            context.TestCode = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>(MockBehavior.Strict);
+                            mock1.Setup(i => i.TestMethod())
+                                .Callback()
+                                .Callback()
+                                .Returns(""Foobar"");
+                            mock1.Setup(i => i.TestProperty)
+                                .Callback()
+                                .Callback()
+                                .Returns(""Foobar"");
+                        }
+                    }
+
+                    public interface I
+                    {
+                        int TestMethod();
+
+                        int TestProperty { get; set; }
+                    }
+                }
+                "
+                + MoqLibrary.Code;
+
+            context.ExpectedDiagnostics.Add(
+                DiagnosticResult.CompilerError("CS1503").WithSpan(14, 42, 14, 50).WithArguments("1", "string", "int"));
+
+            context.ExpectedDiagnostics.Add(
+                DiagnosticResult.CompilerError("CS1503").WithSpan(18, 42, 18, 50).WithArguments("1", "string", "int"));
+
+            await context.RunAsync();
         }
 
         [Fact]

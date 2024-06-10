@@ -78,6 +78,11 @@ namespace PosInformatique.Moq.Analyzers
             {
                 var methodSymbol = context.SemanticModel.GetSymbolInfo(followingMethod);
 
+                if (methodSymbol.Symbol is null)
+                {
+                    return;
+                }
+
                 if (moqSymbols.IsReturnsMethod(methodSymbol.Symbol))
                 {
                     return;
