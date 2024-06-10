@@ -6,7 +6,6 @@
 
 namespace PosInformatique.Moq.Analyzers
 {
-    using System.Data;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -291,28 +290,37 @@ namespace PosInformatique.Moq.Analyzers
 
         public IMethodSymbol? ExtractSetupMethod(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName, CancellationToken cancellationToken)
         {
-            var symbol = this.ExtractSetupMember(invocationExpression, out memberIdentifierName, cancellationToken);
+            memberIdentifierName = null;
 
-            if (symbol is not IMethodSymbol methodSymbol)
+            var members = this.ExtractSetupMembers(invocationExpression, cancellationToken);
+
+            var member = members.FirstOrDefault();
+
+            if (member is null)
             {
                 return null;
             }
+
+            if (member.Symbol is not IMethodSymbol methodSymbol)
+            {
+                return null;
+            }
+
+            memberIdentifierName = member.Syntax;
 
             return methodSymbol;
         }
 
-        public ISymbol? ExtractSetupMember(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName, CancellationToken cancellationToken)
+        public IReadOnlyList<SetupMember> ExtractSetupMembers(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
         {
-            memberIdentifierName = null;
-
             if (invocationExpression.ArgumentList.Arguments.Count != 1)
             {
-                return null;
+                return Array.Empty<SetupMember>();
             }
 
             if (invocationExpression.ArgumentList.Arguments[0].Expression is not SimpleLambdaExpressionSyntax lambdaExpression)
             {
-                return null;
+                return Array.Empty<SetupMember>();
             }
 
             ExpressionSyntax bodyExpression;
@@ -327,22 +335,31 @@ namespace PosInformatique.Moq.Analyzers
                 // It is a property in the Setup() method.
                 if (lambdaExpression.ExpressionBody is null)
                 {
-                    return null;
+                    return Array.Empty<SetupMember>();
                 }
 
                 bodyExpression = lambdaExpression.ExpressionBody;
             }
 
-            if (bodyExpression is not MemberAccessExpressionSyntax memberExpression)
+            var members = new List<SetupMember>();
+
+            MemberAccessExpressionSyntax? memberAccessExpression;
+
+            while ((memberAccessExpression = bodyExpression as MemberAccessExpressionSyntax) != null)
             {
-                return null;
+                var symbol = this.semanticModel.GetSymbolInfo(memberAccessExpression, cancellationToken);
+
+                if (symbol.Symbol is null)
+                {
+                    return Array.Empty<SetupMember>();
+                }
+
+                members.Add(new SetupMember(memberAccessExpression.Name, symbol.Symbol));
+
+                bodyExpression = memberAccessExpression.Expression;
             }
 
-            memberIdentifierName = memberExpression.Name;
-
-            var symbol = this.semanticModel.GetSymbolInfo(memberExpression, cancellationToken);
-
-            return symbol.Symbol;
+            return members;
         }
 
         public IMethodSymbol? ExtractCallBackLambdaExpressionMethod(InvocationExpressionSyntax invocationExpression, out ParenthesizedLambdaExpressionSyntax? lambdaExpression, CancellationToken cancellationToken)
