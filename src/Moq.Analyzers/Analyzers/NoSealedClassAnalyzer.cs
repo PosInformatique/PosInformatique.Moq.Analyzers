@@ -48,24 +48,14 @@ namespace PosInformatique.Moq.Analyzers
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
 
             // Check the expression is a Mock<T> instance creation.
-            var mockedType = moqExpressionAnalyzer.GetMockedType(moqSymbols, objectCreationExpression, out var typeExpression);
+            var mockedType = moqExpressionAnalyzer.GetMockedType(moqSymbols, objectCreationExpression, out var typeExpression, context.CancellationToken);
 
             if (mockedType is null)
             {
                 return;
             }
 
-            if (mockedType.TypeKind == TypeKind.Interface)
-            {
-                return;
-            }
-
-            if (mockedType.IsAbstract)
-            {
-                return;
-            }
-
-            if (!mockedType.IsSealed)
+            if (moqSymbols.IsMockable(mockedType))
             {
                 return;
             }

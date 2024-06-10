@@ -48,28 +48,26 @@ namespace PosInformatique.Moq.Analyzers
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
 
             // Check is Setup() method.
-            if (!moqExpressionAnalyzer.IsMockSetupMethod(moqSymbols, invocationExpression, out var _))
+            if (!moqExpressionAnalyzer.IsMockSetupMethod(moqSymbols, invocationExpression, out var _, context.CancellationToken))
             {
                 return;
             }
 
             // Extracts the method in the lambda expression of the Setup() method
-            var memberSetup = moqExpressionAnalyzer.ExtractSetupMember(invocationExpression, out var memberExpression);
-
-            if (memberSetup is null)
-            {
-                return;
-            }
+            var members = moqExpressionAnalyzer.ExtractSetupMembers(invocationExpression, context.CancellationToken);
 
             // Check if the member is overridable.
-            if (moqSymbols.IsOverridable(memberSetup))
+            foreach (var member in members)
             {
-                return;
-            }
+                if (!moqSymbols.IsOverridable(member.Symbol))
+                {
+                    // The member is not overridable, raise the error.
+                    var diagnostic = Diagnostic.Create(Rule, member.Syntax.GetLocation());
+                    context.ReportDiagnostic(diagnostic);
 
-            // No returns method has been specified with Strict mode. Report the diagnostic issue.
-            var diagnostic = Diagnostic.Create(Rule, memberExpression!.GetLocation());
-            context.ReportDiagnostic(diagnostic);
+                    return;
+                }
+            }
         }
     }
 }

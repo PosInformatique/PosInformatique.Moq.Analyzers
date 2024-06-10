@@ -7,7 +7,7 @@
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 
     <LangVersion>latest</LangVersion>
-	<Nullable>enable</Nullable>
+	  <Nullable>enable</Nullable>
 
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoPackageAnalysis>true</NoPackageAnalysis>
@@ -17,18 +17,26 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      1.5.0
+      - Add new rules:
+        - PosInfoMoq2004: Check that constructor arguments can not be passed to a mocked interface.
+        - PosInfoMoq2005: Check the constructors arguments passed to mocked class.
+        - PosInfoMoq2006: Check that the setup method with Protected() exists, are overridable and is protected or internal.
+      - Fix the PosInfoMoq2000 rule to not raise an error when the Returns()/ReturnsAsync() in invalided by the compiler.
+      - Fix the PosInfoMoq2001 rule to raise error when Setup() is defined to chained members calls which are not overridable.
+
       1.4.0
       - Reduce the dependency of Microsoft.CodeAnalysis.CSharp to the release 4.0.1.
 
       1.3.0
       - Add new rules:
-      - PosInfoMoq2003 rule to check the Callback() signature method (fixes #3).
+        - PosInfoMoq2003: Check the Callback() signature method (fixes #3).
       - Fixes the PosInfoMoq2000 rule to check the call of the Returns()/ReturnsAsync() methods for the mocked properties for the mock with Strict behavior.
 
       1.2.0
       - Add new rules:
-      - PosInfoMoq2001: The Setup() method must be used only on overridable members.
-      - PosInfoMoq2002: Mock&lt;T&gt; class can be used only to mock non-sealed class.
+        - PosInfoMoq2001: The Setup() method must be used only on overridable members.
+        - PosInfoMoq2002: Mock&lt;T&gt; class can be used only to mock non-sealed class.
       
       1.1.0
       - Add new rules:
@@ -68,5 +76,11 @@
       <TfmSpecificPackageFile Include="$(OutputPath)\$(AssemblyName).dll" PackagePath="analyzers/dotnet/cs" />
     </ItemGroup>
   </Target>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>PosInformatique.Moq.Analyzers.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 
 </Project>

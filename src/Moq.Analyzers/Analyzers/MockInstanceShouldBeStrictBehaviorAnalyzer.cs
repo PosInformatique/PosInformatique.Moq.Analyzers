@@ -50,12 +50,12 @@ namespace PosInformatique.Moq.Analyzers
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
 
             // Check there is "new Mock<I>()" statement.
-            if (!moqExpressionAnalyzer.IsMockCreation(moqSymbols, objectCreation))
+            if (!moqExpressionAnalyzer.IsMockCreation(moqSymbols, objectCreation, context.CancellationToken))
             {
                 return;
             }
 
-            if (!moqExpressionAnalyzer.IsStrictBehavior(moqSymbols, objectCreation))
+            if (!moqExpressionAnalyzer.IsStrictBehavior(moqSymbols, objectCreation, context.CancellationToken))
             {
                 var diagnostic = Diagnostic.Create(Rule, objectCreation.GetLocation());
                 context.ReportDiagnostic(diagnostic);

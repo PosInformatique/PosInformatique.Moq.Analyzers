@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="SetupMethodMustReturnValueWithStrictBehaviorAnalyzer.cs" company="P.O.S Informatique">
+// <copyright file="SetupProtectedMustBeUsedWithProtectedOrInternalMembersAnalyzer.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,16 +13,16 @@ namespace PosInformatique.Moq.Analyzers
     using Microsoft.CodeAnalysis.Diagnostics;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class SetupMethodMustReturnValueWithStrictBehaviorAnalyzer : DiagnosticAnalyzer
+    public class SetupProtectedMustBeUsedWithProtectedOrInternalMembersAnalyzer : DiagnosticAnalyzer
     {
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
-            "PosInfoMoq2000",
-            "The Returns() or ReturnsAsync() methods must be call for Strict mocks",
-            "The Returns() or ReturnsAsync() methods must be call for Strict mocks",
+            "PosInfoMoq2006",
+            "The Protected().Setup() method must be use with overridable protected or internal methods",
+            "The Protected().Setup() method must be use with overridable protected or internal methods",
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "The Returns() or ReturnsAsync() methods must be call for Strict mocks.");
+            description: "The Protected().Setup() method must be use with overridable protected or internal methods.");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -47,65 +47,69 @@ namespace PosInformatique.Moq.Analyzers
 
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
 
-            // Check is Setup() method.
-            if (!moqExpressionAnalyzer.IsMockSetupMethod(moqSymbols, invocationExpression, out var localVariableExpression, context.CancellationToken))
+            // Check is Protected() method.
+            if (!moqExpressionAnalyzer.IsMockSetupMethodProtected(moqSymbols, invocationExpression, out var localVariableExpression, context.CancellationToken))
             {
                 return;
             }
 
-            // Check the mocked method return type (if "void", we skip the analysis, because no Returns() is required).
-            var mockedMethodReturnTypeSymbol = moqExpressionAnalyzer.GetSetupMethodReturnSymbol(invocationExpression, context.CancellationToken);
-            if (mockedMethodReturnTypeSymbol is null)
+            // Gets the first argument to retrieve the name of the method.
+            if (invocationExpression.ArgumentList is null)
             {
                 return;
             }
 
-            if (mockedMethodReturnTypeSymbol.SpecialType == SpecialType.System_Void)
+            if (invocationExpression.ArgumentList.Arguments.Count == 0)
             {
                 return;
             }
 
-            // Check the behavior of the mock instance is Strict.
-            if (!moqExpressionAnalyzer.IsStrictBehavior(moqSymbols, localVariableExpression!, context.CancellationToken))
+            if (invocationExpression.ArgumentList.Arguments[0].Expression is not LiteralExpressionSyntax literalExpression)
             {
                 return;
             }
 
-            // Check there Returns() method for the following calls (or Throws()).
-            var followingMethods = invocationExpression.Ancestors().OfType<InvocationExpressionSyntax>();
+            var methodName = literalExpression.Token.ValueText;
 
-            foreach (var followingMethod in followingMethods)
+            // Gets the mocked type
+            var mockedType = moqExpressionAnalyzer.GetMockedType(moqSymbols, localVariableExpression!, context.CancellationToken);
+
+            if (mockedType is null)
             {
-                var methodSymbol = context.SemanticModel.GetSymbolInfo(followingMethod);
+                return;
+            }
 
-                if (methodSymbol.Symbol is null)
+            // Check if a method exists with the specified name
+            foreach (var method in mockedType.GetMembers(methodName).OfType<IMethodSymbol>())
+            {
+                if (!method.IsAbstract && !method.IsVirtual && !method.IsOverride)
+                {
+                    continue;
+                }
+
+                if (method.IsSealed)
+                {
+                    continue;
+                }
+
+                if (method.DeclaredAccessibility == Accessibility.Protected)
                 {
                     return;
                 }
 
-                if (moqSymbols.IsReturnsMethod(methodSymbol.Symbol))
+                if (method.DeclaredAccessibility == Accessibility.Internal)
                 {
                     return;
                 }
 
-                if (moqSymbols.IsReturnsAsyncMethod(methodSymbol.Symbol))
-                {
-                    return;
-                }
-
-                if (moqSymbols.IsThrowsMethod(methodSymbol.Symbol))
-                {
-                    return;
-                }
-
-                if (moqSymbols.IsThrowsAsyncMethod(methodSymbol.Symbol))
+                if (method.DeclaredAccessibility == Accessibility.ProtectedOrInternal)
                 {
                     return;
                 }
             }
 
             // No returns method has been specified with Strict mode. Report the diagnostic issue.
-            var diagnostic = Diagnostic.Create(Rule, invocationExpression.GetLocation());
+            var diagnostic = Diagnostic.Create(Rule, literalExpression.GetLocation());
             context.ReportDiagnostic(diagnostic);
         }
     }
