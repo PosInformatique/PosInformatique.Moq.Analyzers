@@ -388,6 +388,37 @@ namespace PosInformatique.Moq.Analyzers
             return methodSymbol;
         }
 
+        public ITypeSymbol? ExtractAsMethodType(MoqSymbols moqSymbols, InvocationExpressionSyntax invocationExpression, out TypeSyntax? typeSyntax, CancellationToken cancellationToken)
+        {
+            typeSyntax = null;
+
+            if (invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
+            {
+                return null;
+            }
+
+            if (memberAccessExpression.Name is not GenericNameSyntax genericName)
+            {
+                return null;
+            }
+
+            var symbol = this.semanticModel.GetSymbolInfo(memberAccessExpression.Name, cancellationToken);
+
+            if (symbol.Symbol is not IMethodSymbol methodSymbol)
+            {
+                return null;
+            }
+
+            if (!moqSymbols.IsAsMethod(methodSymbol))
+            {
+                return null;
+            }
+
+            typeSyntax = genericName.TypeArgumentList.Arguments[0];
+
+            return methodSymbol.TypeArguments[0];
+        }
+
         private static ObjectCreationExpressionSyntax? FindMockCreation(BlockSyntax block, string variableName)
         {
             foreach (var statement in block.Statements.OfType<LocalDeclarationStatementSyntax>())

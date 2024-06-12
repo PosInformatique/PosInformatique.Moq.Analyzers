@@ -1,4 +1,12 @@
-﻿## Release 1.5.0
+﻿## Release 1.6.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|--------------------
+PosInfoMoq2007 | Compilation | Error | The `As<T>()` method can be used only with interfaces.
+
+## Release 1.5.0
 
 ### New Rules
 

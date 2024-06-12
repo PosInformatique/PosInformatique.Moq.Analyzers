@@ -23,7 +23,7 @@ and must be overridable (`virtual`, `abstract` and `override`, but not `sealed`)
 [Fact]
 public void Test()
 {
-    var service = new Mock<Service>(1, 2, 3);
+    var service = new Mock<Service>();
     service.Protected().Setup("GetData")            // The GetData() is public and can be mocked with Protected() feature.
         .Returns(10);
     service.Protected().Setup("NotExists")          // The NotExists() method does not exist.

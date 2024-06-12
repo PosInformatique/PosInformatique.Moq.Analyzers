@@ -19,6 +19,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public Mock(params object[] args) { }
 
+                    public Mock<TInterface> As<TInterface>() { return null; }
+
                     public ISetup Setup(Action<T> act) { return null; }
 
                     public ISetup<TResult> Setup<TResult>(Func<T, TResult> func) { return default; }

@@ -6,6 +6,7 @@
 
 namespace PosInformatique.Moq.Analyzers
 {
+    using System;
     using Microsoft.CodeAnalysis;
 
     internal sealed class MoqSymbols
@@ -22,6 +23,8 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly ISymbol isAnyTypeClass;
 
+        private readonly ISymbol asMethod;
+
         private MoqSymbols(INamedTypeSymbol mockClass, INamedTypeSymbol mockBehaviorEnum, ISymbol isAnyTypeClass, INamedTypeSymbol protectedMockInterface)
         {
             this.mockClass = mockClass;
@@ -31,6 +34,7 @@ namespace PosInformatique.Moq.Analyzers
             this.setupMethods = mockClass.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
             this.mockBehaviorStrictField = mockBehaviorEnum.GetMembers("Strict").First();
             this.setupProtectedMethods = protectedMockInterface.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
+            this.asMethod = mockClass.GetMembers("As").Single();
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
@@ -274,6 +278,16 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return false;
+        }
+
+        public bool IsAsMethod(IMethodSymbol method)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(method.OriginalDefinition, this.asMethod))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
