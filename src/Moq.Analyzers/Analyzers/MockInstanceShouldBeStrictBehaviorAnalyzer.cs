@@ -47,15 +47,15 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
             // Check there is "new Mock<I>()" statement.
-            if (!moqExpressionAnalyzer.IsMockCreation(moqSymbols, objectCreation, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsMockCreation(objectCreation, context.CancellationToken))
             {
                 return;
             }
 
-            if (!moqExpressionAnalyzer.IsStrictBehavior(moqSymbols, objectCreation, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsStrictBehavior(objectCreation, context.CancellationToken))
             {
                 var diagnostic = Diagnostic.Create(Rule, objectCreation.GetLocation());
                 context.ReportDiagnostic(diagnostic);

@@ -11,16 +11,19 @@ namespace PosInformatique.Moq.Analyzers
 
     internal class MoqExpressionAnalyzer
     {
+        private readonly MoqSymbols moqSymbols;
+
         private readonly SemanticModel semanticModel;
 
-        public MoqExpressionAnalyzer(SemanticModel semanticModel)
+        public MoqExpressionAnalyzer(MoqSymbols moqSymbols, SemanticModel semanticModel)
         {
+            this.moqSymbols = moqSymbols;
             this.semanticModel = semanticModel;
         }
 
-        public bool IsMockCreation(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression, CancellationToken cancellationToken)
+        public bool IsMockCreation(ObjectCreationExpressionSyntax expression, CancellationToken cancellationToken)
         {
-            if (this.GetMockedType(moqSymbols, expression, out var _, cancellationToken) is null)
+            if (this.GetMockedType(expression, out var _, cancellationToken) is null)
             {
                 return false;
             }
@@ -28,7 +31,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public ITypeSymbol? GetMockedType(MoqSymbols moqSymbols, IdentifierNameSyntax expression, CancellationToken cancellationToken)
+        public ITypeSymbol? GetMockedType(IdentifierNameSyntax expression, CancellationToken cancellationToken)
         {
             var symbolInfo = this.semanticModel.GetSymbolInfo(expression, cancellationToken);
 
@@ -42,7 +45,7 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            if (!moqSymbols.IsMock(typeSymbol))
+            if (!this.moqSymbols.IsMock(typeSymbol))
             {
                 return null;
             }
@@ -55,7 +58,7 @@ namespace PosInformatique.Moq.Analyzers
             return typeSymbol.TypeArguments[0];
         }
 
-        public ITypeSymbol? GetMockedType(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax expression, out TypeSyntax? typeExpression, CancellationToken cancellationToken)
+        public ITypeSymbol? GetMockedType(ObjectCreationExpressionSyntax expression, out TypeSyntax? typeExpression, CancellationToken cancellationToken)
         {
             typeExpression = null;
 
@@ -66,7 +69,7 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            if (!moqSymbols.IsMock(typeSymbol))
+            if (!this.moqSymbols.IsMock(typeSymbol))
             {
                 return null;
             }
@@ -81,7 +84,7 @@ namespace PosInformatique.Moq.Analyzers
             return typeSymbol.TypeArguments[0];
         }
 
-        public bool IsMockSetupMethod(MoqSymbols moqSymbols, InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression, CancellationToken cancellationToken)
+        public bool IsMockSetupMethod(InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression, CancellationToken cancellationToken)
         {
             localVariableExpression = null;
 
@@ -105,7 +108,7 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            if (!moqSymbols.IsMock(instanceVariableSymbol.Type))
+            if (!this.moqSymbols.IsMock(instanceVariableSymbol.Type))
             {
                 return false;
             }
@@ -113,7 +116,7 @@ namespace PosInformatique.Moq.Analyzers
             // Gets the method and check it is Setup() method.
             var methodSymbolInfo = this.semanticModel.GetSymbolInfo(invocationExpression.Expression, cancellationToken);
 
-            if (!moqSymbols.IsSetupMethod(methodSymbolInfo.Symbol))
+            if (!this.moqSymbols.IsSetupMethod(methodSymbolInfo.Symbol))
             {
                 return false;
             }
@@ -121,7 +124,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsMockSetupMethodProtected(MoqSymbols moqSymbols, InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression, CancellationToken cancellationToken)
+        public bool IsMockSetupMethodProtected(InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression, CancellationToken cancellationToken)
         {
             localVariableExpression = null;
 
@@ -139,7 +142,7 @@ namespace PosInformatique.Moq.Analyzers
             // Check it is a Protected() method
             var method = this.semanticModel.GetSymbolInfo(protectedInvocationExpression.Expression, cancellationToken);
 
-            if (!moqSymbols.IsProtectedMethod(method.Symbol))
+            if (!this.moqSymbols.IsProtectedMethod(method.Symbol))
             {
                 return false;
             }
@@ -164,7 +167,7 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            if (!moqSymbols.IsMock(instanceVariableSymbol.Type))
+            if (!this.moqSymbols.IsMock(instanceVariableSymbol.Type))
             {
                 return false;
             }
@@ -172,7 +175,7 @@ namespace PosInformatique.Moq.Analyzers
             // Gets the method and check it is Setup() method.
             var methodSymbolInfo = this.semanticModel.GetSymbolInfo(invocationExpression.Expression, cancellationToken);
 
-            if (!moqSymbols.IsSetupProtectedMethod(methodSymbolInfo.Symbol))
+            if (!this.moqSymbols.IsSetupProtectedMethod(methodSymbolInfo.Symbol))
             {
                 return false;
             }
@@ -180,7 +183,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsStrictBehavior(MoqSymbols moqSymbols, ObjectCreationExpressionSyntax mockCreationExpression, CancellationToken cancellationToken)
+        public bool IsStrictBehavior(ObjectCreationExpressionSyntax mockCreationExpression, CancellationToken cancellationToken)
         {
             // Check that the "new Mock<I>()" statement have at least one argument (else Strict is missing...).
             if (mockCreationExpression.ArgumentList is null)
@@ -197,7 +200,7 @@ namespace PosInformatique.Moq.Analyzers
 
             // Gets the first argument of "new Mock<I>(...)" and ensures it is a MemberAccessExpressionSyntax
             // (because we searching for MockBehavior.Strict).
-            if (!this.IsStrictBehaviorArgument(moqSymbols, firstArgument, out var memberAccessExpression, cancellationToken))
+            if (!this.IsStrictBehaviorArgument(firstArgument, out var memberAccessExpression, cancellationToken))
             {
                 return false;
             }
@@ -205,7 +208,7 @@ namespace PosInformatique.Moq.Analyzers
             // Check that the memberAccessExpression.Name reference the Strict field
             var firstArgumentField = this.semanticModel.GetSymbolInfo(memberAccessExpression!.Name, cancellationToken);
 
-            if (!moqSymbols.IsMockBehaviorStrictField(firstArgumentField.Symbol))
+            if (!this.moqSymbols.IsMockBehaviorStrictField(firstArgumentField.Symbol))
             {
                 return false;
             }
@@ -213,7 +216,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsStrictBehaviorArgument(MoqSymbols moqSymbols, ArgumentSyntax argument, out MemberAccessExpressionSyntax? memberAccessExpression, CancellationToken cancellationToken)
+        public bool IsStrictBehaviorArgument(ArgumentSyntax argument, out MemberAccessExpressionSyntax? memberAccessExpression, CancellationToken cancellationToken)
         {
             memberAccessExpression = null;
 
@@ -228,7 +231,7 @@ namespace PosInformatique.Moq.Analyzers
             // Check that the "memberAccessExpression.Expression" is applied on the Moq MockBehavior type.
             var firstArgumentType = this.semanticModel.GetSymbolInfo(memberAccessExpression.Expression, cancellationToken);
 
-            if (!moqSymbols.IsMockBehaviorEnum(firstArgumentType.Symbol))
+            if (!this.moqSymbols.IsMockBehaviorEnum(firstArgumentType.Symbol))
             {
                 return false;
             }
@@ -236,7 +239,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsStrictBehavior(MoqSymbols moqSymbols, IdentifierNameSyntax localVariableExpression, CancellationToken cancellationToken)
+        public bool IsStrictBehavior(IdentifierNameSyntax localVariableExpression, CancellationToken cancellationToken)
         {
             // Go back to the parents nodes and iterate all the statements in the parents blocks to find
             // the Mock instantiation (new Mock<I>(...) to determines the mock behavior.
@@ -246,7 +249,7 @@ namespace PosInformatique.Moq.Analyzers
 
                 if (mockCreation is not null)
                 {
-                    if (this.IsStrictBehavior(moqSymbols, mockCreation, cancellationToken))
+                    if (this.IsStrictBehavior(mockCreation, cancellationToken))
                     {
                         return true;
                     }
@@ -388,7 +391,7 @@ namespace PosInformatique.Moq.Analyzers
             return methodSymbol;
         }
 
-        public ITypeSymbol? ExtractAsMethodType(MoqSymbols moqSymbols, InvocationExpressionSyntax invocationExpression, out TypeSyntax? typeSyntax, CancellationToken cancellationToken)
+        public ITypeSymbol? ExtractAsMethodType(InvocationExpressionSyntax invocationExpression, out TypeSyntax? typeSyntax, CancellationToken cancellationToken)
         {
             typeSyntax = null;
 
@@ -409,7 +412,7 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            if (!moqSymbols.IsAsMethod(methodSymbol))
+            if (!this.moqSymbols.IsAsMethod(methodSymbol))
             {
                 return null;
             }

@@ -45,9 +45,9 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
-            var asMethodType = moqExpressionAnalyzer.ExtractAsMethodType(moqSymbols, invocationExpression, out var typeSyntax, context.CancellationToken);
+            var asMethodType = moqExpressionAnalyzer.ExtractAsMethodType(invocationExpression, out var typeSyntax, context.CancellationToken);
 
             if (asMethodType is null)
             {

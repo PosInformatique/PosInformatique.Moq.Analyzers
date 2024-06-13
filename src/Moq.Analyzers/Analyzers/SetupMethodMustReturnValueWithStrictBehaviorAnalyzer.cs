@@ -45,10 +45,10 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
             // Check is Setup() method.
-            if (!moqExpressionAnalyzer.IsMockSetupMethod(moqSymbols, invocationExpression, out var localVariableExpression, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsMockSetupMethod(invocationExpression, out var localVariableExpression, context.CancellationToken))
             {
                 return;
             }
@@ -66,7 +66,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check the behavior of the mock instance is Strict.
-            if (!moqExpressionAnalyzer.IsStrictBehavior(moqSymbols, localVariableExpression!, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsStrictBehavior(localVariableExpression!, context.CancellationToken))
             {
                 return;
             }

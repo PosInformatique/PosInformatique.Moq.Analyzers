@@ -46,10 +46,10 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
             // Check there is "new Mock<I>()" statement.
-            var mockedType = moqExpressionAnalyzer.GetMockedType(moqSymbols, objectCreation, out var _, context.CancellationToken);
+            var mockedType = moqExpressionAnalyzer.GetMockedType(objectCreation, out var _, context.CancellationToken);
             if (mockedType is null)
             {
                 return;
@@ -80,7 +80,7 @@ namespace PosInformatique.Moq.Analyzers
 
             if (firstArgument is not null)
             {
-                if (moqExpressionAnalyzer.IsStrictBehaviorArgument(moqSymbols, firstArgument, out var _, context.CancellationToken))
+                if (moqExpressionAnalyzer.IsStrictBehaviorArgument(firstArgument, out var _, context.CancellationToken))
                 {
                     constructorArguments.RemoveAt(0);
                 }

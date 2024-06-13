@@ -45,8 +45,6 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
-
             // Try to determine if the invocation expression is a Callback() expression.
             var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
 
@@ -56,6 +54,8 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // If yes, we extract the lambda expression of it.
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
+
             var callBackLambdaExpressionSymbol = moqExpressionAnalyzer.ExtractCallBackLambdaExpressionMethod(invocationExpression, out var lambdaExpression, context.CancellationToken);
 
             if (callBackLambdaExpressionSymbol is null)

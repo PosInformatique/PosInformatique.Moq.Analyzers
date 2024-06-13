@@ -45,9 +45,9 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
-            if (!moqExpressionAnalyzer.IsMockCreation(moqSymbols, objectCreation, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsMockCreation(objectCreation, context.CancellationToken))
             {
                 return;
             }

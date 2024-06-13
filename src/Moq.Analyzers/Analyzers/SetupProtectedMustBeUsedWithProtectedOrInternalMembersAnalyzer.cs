@@ -45,10 +45,10 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
             // Check is Protected() method.
-            if (!moqExpressionAnalyzer.IsMockSetupMethodProtected(moqSymbols, invocationExpression, out var localVariableExpression, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsMockSetupMethodProtected(invocationExpression, out var localVariableExpression, context.CancellationToken))
             {
                 return;
             }
@@ -72,7 +72,7 @@ namespace PosInformatique.Moq.Analyzers
             var methodName = literalExpression.Token.ValueText;
 
             // Gets the mocked type
-            var mockedType = moqExpressionAnalyzer.GetMockedType(moqSymbols, localVariableExpression!, context.CancellationToken);
+            var mockedType = moqExpressionAnalyzer.GetMockedType(localVariableExpression!, context.CancellationToken);
 
             if (mockedType is null)
             {

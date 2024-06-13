@@ -45,10 +45,10 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
             // Check the expression is a Mock<T> instance creation.
-            var mockedType = moqExpressionAnalyzer.GetMockedType(moqSymbols, objectCreationExpression, out var typeExpression, context.CancellationToken);
+            var mockedType = moqExpressionAnalyzer.GetMockedType(objectCreationExpression, out var typeExpression, context.CancellationToken);
 
             if (mockedType is null)
             {
