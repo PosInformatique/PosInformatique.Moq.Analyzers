@@ -5,6 +5,7 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
 PosInfoMoq2007 | Compilation | Error | The `As<T>()` method can be used only with interfaces.
+PosInfoMoq2008 | Compilation | Error | The `Verify()` method can be used only on overridable members.
 
 ## Release 1.5.0
 

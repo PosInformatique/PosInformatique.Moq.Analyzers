@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="SetupMustBeUsedOnlyForOverridableMembersAnalyzer.cs" company="P.O.S Informatique">
+// <copyright file="VerifyMustBeUsedOnlyForOverridableMembersAnalyzer.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,16 +13,16 @@ namespace PosInformatique.Moq.Analyzers
     using Microsoft.CodeAnalysis.Diagnostics;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class SetupMustBeUsedOnlyForOverridableMembersAnalyzer : DiagnosticAnalyzer
+    public class VerifyMustBeUsedOnlyForOverridableMembersAnalyzer : DiagnosticAnalyzer
     {
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
-            "PosInfoMoq2001",
-            "The Setup() method must be used only on overridable members",
-            "The Setup() method must be used only on overridable members",
+            "PosInfoMoq2008",
+            "The Verify() method must be used only on overridable members",
+            "The Verify() method must be used only on overridable members",
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "The Setup() method must be used only on overridable members.");
+            description: "The Verify() method must be used only on overridable members.");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -50,7 +50,7 @@ namespace PosInformatique.Moq.Analyzers
             // Check is Setup() method.
             var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
 
-            if (!moqSymbols.IsSetupMethod(methodSymbol.Symbol))
+            if (!moqSymbols.IsVerifyMethod(methodSymbol.Symbol))
             {
                 return;
             }

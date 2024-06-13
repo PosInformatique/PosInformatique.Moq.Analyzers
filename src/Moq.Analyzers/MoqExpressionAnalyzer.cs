@@ -295,7 +295,7 @@ namespace PosInformatique.Moq.Analyzers
         {
             memberIdentifierName = null;
 
-            var members = this.ExtractSetupMembers(invocationExpression, cancellationToken);
+            var members = this.ExtractChainedMembersInvocationFromLambdaExpression(invocationExpression, cancellationToken);
 
             var member = members.FirstOrDefault();
 
@@ -314,9 +314,10 @@ namespace PosInformatique.Moq.Analyzers
             return methodSymbol;
         }
 
-        public IReadOnlyList<SetupMember> ExtractSetupMembers(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
+        public IReadOnlyList<SetupMember> ExtractChainedMembersInvocationFromLambdaExpression(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
         {
-            if (invocationExpression.ArgumentList.Arguments.Count != 1)
+            // Check the invocation expression is Setup(m => xxxxx) / Verify(m => xxxx) expression which contains a lambda expression.
+            if (invocationExpression.ArgumentList.Arguments.Count == 0)
             {
                 return Array.Empty<SetupMember>();
             }
@@ -326,6 +327,7 @@ namespace PosInformatique.Moq.Analyzers
                 return Array.Empty<SetupMember>();
             }
 
+            // Extract inside the body expression the chained members.
             ExpressionSyntax bodyExpression;
 
             if (lambdaExpression.Body is InvocationExpressionSyntax invocationMemberExpression)

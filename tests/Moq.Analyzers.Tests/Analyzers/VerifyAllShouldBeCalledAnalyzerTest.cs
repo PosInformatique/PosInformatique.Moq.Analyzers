@@ -32,6 +32,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             o.ToString();
 
                             var mock2 = new Mock<I>();
+                            var mock3 = new Mock<I>();
+                            var mock4 = new Mock<I>();
 
                             new Mock<I>();  // No variable (ignored)
 
@@ -40,12 +42,15 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock1.Property = 1234;  // Property access are ignored.
 
                             mock1.VerifyAll();
-                            mock2.Verify(1, 2);
+                            mock2.Verify();
+                            mock3.Verify(m => m.Method());
+                            mock4.Verify(m => m.Method(), ""Foobar"");
                         }
                     }
 
                     public interface I
                     {
+                        void Method();
                     }
                 }
                 " + MoqLibrary.Code;

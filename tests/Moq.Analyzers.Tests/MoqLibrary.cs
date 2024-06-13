@@ -12,6 +12,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
             namespace Moq
             {
                 using System;
+                using System.Linq.Expressions;
 
                 public class Mock<T>
                 {
@@ -29,7 +30,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public void Verify() { }
 
-                    public void Verify(int a, int b) { }
+                    public void Verify(Expression<Action<T>> _) { }
+
+                    public void Verify<TResult>(Expression<Func<T, TResult>> _) { }
+
+                    public void Verify(Expression<Action<T>> _, string failedMessage) { }
+
+                    public void Verify<TResult>(Expression<Func<T, TResult>> _, string failedMessage) { }
 
                     public object Property { get; set; }
                 }

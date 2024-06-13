@@ -19,6 +19,8 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly IReadOnlyList<IMethodSymbol> setupProtectedMethods;
 
+        private readonly IReadOnlyList<IMethodSymbol> verifyMethods;
+
         private readonly ISymbol mockBehaviorStrictField;
 
         private readonly ISymbol isAnyTypeClass;
@@ -35,6 +37,7 @@ namespace PosInformatique.Moq.Analyzers
             this.mockBehaviorStrictField = mockBehaviorEnum.GetMembers("Strict").First();
             this.setupProtectedMethods = protectedMockInterface.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
             this.asMethod = mockClass.GetMembers("As").Single();
+            this.verifyMethods = mockClass.GetMembers("Verify").OfType<IMethodSymbol>().ToArray();
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
@@ -133,6 +136,36 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return false;
+        }
+
+        public bool IsVerifyMethod(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            var originalDefinition = symbol.OriginalDefinition;
+
+            foreach (var verifyMethod in this.verifyMethods)
+            {
+                if (SymbolEqualityComparer.Default.Equals(originalDefinition, verifyMethod))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsVerifyAllMethod(ISymbol symbol)
+        {
+            if (symbol.Name != "VerifyAll")
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool IsCallback(ISymbol? symbol)

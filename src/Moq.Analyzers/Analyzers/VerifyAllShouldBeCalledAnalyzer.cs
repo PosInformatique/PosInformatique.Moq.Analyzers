@@ -80,7 +80,7 @@ namespace PosInformatique.Moq.Analyzers
             // Retrieve all method invocation expressions.
             var invocationExpressions = parentMethod.DescendantNodes().OfType<InvocationExpressionSyntax>();
 
-            var verifyAllCalled = invocationExpressions.Any(expression => IsMockVerifyAllInvocation(expression, variableNameModel, context.SemanticModel));
+            var verifyAllCalled = invocationExpressions.Any(expression => IsMockVerifyAllInvocation(expression, variableNameModel, moqSymbols, context.SemanticModel));
 
             if (!verifyAllCalled)
             {
@@ -89,7 +89,7 @@ namespace PosInformatique.Moq.Analyzers
             }
         }
 
-        private static bool IsMockVerifyAllInvocation(InvocationExpressionSyntax invocation, ISymbol variableNameSymbol, SemanticModel semanticModel)
+        private static bool IsMockVerifyAllInvocation(InvocationExpressionSyntax invocation, ISymbol variableNameSymbol, MoqSymbols moqSymbols, SemanticModel semanticModel)
         {
             if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
             {
@@ -98,7 +98,14 @@ namespace PosInformatique.Moq.Analyzers
 
             // We check if a "VerifyAll()" method is called (currently we don't know if it is on the Mock object, it can be on other object type)
             // but we try to use this condition here to stop quickly the analysis.
-            if (!IsVerifyMethod(memberAccess.Name.Identifier.ValueText))
+            var verifyMethod = semanticModel.GetSymbolInfo(memberAccess);
+
+            if (verifyMethod.Symbol is null)
+            {
+                return false;
+            }
+
+            if (!moqSymbols.IsVerifyMethod(verifyMethod.Symbol) && !moqSymbols.IsVerifyAllMethod(verifyMethod.Symbol))
             {
                 return false;
             }
@@ -113,16 +120,6 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return true;
-        }
-
-        private static bool IsVerifyMethod(string name)
-        {
-            return name switch
-            {
-                "VerifyAll" => true,
-                "Verify" => true,
-                _ => false
-            };
         }
     }
 }
