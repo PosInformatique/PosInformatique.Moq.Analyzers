@@ -23,7 +23,8 @@ namespace PosInformatique.Moq.Analyzers
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "Constructor arguments must match the constructors of the mocked class.");
+            description: "Constructor arguments must match the constructors of the mocked class.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2005.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

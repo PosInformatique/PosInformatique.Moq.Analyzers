@@ -22,7 +22,8 @@ namespace PosInformatique.Moq.Analyzers
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "The Protected().Setup() method must be use with overridable protected or internal methods.");
+            description: "The Protected().Setup() method must be use with overridable protected or internal methods.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2006.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

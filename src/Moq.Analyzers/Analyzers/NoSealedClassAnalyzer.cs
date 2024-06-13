@@ -22,7 +22,8 @@ namespace PosInformatique.Moq.Analyzers
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "Mock<T> class can be used only to mock non-sealed class.");
+            description: "Mock<T> class can be used only to mock non-sealed class.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2002.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

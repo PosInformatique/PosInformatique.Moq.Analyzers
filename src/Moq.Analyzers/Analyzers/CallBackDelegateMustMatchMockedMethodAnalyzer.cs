@@ -22,7 +22,8 @@ namespace PosInformatique.Moq.Analyzers
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "The Callback() delegate expression must match the signature of the mocked method.");
+            description: "The Callback() delegate expression must match the signature of the mocked method.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2003.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

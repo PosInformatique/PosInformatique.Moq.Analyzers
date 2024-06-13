@@ -22,7 +22,8 @@ namespace PosInformatique.Moq.Analyzers
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "The Returns() or ReturnsAsync() methods must be call for Strict mocks.");
+            description: "The Returns() or ReturnsAsync() methods must be call for Strict mocks.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2000.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
