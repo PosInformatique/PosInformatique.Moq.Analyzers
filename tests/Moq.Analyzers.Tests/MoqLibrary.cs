@@ -14,7 +14,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 using System;
                 using System.Linq.Expressions;
 
-                public class Mock<T>
+                public class Mock<T> : Mock
                 {
                     public Mock(MockBehavior _ = MockBehavior.Loose, params object[] args) { }
 
@@ -39,6 +39,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public void Verify<TResult>(Expression<Func<T, TResult>> _, string failedMessage) { }
 
                     public object Property { get; set; }
+                }
+
+                public class Mock
+                {
+                    public static void Verify(params Mock[] mocks) { }
+
+                    public static void VerifyAll(params Mock[] mocks) { }
                 }
 
                 public enum MockBehavior { Strict, Loose }

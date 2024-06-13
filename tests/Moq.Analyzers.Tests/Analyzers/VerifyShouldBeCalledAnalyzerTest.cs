@@ -34,6 +34,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock2 = new Mock<I>();
                             var mock3 = new Mock<I>();
                             var mock4 = new Mock<I>();
+                            var mock5 = new Mock<I>();
+                            var mock6 = new Mock<I>();
+                            var mock7 = new Mock<I>();
+                            var mock8 = new Mock<I>();
+                            var mock9 = new Mock<I>();
+                            var mock10 = new Mock<I>();
 
                             new Mock<I>();  // No variable (ignored)
 
@@ -45,7 +51,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock2.Verify();
                             mock3.Verify(m => m.Method());
                             mock4.Verify(m => m.Method(), ""Foobar"");
-                        }
+
+                            Mock.VerifyAll(mock5, mock6);
+                            Mock.Verify(mock7, mock8);
+
+                            Mock<I>.VerifyAll(mock9);
+                            Mock<I>.Verify(mock10);
+                       }
                     }
 
                     public interface I

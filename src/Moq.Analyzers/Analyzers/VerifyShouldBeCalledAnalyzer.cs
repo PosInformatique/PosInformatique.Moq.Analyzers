@@ -62,7 +62,7 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var variableNameModel = context.SemanticModel.GetDeclaredSymbol(variableName);
+            var variableNameModel = context.SemanticModel.GetDeclaredSymbol(variableName, context.CancellationToken);
 
             if (variableNameModel is null)
             {
@@ -81,7 +81,7 @@ namespace PosInformatique.Moq.Analyzers
             // Retrieve all method invocation expressions.
             var invocationExpressions = parentMethod.DescendantNodes().OfType<InvocationExpressionSyntax>();
 
-            var verifyAllCalled = invocationExpressions.Any(expression => IsMockVerifyAllInvocation(expression, variableNameModel, moqSymbols, context.SemanticModel));
+            var verifyAllCalled = invocationExpressions.Any(expression => IsMockVerifyAllInvocation(expression, variableNameModel, moqSymbols, context.SemanticModel, context.CancellationToken));
 
             if (!verifyAllCalled)
             {
@@ -90,16 +90,15 @@ namespace PosInformatique.Moq.Analyzers
             }
         }
 
-        private static bool IsMockVerifyAllInvocation(InvocationExpressionSyntax invocation, ISymbol variableNameSymbol, MoqSymbols moqSymbols, SemanticModel semanticModel)
+        private static bool IsMockVerifyAllInvocation(InvocationExpressionSyntax invocation, ISymbol variableNameSymbol, MoqSymbols moqSymbols, SemanticModel semanticModel, CancellationToken cancellationToken)
         {
             if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
             {
                 return false;
             }
 
-            // We check if a "VerifyAll()" method is called (currently we don't know if it is on the Mock object, it can be on other object type)
-            // but we try to use this condition here to stop quickly the analysis.
-            var verifyMethod = semanticModel.GetSymbolInfo(memberAccess);
+            // Check if the invocation expression is a Verify() / VerifyAll() methods.
+            var verifyMethod = semanticModel.GetSymbolInfo(memberAccess, cancellationToken);
 
             if (verifyMethod.Symbol is null)
             {
@@ -108,11 +107,33 @@ namespace PosInformatique.Moq.Analyzers
 
             if (!moqSymbols.IsVerifyMethod(verifyMethod.Symbol) && !moqSymbols.IsVerifyAllMethod(verifyMethod.Symbol))
             {
+                if (!moqSymbols.IsVerifyStaticMethod(verifyMethod.Symbol) && !moqSymbols.IsVerifyAllStaticMethod(verifyMethod.Symbol))
+                {
+                    return false;
+                }
+
+                // Special case, the static method Verify() or VerifyAll() has been called.
+                // In this case, iterate on each arguments of the method called and check if the variableNameSymbol has been passed.
+                foreach (var argument in invocation.ArgumentList.Arguments)
+                {
+                    var argumentSymbol = semanticModel.GetSymbolInfo(argument.Expression, cancellationToken);
+
+                    if (argumentSymbol.Symbol is null)
+                    {
+                        return false;
+                    }
+
+                    if (SymbolEqualityComparer.Default.Equals(argumentSymbol.Symbol, variableNameSymbol))
+                    {
+                        return true;
+                    }
+                }
+
                 return false;
             }
 
             // Gets the variable name symbol.
-            var identifierSymbol = semanticModel.GetSymbolInfo(memberAccess.Expression);
+            var identifierSymbol = semanticModel.GetSymbolInfo(memberAccess.Expression, cancellationToken);
 
             // If the variable name of .VerifyAll() does not match the variable, so the VerifyAll() was for other Mock instance.
             if (!SymbolEqualityComparer.Default.Equals(identifierSymbol.Symbol, variableNameSymbol))

@@ -13,7 +13,7 @@ namespace PosInformatique.Moq.Analyzers
     {
         private readonly INamedTypeSymbol mockBehaviorEnum;
 
-        private readonly INamedTypeSymbol mockClass;
+        private readonly INamedTypeSymbol mockGenericClass;
 
         private readonly IReadOnlyList<IMethodSymbol> setupMethods;
 
@@ -21,30 +21,40 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly IReadOnlyList<IMethodSymbol> verifyMethods;
 
+        private readonly Lazy<IMethodSymbol> staticVerifyMethod;
+
+        private readonly Lazy<IMethodSymbol> staticVerifyAllMethod;
+
+        private readonly Lazy<IMethodSymbol> verifyAllMethod;
+
         private readonly ISymbol mockBehaviorStrictField;
 
         private readonly ISymbol isAnyTypeClass;
 
         private readonly ISymbol asMethod;
 
-        private MoqSymbols(INamedTypeSymbol mockClass, INamedTypeSymbol mockBehaviorEnum, ISymbol isAnyTypeClass, INamedTypeSymbol protectedMockInterface)
+        private MoqSymbols(INamedTypeSymbol mockGenericClass, INamedTypeSymbol mockBehaviorEnum, ISymbol isAnyTypeClass, INamedTypeSymbol protectedMockInterface)
         {
-            this.mockClass = mockClass;
+            this.mockGenericClass = mockGenericClass;
             this.mockBehaviorEnum = mockBehaviorEnum;
             this.isAnyTypeClass = isAnyTypeClass;
 
-            this.setupMethods = mockClass.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
+            this.setupMethods = mockGenericClass.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
             this.mockBehaviorStrictField = mockBehaviorEnum.GetMembers("Strict").First();
             this.setupProtectedMethods = protectedMockInterface.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
-            this.asMethod = mockClass.GetMembers("As").Single();
-            this.verifyMethods = mockClass.GetMembers("Verify").OfType<IMethodSymbol>().ToArray();
+            this.asMethod = mockGenericClass.GetMembers("As").Single();
+            this.verifyMethods = mockGenericClass.GetMembers("Verify").OfType<IMethodSymbol>().ToArray();
+
+            this.staticVerifyMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("Verify").Where(m => m.IsStatic).OfType<IMethodSymbol>().Single());
+            this.staticVerifyAllMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("VerifyAll").Where(m => m.IsStatic).OfType<IMethodSymbol>().Single());
+            this.verifyAllMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.GetMembers("VerifyAll").OfType<IMethodSymbol>().Single());
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
         {
-            var mockClass = compilation.GetTypeByMetadataName("Moq.Mock`1");
+            var mockGenericClass = compilation.GetTypeByMetadataName("Moq.Mock`1");
 
-            if (mockClass is null)
+            if (mockGenericClass is null)
             {
                 return null;
             }
@@ -70,7 +80,7 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            return new MoqSymbols(mockClass, mockBehaviorEnum, isAnyTypeClass, protectedMockInterface);
+            return new MoqSymbols(mockGenericClass, mockBehaviorEnum, isAnyTypeClass, protectedMockInterface);
         }
 
         public bool IsAnyType(ITypeSymbol symbol)
@@ -90,7 +100,7 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.mockClass))
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.mockGenericClass))
             {
                 return false;
             }
@@ -158,9 +168,29 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
+        public bool IsVerifyStaticMethod(ISymbol symbol)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(symbol, this.staticVerifyMethod.Value))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public bool IsVerifyAllMethod(ISymbol symbol)
         {
-            if (symbol.Name != "VerifyAll")
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.verifyAllMethod.Value))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsVerifyAllStaticMethod(ISymbol symbol)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(symbol, this.staticVerifyAllMethod.Value))
             {
                 return false;
             }
