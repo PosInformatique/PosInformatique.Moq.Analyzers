@@ -77,7 +77,7 @@ namespace PosInformatique.Moq.Analyzers
 
             foreach (var followingMethod in followingMethods)
             {
-                var methodSymbol = context.SemanticModel.GetSymbolInfo(followingMethod);
+                var methodSymbol = context.SemanticModel.GetSymbolInfo(followingMethod, context.CancellationToken);
 
                 if (methodSymbol.Symbol is null)
                 {
