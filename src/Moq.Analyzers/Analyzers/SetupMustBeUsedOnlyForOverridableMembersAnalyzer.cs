@@ -48,7 +48,9 @@ namespace PosInformatique.Moq.Analyzers
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
 
             // Check is Setup() method.
-            if (!moqExpressionAnalyzer.IsMockSetupMethod(moqSymbols, invocationExpression, out var _, context.CancellationToken))
+            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
+
+            if (!moqSymbols.IsSetupMethod(methodSymbol.Symbol))
             {
                 return;
             }
