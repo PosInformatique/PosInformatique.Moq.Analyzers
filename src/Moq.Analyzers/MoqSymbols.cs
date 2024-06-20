@@ -47,7 +47,7 @@ namespace PosInformatique.Moq.Analyzers
 
             this.staticVerifyMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("Verify").Where(m => m.IsStatic).OfType<IMethodSymbol>().Single());
             this.staticVerifyAllMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("VerifyAll").Where(m => m.IsStatic).OfType<IMethodSymbol>().Single());
-            this.verifyAllMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.GetMembers("VerifyAll").OfType<IMethodSymbol>().Single());
+            this.verifyAllMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("VerifyAll").Where(m => !m.IsStatic).OfType<IMethodSymbol>().Single());
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
