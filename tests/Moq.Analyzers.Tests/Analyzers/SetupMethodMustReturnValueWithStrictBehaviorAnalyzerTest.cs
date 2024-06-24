@@ -6,10 +6,7 @@
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using System.Threading.Tasks;
-    using Microsoft.CodeAnalysis.CSharp.Testing;
     using Microsoft.CodeAnalysis.Testing;
-    using Xunit;
     using Verifier = MoqCSharpAnalyzerVerifier<SetupMethodMustReturnValueWithStrictBehaviorAnalyzer>;
 
     public class SetupMethodMustReturnValueWithStrictBehaviorAnalyzerTest

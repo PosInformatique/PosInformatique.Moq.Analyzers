@@ -6,8 +6,6 @@
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using System.Threading.Tasks;
-    using Xunit;
     using Verifier = MoqCSharpCodeFixVerifier<MockInstanceShouldBeStrictBehaviorAnalyzer, SetBehaviorToStrictCodeFixProvider>;
 
     public class SetBehaviorToStrictCodeFixProviderTest

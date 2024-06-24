@@ -43,6 +43,7 @@
   <!-- Add the default using directive for all the code -->
   <ItemGroup>
     <Using Include="System" />
+    <Using Include="System.Threading.Tasks" />
   </ItemGroup>
 
 </Project>

@@ -6,8 +6,6 @@
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using System.Threading.Tasks;
-    using Xunit;
     using Verifier = MoqCSharpAnalyzerVerifier<AsMustBeUsedWithInterfaceAnalyzer>;
 
     public class AsMustBeUsedWithInterfaceAnalyzerTest
