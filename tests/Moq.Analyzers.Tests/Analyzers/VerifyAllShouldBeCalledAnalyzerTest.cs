@@ -1,17 +1,17 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="VerifyShouldBeCalledAnalyzerTest.cs" company="P.O.S Informatique">
+// <copyright file="VerifyAllShouldBeCalledAnalyzerTest.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using Verifier = MoqCSharpAnalyzerVerifier<VerifyShouldBeCalledAnalyzer>;
+    using Verifier = MoqCSharpAnalyzerVerifier<VerifyAllShouldBeCalledAnalyzer>;
 
-    public class VerifyShouldBeCalledAnalyzerTest
+    public class VerifyAllShouldBeCalledAnalyzerTest
     {
         [Fact]
-        public async Task Verify_Called()
+        public async Task VerifyAll_Called()
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -27,15 +27,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var o = new object();
                             o.ToString();
 
-                            var mock2 = new Mock<I>();
-                            var mock3 = new Mock<I>();
-                            var mock4 = new Mock<I>();
                             var mock5 = new Mock<I>();
                             var mock6 = new Mock<I>();
-                            var mock7 = new Mock<I>();
-                            var mock8 = new Mock<I>();
-                            var mock9 = new Mock<I>();
-                            var mock10 = new Mock<I>();
 
                             new Mock<I>();  // No variable (ignored)
 
@@ -44,15 +37,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock1.CallBase = false;  // Property access are ignored.
 
                             mock1.VerifyAll();
-                            mock2.Verify();
-                            mock3.Verify(m => m.Method());
-                            mock4.Verify(m => m.Method(), ""Foobar"");
 
                             Mock.VerifyAll(mock5, mock6);
-                            Mock.Verify(mock7, mock8);
-
-                            Mock<I>.VerifyAll(mock9);
-                            Mock<I>.Verify(mock10);
                        }
                     }
 
@@ -66,7 +52,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         }
 
         [Fact]
-        public async Task Verify_Missing_Calls()
+        public async Task VerifyAll_Missing_Calls()
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -93,7 +79,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         }
 
         [Fact]
-        public async Task Verify_Missing_Calls_WithArguments()
+        public async Task VerifyAll_Missing_Calls_WithArguments()
         {
             var source = @"
                 namespace ConsoleApplication1

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="VerifyShouldBeCalledAnalyzer.cs" company="P.O.S Informatique">
+// <copyright file="VerifyAllShouldBeCalledAnalyzer.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,16 +13,16 @@ namespace PosInformatique.Moq.Analyzers
     using Microsoft.CodeAnalysis.Diagnostics;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class VerifyShouldBeCalledAnalyzer : DiagnosticAnalyzer
+    public class VerifyAllShouldBeCalledAnalyzer : DiagnosticAnalyzer
     {
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             "PosInfoMoq1000",
-            "Verify() and VerifyAll() methods should be called when instantiate a Mock<T> instances",
-            "The Verify() or VerifyAll() method should be called at the end of the unit test",
+            "VerifyAll() method should be called when instantiate a Mock<T> instances",
+            "The VerifyAll() method should be called at the end of the unit test",
             "Design",
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "VerifyAll() or VerifyAll() methods should be called at the end of the unit test method.",
+            description: "VerifyAll() method should be called at the end of the unit test method.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1000.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
@@ -105,14 +105,14 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            if (!moqSymbols.IsVerifyMethod(verifyMethod.Symbol) && !moqSymbols.IsVerifyAllMethod(verifyMethod.Symbol))
+            if (!moqSymbols.IsVerifyAllMethod(verifyMethod.Symbol))
             {
-                if (!moqSymbols.IsVerifyStaticMethod(verifyMethod.Symbol) && !moqSymbols.IsVerifyAllStaticMethod(verifyMethod.Symbol))
+                if (!moqSymbols.IsVerifyAllStaticMethod(verifyMethod.Symbol))
                 {
                     return false;
                 }
 
-                // Special case, the static method Verify() or VerifyAll() has been called.
+                // Special case, the static method VerifyAll() has been called.
                 // In this case, iterate on each arguments of the method called and check if the variableNameSymbol has been passed.
                 foreach (var argument in invocation.ArgumentList.Arguments)
                 {
