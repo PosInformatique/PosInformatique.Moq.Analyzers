@@ -84,6 +84,25 @@ namespace PosInformatique.Moq.Analyzers
             return typeSymbol.TypeArguments[0];
         }
 
+        public ISymbol? GetMockVariable(InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression, CancellationToken cancellationToken)
+        {
+            localVariableExpression = invocationExpression.DescendantNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
+
+            if (localVariableExpression is null)
+            {
+                return null;
+            }
+
+            var localVariable = this.semanticModel.GetSymbolInfo(localVariableExpression, cancellationToken);
+
+            if (localVariable.Symbol is null)
+            {
+                return null;
+            }
+
+            return localVariable.Symbol;
+        }
+
         public bool IsMockSetupMethod(InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression, CancellationToken cancellationToken)
         {
             localVariableExpression = null;

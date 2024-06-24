@@ -1,20 +1,20 @@
-# PosInfoMoq1000: `Verify()` and `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances
+# PosInfoMoq1000: ``VerifyAll()` method should be called when instantiate a `Mock<T>` instances
 
 | Property                            | Value                                                                                      |
 |-------------------------------------|--------------------------------------------------------------------------------------------|
-| **Rule ID**                         | PosInfoMoq1000                                                                                     |
-| **Title**                           | `Verify()` and `VerifyAll()` methods should be called when instantiate a Mock<T> instances |
+| **Rule ID**                         | PosInfoMoq1000                                                                             |
+| **Title**                           | `VerifyAll()` methods should be called when instantiate a Mock<T> instances				   |
 | **Category**                        | Design																				       |
 | **Default severity**				  | Warning																				       |
 
 ## Cause
 
-A `Verify()` or `VerifyAll()` of an `Mock<T>` instance has not been called in the *Assert* phase
+A `VerifyAll()` of an `Mock<T>` instance has not been called in the *Assert* phase
 of an unit test.
 
 ## Rule description
 
-When instantiating a `Mock<T>` in the *Arrange* phase of an unit test, `Verify()` or `VerifyAll()` method
+When instantiating a `Mock<T>` in the *Arrange* phase of an unit test, `VerifyAll()` method
 should be called in the *Assert* phase to check the setup methods has been called.
 
 ```csharp
@@ -37,7 +37,7 @@ public void GetCustomer_ShouldCallRepository()
 
 ## How to fix violations
 
-To fix a violation of this rule, call the `Verify()` or `VerifyAll()` in the *Assert* phase
+To fix a violation of this rule, call the `VerifyAll()` in the *Assert* phase
 on the `Mock<T>` instances created during the *Arrange* phase.
 
 ## When to suppress warnings
