@@ -26,8 +26,6 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public ISetup<TResult> Setup<TResult>(Func<T, TResult> func) { return default; }
 
-                    public void Verify() { }
-
                     public void Verify(Expression<Action<T>> _) { }
 
                     public void Verify<TResult>(Expression<Func<T, TResult>> _) { }
@@ -42,6 +40,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 public class Mock
                 {
                     public static void Verify(params Mock[] mocks) { }
+
+                    public void Verify() { }
 
                     public void VerifyAll() { }
 

@@ -43,7 +43,7 @@ namespace PosInformatique.Moq.Analyzers
             this.mockBehaviorStrictField = new Lazy<ISymbol>(() => this.mockBehaviorEnum.Value.GetMembers("Strict").First());
             this.setupProtectedMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => compilation.GetTypeByMetadataName("Moq.Protected.IProtectedMock`1")!.GetMembers("Setup").OfType<IMethodSymbol>().ToArray());
             this.asMethod = new Lazy<ISymbol>(() => mockGenericClass.GetMembers("As").Single());
-            this.verifyMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Verify").OfType<IMethodSymbol>().ToArray());
+            this.verifyMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Verify").Concat(mockGenericClass.BaseType!.GetMembers("Verify")).Where(m => !m.IsStatic).OfType<IMethodSymbol>().ToArray());
 
             this.staticVerifyMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("Verify").Where(m => m.IsStatic).OfType<IMethodSymbol>().Single());
             this.staticVerifyAllMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("VerifyAll").Where(m => m.IsStatic).OfType<IMethodSymbol>().Single());
