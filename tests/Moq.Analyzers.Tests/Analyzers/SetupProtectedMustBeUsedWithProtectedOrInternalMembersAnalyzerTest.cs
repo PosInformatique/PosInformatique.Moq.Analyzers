@@ -8,9 +8,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 {
     using System.Threading.Tasks;
     using Xunit;
-    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        SetupProtectedMustBeUsedWithProtectedOrInternalMembersAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+    using Verifier = MoqCSharpAnalyzerVerifier<SetupProtectedMustBeUsedWithProtectedOrInternalMembersAnalyzer>;
 
     public class SetupProtectedMustBeUsedWithProtectedOrInternalMembersAnalyzerTest
     {
@@ -83,10 +81,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                         internal virtual void InternalOverrideMethod() { }
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -113,10 +110,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public virtual void TestMethodPublic() { }
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -148,10 +144,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         protected abstract void TestMethod();
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -176,12 +171,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public interface I
                     {
-                        void TestMethodPublic() { }
+                        void TestMethodPublic();
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -215,10 +209,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         protected internal void NonOverridableProtectedInternalMethod() { }
                         internal void NonOverridableInternalMethod() { }
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -259,7 +252,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
                 }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
     }
 }

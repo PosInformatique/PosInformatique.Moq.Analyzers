@@ -8,9 +8,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 {
     using System.Threading.Tasks;
     using Xunit;
-    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        AsMustBeUsedWithInterfaceAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+    using Verifier = MoqCSharpAnalyzerVerifier<AsMustBeUsedWithInterfaceAnalyzer>;
 
     public class AsMustBeUsedWithInterfaceAnalyzerTest
     {
@@ -38,9 +36,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -67,9 +65,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public class C2
                     {
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -105,9 +103,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void GenericMethodNotAs<T>() { }
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -140,7 +138,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
                 }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
     }
 }

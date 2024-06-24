@@ -8,10 +8,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 {
     using System.Threading.Tasks;
     using Xunit;
-    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpCodeFixVerifier<
-        MockInstanceShouldBeStrictBehaviorAnalyzer,
-        SetBehaviorToStrictCodeFixProvider,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+    using Verifier = MoqCSharpCodeFixVerifier<MockInstanceShouldBeStrictBehaviorAnalyzer, SetBehaviorToStrictCodeFixProvider>;
 
     public class SetBehaviorToStrictCodeFixProviderTest
     {
@@ -34,8 +31,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
             var expectedFixedSource =
             @"
@@ -54,10 +50,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyCodeFixAsync(source, expectedFixedSource);
+            await Verifier.VerifyCodeFixAsync(source, expectedFixedSource);
         }
 
         [Fact]
@@ -80,8 +75,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
             var expectedFixedSource =
             @"
@@ -101,10 +95,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyCodeFixAsync(source, expectedFixedSource);
+            await Verifier.VerifyCodeFixAsync(source, expectedFixedSource);
         }
 
         [Fact]
@@ -131,8 +124,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
 
                     public enum OtherEnum { A }
-                }
-                " + MoqLibrary.Code;
+                }";
 
             var expectedFixedSource =
             @"
@@ -156,10 +148,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
 
                     public enum OtherEnum { A }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyCodeFixAsync(source, expectedFixedSource);
+            await Verifier.VerifyCodeFixAsync(source, expectedFixedSource);
         }
     }
 }

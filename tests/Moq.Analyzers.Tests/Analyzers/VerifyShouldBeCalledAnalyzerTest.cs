@@ -8,9 +8,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 {
     using System.Threading.Tasks;
     using Xunit;
-    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        VerifyShouldBeCalledAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+    using Verifier = MoqCSharpAnalyzerVerifier<VerifyShouldBeCalledAnalyzer>;
 
     public class VerifyShouldBeCalledAnalyzerTest
     {
@@ -45,7 +43,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                             new System.Action(() => { })();     // Ignored
 
-                            mock1.Property = 1234;  // Property access are ignored.
+                            mock1.CallBase = false;  // Property access are ignored.
 
                             mock1.VerifyAll();
                             mock2.Verify();
@@ -64,10 +62,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         void Method();
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -92,10 +89,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -118,10 +114,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -138,10 +133,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             o.ToString();
                         }
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -166,10 +160,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public class Generic<T>
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -188,10 +181,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -225,7 +217,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public enum MockBehavior { Strict, Loose }
                 }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
     }
 }

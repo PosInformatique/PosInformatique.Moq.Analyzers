@@ -8,9 +8,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 {
     using System.Threading.Tasks;
     using Xunit;
-    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        SetupMustBeUsedOnlyForOverridableMembersAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+    using Verifier = MoqCSharpAnalyzerVerifier<SetupMustBeUsedOnlyForOverridableMembersAnalyzer>;
 
     public class SetupMustBeUsedOnlyForOverridableMembersAnalyzerTest
     {
@@ -138,10 +136,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                         public abstract string AbstractProperty { get; }
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -235,10 +232,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                         public override string VirtualProperty => null;
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -276,7 +272,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public enum MockBehavior { Strict, Loose }
                 }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
     }
 }

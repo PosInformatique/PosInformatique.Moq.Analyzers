@@ -7,12 +7,9 @@
 namespace PosInformatique.Moq.Analyzers.Tests
 {
     using System.Threading.Tasks;
-    using Microsoft.CodeAnalysis.CSharp.Testing;
     using Microsoft.CodeAnalysis.Testing;
     using Xunit;
-    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        ConstructorArgumentCannotBePassedForInterfaceAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+    using Verifier = MoqCSharpAnalyzerVerifier<ConstructorArgumentCannotBePassedForInterfaceAnalyzer>;
 
     public class ConstructorArgumentCannotBePassedForInterfaceAnalyzerTest
     {
@@ -33,9 +30,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -57,17 +54,15 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async Task Interface_WithoutBehaviorStrict()
         {
-            var context = new CSharpAnalyzerTest<ConstructorArgumentCannotBePassedForInterfaceAnalyzer, DefaultVerifier>();
-
-            context.TestCode = @"
+            var source = @"
                 namespace ConsoleApplication1
                 {
                     using Moq;
@@ -83,21 +78,19 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            context.ExpectedDiagnostics.Add(new DiagnosticResult(ConstructorArgumentCannotBePassedForInterfaceAnalyzer.Rule)
-                .WithLocation(0).WithArguments("1")
-                .WithLocation(1).WithArguments("2"));
-
-            await context.RunAsync();
+            await Verifier.VerifyAnalyzerAsync(
+                source,
+                new DiagnosticResult(ConstructorArgumentCannotBePassedForInterfaceAnalyzer.Rule)
+                    .WithLocation(0).WithArguments("1")
+                    .WithLocation(1).WithArguments("2"));
         }
 
         [Fact]
         public async Task Interface_WithBehaviorStrict()
         {
-            var context = new CSharpAnalyzerTest<ConstructorArgumentCannotBePassedForInterfaceAnalyzer, DefaultVerifier>();
-
-            context.TestCode = @"
+            var source = @"
                 namespace ConsoleApplication1
                 {
                     using Moq;
@@ -113,13 +106,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            context.ExpectedDiagnostics.Add(new DiagnosticResult(ConstructorArgumentCannotBePassedForInterfaceAnalyzer.Rule)
-                .WithLocation(0).WithArguments("1")
-                .WithLocation(1).WithArguments("2"));
-
-            await context.RunAsync();
+            await Verifier.VerifyAnalyzerAsync(
+                source,
+                new DiagnosticResult(ConstructorArgumentCannotBePassedForInterfaceAnalyzer.Rule)
+                    .WithLocation(0).WithArguments("1")
+                    .WithLocation(1).WithArguments("2"));
         }
 
         [Fact]
@@ -141,9 +134,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public abstract class C
                     {
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -177,7 +170,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public enum MockBehavior { Strict, Loose }
                 }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
     }
 }

@@ -8,9 +8,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 {
     using System.Threading.Tasks;
     using Xunit;
-    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        ConstructorArgumentsMustMatchAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+    using Verifier = MoqCSharpAnalyzerVerifier<ConstructorArgumentsMustMatchAnalyzer>;
 
     public class ConstructorArgumentsMustMatchAnalyzerTest
     {
@@ -31,9 +29,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public class C
                     {
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -52,12 +50,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         }
                     }
 
-                    public struct I
-                    {
-                    }
-                }" + MoqLibrary.Code;
+                    public delegate void I();
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -82,9 +78,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -102,7 +98,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock1 = new Mock<C>(1, ""B"");
                             var mock2 = new Mock<C>(1, null);
                             var mock3 = new Mock<C>(default, ""B"");
-                            var mock4 = new Mock<C>(default, default);
+                            var mock4 = new Mock<C>((int)default, default);
                             var mock5 = new Mock<C>(default, null, 1234);
                             var mock6 = new Mock<C>(1, ""An object"", 3, null);
                             var mock7 = new Mock<C>(1, ""An object"", 3, new System.IO.MemoryStream());
@@ -131,9 +127,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -172,9 +168,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -214,9 +210,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -252,9 +248,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -287,9 +283,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -322,9 +318,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-                }" + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -369,7 +365,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public enum MockBehavior { Strict, Loose }
                 }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
     }
 }

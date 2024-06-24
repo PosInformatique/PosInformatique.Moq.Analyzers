@@ -8,9 +8,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 {
     using System.Threading.Tasks;
     using Xunit;
-    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        CallBackDelegateMustMatchMockedMethodAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+    using Verifier = MoqCSharpAnalyzerVerifier<CallBackDelegateMustMatchMockedMethodAnalyzer>;
 
     public class CallBackDelegateMustMatchMockedMethodAnalyzerTest
     {
@@ -31,45 +29,29 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                             mock1.Setup(m => m.TestMethod())
                                 .Callback(() => { })
-                                .Throws()
-                                .Callback(() => { });
+                                .Throws(new Exception());
                             mock1.Setup(m => m.TestMethod(default))
                                 .Callback((string x) => { })
-                                .Throws()
-                                .Callback((string x) => { });
+                                .Throws(new Exception());
                             mock1.Setup(m => m.TestMethod(default, default))
                                 .Callback((string x, int y) => { })
-                                .Throws()
-                                .Callback((string x, int y) => { });
+                                .Throws(new Exception());
                             mock1.Setup(m => m.TestGenericMethod(1234))
                                 .Callback((int x) => { })
-                                .Throws()
-                                .Callback((int x) => { });
+                                .Throws(new Exception());
                             mock1.Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
                                 .Callback((object x) => { })
-                                .Throws()
-                                .Callback((object x) => { });
+                                .Throws(new Exception());
 
                             mock1.Setup(m => m.TestMethodReturn())
-                                .Callback(() => { })
-                                .Throws()
                                 .Callback(() => { })
                                 .Returns(1234);
                             mock1.Setup(m => m.TestMethodReturn(default))
                                 .Callback((string x) => { })
-                                .Throws()
-                                .Callback((string x) => { })
                                 .Returns(1234);
                             mock1.Setup(m => m.TestMethodReturn(default, default))
                                 .Callback((string x, int y) => { })
-                                .Throws()
-                                .Callback((string x, int y) => { })
                                 .Returns(1234);
-
-                            mock1.Setup(m => m.TestMethod(default))
-                                .Callback()
-                                .Throws()
-                                .Callback();
 
                             // Special case add a Verify() method inside the Callback() method.
                             var innerMock = new Mock<I>();
@@ -95,10 +77,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                         int TestMethodReturn(string a, int b);
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -118,47 +99,33 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                             mock1.Setup(m => m.TestMethod())
                                 .Callback([|(int too, int much, int parameters)|] => { })
-                                .Throws()
-                                .Callback([|(int too, int much, int parameters)|] => { });
+                                .Throws(new Exception());
                             mock1.Setup(m => m.TestMethod(default))
                                 .Callback([|()|] => { })
-                                .Throws()
-                                .Callback([|()|] => { });
+                                .Throws(new Exception());
                             mock1.Setup(m => m.TestMethod(default))
                                 .Callback(([|int otherType|]) => { })
-                                .Throws()
-                                .Callback(([|int otherType|]) => { });
+                                .Throws(new Exception());
                             mock1.Setup(m => m.TestMethod(default))
                                 .Callback([|(int too, int much, int parameters)|] => { })
-                                .Throws()
-                                .Callback([|(int too, int much, int parameters)|] => { });
+                                .Throws(new Exception());
                             mock1.Setup(m => m.TestGenericMethod(1234))
                                 .Callback(([|string x|]) => { })
-                                .Throws()
-                                .Callback(([|string x|]) => { });
+                                .Throws(new Exception());
                             mock1.Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
                                 .Callback(([|string x|]) => { })
-                                .Throws()
-                                .Callback(([|string x|]) => { });
+                                .Throws(new Exception());
 
                             mock1.Setup(m => m.TestMethodReturn())
                                 .Callback([|(int too, int much, int parameters)|] => { })
-                                .Throws()
-                                .Callback([|(int too, int much, int parameters)|] => { })
                                 .Returns(1234);
                             mock1.Setup(m => m.TestMethodReturn(default))
-                                .Callback([|()|] => { })
-                                .Throws()
                                 .Callback([|()|] => { })
                                 .Returns(1234);
                             mock1.Setup(m => m.TestMethodReturn(default))
                                 .Callback(([|int otherType|]) => { })
-                                .Throws()
-                                .Callback(([|int otherType|]) => { })
                                 .Returns(1234);
                             mock1.Setup(m => m.TestMethodReturn(default))
-                                .Callback([|(int too, int much, int parameters)|] => { })
-                                .Throws()
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Returns(1234);
                         }
@@ -180,10 +147,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                         int TestMethodReturn(string a, int b);
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -223,7 +189,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public enum MockBehavior { Strict, Loose }
                 }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
     }
 }

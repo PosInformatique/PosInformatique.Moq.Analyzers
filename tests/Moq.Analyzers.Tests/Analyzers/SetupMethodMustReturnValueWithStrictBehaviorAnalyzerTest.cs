@@ -10,9 +10,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
     using Microsoft.CodeAnalysis.CSharp.Testing;
     using Microsoft.CodeAnalysis.Testing;
     using Xunit;
-    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        SetupMethodMustReturnValueWithStrictBehaviorAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+    using Verifier = MoqCSharpAnalyzerVerifier<SetupMethodMustReturnValueWithStrictBehaviorAnalyzer>;
 
     public class SetupMethodMustReturnValueWithStrictBehaviorAnalyzerTest
     {
@@ -24,6 +22,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 {
                     using Moq;
                     using System;
+                    using System.Threading.Tasks;
 
                     public class TestClass
                     {
@@ -31,16 +30,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>(MockBehavior.Strict);
                             mock1.Setup(i => i.TestMethod())
-                                .Callback()
-                                .Callback()
-                                .Property
+                                .Callback(() => { })
                                 .Returns(1234);
 
                             var mock2 = new Mock<I>(MockBehavior.Strict);
-                            mock2.Setup(i => i.TestMethod())
-                                .Callback()
-                                .Callback()
-                                .Property
+                            mock2.Setup(i => i.TestAsyncMethod())
+                                .Callback(() => { })
                                 .ReturnsAsync(1234);
 
                             var mock3 = new Mock<I>(MockBehavior.Strict);
@@ -50,37 +45,28 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             Mock<I> mock4;
                             mock4 = new Mock<I>(MockBehavior.Strict);
                             mock4.Setup(i => i.TestMethod())
-                                .Callback();
+                                .Callback(() => { });
 
                             // This scenario is not supported because the declaration is separated of the initialization.
                             // So here, no error should be raised (Missing Returns() with Strict behavior).
                             Mock<I> mock5 = mock1;
                             mock5.Setup(i => i.TestMethod())
-                                .Callback();
+                                .Callback(() => { });
 
                             Mock<I> mock6 = new Mock<I>(MockBehavior.Strict);
                             mock6.Setup(i => i.TestMethod())
-                                .Callback()
-                                .Throws();
+                                .Callback(() => { })
+                                .Throws(new Exception());
 
                             Mock<I> mock7 = new Mock<I>(MockBehavior.Strict);
-                            mock7.Setup(i => i.TestMethod())
-                                .Callback()
-                                .ThrowsAsync();
+                            mock7.Setup(i => i.TestAsyncMethod())
+                                .Callback(() => { })
+                                .ThrowsAsync(new Exception());
 
                             var mock8 = new Mock<I>(MockBehavior.Strict);
                             mock8.Setup(i => i.TestProperty)
-                                .Callback()
-                                .Callback()
-                                .Property
+                                .Callback(() => { })
                                 .Returns(1234);
-
-                            var mock9 = new Mock<I>(MockBehavior.Strict);
-                            mock9.Setup(i => i.TestProperty)
-                                .Callback()
-                                .Callback()
-                                .Property
-                                .ReturnsAsync(1234);
 
                             var obj = new object();     // Ignored because not a Mock<T>
                             obj.ToString();
@@ -94,20 +80,19 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         int TestMethod();
 
+                        Task<int> TestAsyncMethod();
+
                         int TestProperty { get; set; }
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async Task Returns_StrictMode_InvalidReturnsType_NoDiagnosticReported()
         {
-            var context = new CSharpAnalyzerTest<ConstructorArgumentCannotBePassedForInterfaceAnalyzer, DefaultVerifier>();
-
-            context.TestCode = @"
+            var source = @"
                 namespace ConsoleApplication1
                 {
                     using Moq;
@@ -118,12 +103,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>(MockBehavior.Strict);
                             mock1.Setup(i => i.TestMethod())
-                                .Callback()
-                                .Callback()
+                                .Callback(() => { })
                                 .Returns(""Foobar"");
                             mock1.Setup(i => i.TestProperty)
-                                .Callback()
-                                .Callback()
+                                .Callback(() => { })
                                 .Returns(""Foobar"");
                         }
                     }
@@ -134,17 +117,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                         int TestProperty { get; set; }
                     }
-                }
-                "
-                + MoqLibrary.Code;
+                }";
 
-            context.ExpectedDiagnostics.Add(
-                DiagnosticResult.CompilerError("CS1503").WithSpan(14, 42, 14, 50).WithArguments("1", "string", "int"));
-
-            context.ExpectedDiagnostics.Add(
-                DiagnosticResult.CompilerError("CS1503").WithSpan(18, 42, 18, 50).WithArguments("1", "string", "int"));
-
-            await context.RunAsync();
+            await Verifier.VerifyAnalyzerAsync(
+                source,
+                DiagnosticResult.CompilerError("CS1503").WithSpan(13, 42, 13, 50).WithArguments("1", "string", "int"),
+                DiagnosticResult.CompilerError("CS1503").WithSpan(16, 42, 16, 50).WithArguments("1", "string", "int"));
         }
 
         [Fact]
@@ -167,22 +145,18 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             {
                                 {
                                     [|mock1.Setup(i => i.TestMethod())|]
-                                        .Callback()
-                                        .Callback();
+                                        .Callback(() => { });
 
                                     [|mock1.Setup(i => i.TestProperty)|]
-                                        .Callback()
-                                        .Callback();
+                                        .Callback(() => { });
                                 }
                             }
 
                             [|mock2.Setup(i => i.TestMethod())|]
-                                .Callback()
-                                .Callback();
+                                .Callback(() => { });
 
                             [|mock2.Setup(i => i.TestProperty)|]
-                                .Callback()
-                                .Callback();
+                                .Callback(() => { });
                         }
                     }
 
@@ -192,10 +166,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                         int TestProperty { get; set; }
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -212,11 +185,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>(MockBehavior.Strict);
                             [|mock1.Setup(i => i.TestMethod())|]
-                                .Callback()
-                                .Callback();
+                                .Callback(() => { });
                             [|mock1.Setup(i => i.TestProperty)|]
-                                .Callback()
-                                .Callback();
+                                .Callback(() => { });
                         }
                     }
 
@@ -226,11 +197,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                         int TestProperty { get; set; }
                     }
-                }
-                "
-                + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
@@ -252,13 +221,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>(" + mockArguments + @");
                             mock1.Setup(i => i.TestMethod())
-                                .Callback()
-                                .Callback();
+                                .Callback(() => { });
 
                             var mock2 = new Mock<I>("" + mockArguments + @"");
                             mock2.Setup(i => i.TestProperty)
-                                .Callback()
-                                .Callback();
+                                .Callback(() => { });
                         }
                     }
 
@@ -270,10 +237,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
 
                     public enum OtherEnum { A, B }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
@@ -295,8 +261,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>(" + mockArguments + @");
                             mock1.Setup(i => i.TestMethod())
-                                .Callback()
-                                .Callback();
+                                .Callback(() => { });
                         }
                     }
 
@@ -304,15 +269,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         void TestMethod();
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
-        [InlineData("MockBehavior.Strict")]
-        [InlineData("MockBehavior.Strict, 1, 2")]
         [InlineData("MockBehavior.Loose")]
         [InlineData("MockBehavior.Loose, 1, 2")]
         [InlineData("")]
@@ -328,9 +290,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<I>(" + mockArguments + @");
-                            mock1.Setup(i => i.Property = 10)
-                                .Callback()
-                                .Callback();
+                            mock1.Setup(i => i.Property)
+                                .Callback(() => { });
                         }
                     }
 
@@ -338,10 +299,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         int Property { get; set; }
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -364,10 +324,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -383,6 +342,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<I>(MockBehavior.Strict);
+                            mock1.Setup();
                         }
                     }
 
@@ -396,12 +356,14 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public class Mock<T>
                     {
                         public Mock(MockBehavior _) { }
+
+                        public void Setup() { }
                     }
 
                     public enum MockBehavior { Strict, Loose }
                 }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
     }
 }
