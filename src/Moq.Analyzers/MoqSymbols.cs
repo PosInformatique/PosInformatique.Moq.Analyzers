@@ -6,69 +6,65 @@
 
 namespace PosInformatique.Moq.Analyzers
 {
+    using System;
     using Microsoft.CodeAnalysis;
 
     internal sealed class MoqSymbols
     {
-        private readonly INamedTypeSymbol mockBehaviorEnum;
+        private readonly Lazy<INamedTypeSymbol> mockBehaviorEnum;
 
-        private readonly INamedTypeSymbol mockClass;
+        private readonly INamedTypeSymbol mockGenericClass;
 
-        private readonly IReadOnlyList<IMethodSymbol> setupMethods;
+        private readonly Lazy<IReadOnlyList<IMethodSymbol>> setupMethods;
 
-        private readonly IReadOnlyList<IMethodSymbol> setupProtectedMethods;
+        private readonly Lazy<IReadOnlyList<IMethodSymbol>> setupProtectedMethods;
 
-        private readonly ISymbol mockBehaviorStrictField;
+        private readonly Lazy<IReadOnlyList<IMethodSymbol>> verifyMethods;
 
-        private readonly ISymbol isAnyTypeClass;
+        private readonly Lazy<IMethodSymbol> staticVerifyMethod;
 
-        private MoqSymbols(INamedTypeSymbol mockClass, INamedTypeSymbol mockBehaviorEnum, ISymbol isAnyTypeClass, INamedTypeSymbol protectedMockInterface)
+        private readonly Lazy<IMethodSymbol> staticVerifyAllMethod;
+
+        private readonly Lazy<IMethodSymbol> verifyAllMethod;
+
+        private readonly Lazy<ISymbol> mockBehaviorStrictField;
+
+        private readonly Lazy<INamedTypeSymbol> isAnyTypeClass;
+
+        private readonly Lazy<ISymbol> asMethod;
+
+        private MoqSymbols(INamedTypeSymbol mockGenericClass, Compilation compilation)
         {
-            this.mockClass = mockClass;
-            this.mockBehaviorEnum = mockBehaviorEnum;
-            this.isAnyTypeClass = isAnyTypeClass;
+            this.mockGenericClass = mockGenericClass;
+            this.mockBehaviorEnum = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.MockBehavior")!);
+            this.isAnyTypeClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.It+IsAnyType")!);
 
-            this.setupMethods = mockClass.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
-            this.mockBehaviorStrictField = mockBehaviorEnum.GetMembers("Strict").First();
-            this.setupProtectedMethods = protectedMockInterface.GetMembers("Setup").OfType<IMethodSymbol>().ToArray();
+            this.setupMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Setup").OfType<IMethodSymbol>().ToArray());
+            this.mockBehaviorStrictField = new Lazy<ISymbol>(() => this.mockBehaviorEnum.Value.GetMembers("Strict").First());
+            this.setupProtectedMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => compilation.GetTypeByMetadataName("Moq.Protected.IProtectedMock`1")!.GetMembers("Setup").OfType<IMethodSymbol>().ToArray());
+            this.asMethod = new Lazy<ISymbol>(() => mockGenericClass.GetMembers("As").Single());
+            this.verifyMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Verify").Concat(mockGenericClass.BaseType!.GetMembers("Verify")).Where(m => !m.IsStatic).OfType<IMethodSymbol>().ToArray());
+
+            this.staticVerifyMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("Verify").Where(m => m.IsStatic).OfType<IMethodSymbol>().Single());
+            this.staticVerifyAllMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("VerifyAll").Where(m => m.IsStatic).OfType<IMethodSymbol>().Single());
+            this.verifyAllMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("VerifyAll").Where(m => !m.IsStatic).OfType<IMethodSymbol>().Single());
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
         {
-            var mockClass = compilation.GetTypeByMetadataName("Moq.Mock`1");
+            var mockGenericClass = compilation.GetTypeByMetadataName("Moq.Mock`1");
 
-            if (mockClass is null)
+            if (mockGenericClass is null)
             {
                 return null;
             }
 
-            var mockBehaviorEnum = compilation.GetTypeByMetadataName("Moq.MockBehavior");
-
-            if (mockBehaviorEnum is null)
-            {
-                return null;
-            }
-
-            var isAnyTypeClass = compilation.GetTypeByMetadataName("Moq.It+IsAnyType");
-
-            if (isAnyTypeClass is null)
-            {
-                return null;
-            }
-
-            var protectedMockInterface = compilation.GetTypeByMetadataName("Moq.Protected.IProtectedMock`1");
-
-            if (protectedMockInterface is null)
-            {
-                return null;
-            }
-
-            return new MoqSymbols(mockClass, mockBehaviorEnum, isAnyTypeClass, protectedMockInterface);
+            return new MoqSymbols(mockGenericClass, compilation);
         }
 
         public bool IsAnyType(ITypeSymbol symbol)
         {
-            if (!SymbolEqualityComparer.Default.Equals(symbol, this.isAnyTypeClass))
+            if (!SymbolEqualityComparer.Default.Equals(symbol, this.isAnyTypeClass.Value))
             {
                 return false;
             }
@@ -83,7 +79,7 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.mockClass))
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.mockGenericClass))
             {
                 return false;
             }
@@ -100,7 +96,7 @@ namespace PosInformatique.Moq.Analyzers
 
             var originalDefinition = symbol.OriginalDefinition;
 
-            foreach (var setupMethod in this.setupMethods)
+            foreach (var setupMethod in this.setupMethods.Value)
             {
                 if (SymbolEqualityComparer.Default.Equals(originalDefinition, setupMethod))
                 {
@@ -120,7 +116,7 @@ namespace PosInformatique.Moq.Analyzers
 
             var originalDefinition = symbol.OriginalDefinition;
 
-            foreach (var setupProtectedMethod in this.setupProtectedMethods)
+            foreach (var setupProtectedMethod in this.setupProtectedMethods.Value)
             {
                 if (SymbolEqualityComparer.Default.Equals(originalDefinition, setupProtectedMethod))
                 {
@@ -129,6 +125,56 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return false;
+        }
+
+        public bool IsVerifyMethod(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            var originalDefinition = symbol.OriginalDefinition;
+
+            foreach (var verifyMethod in this.verifyMethods.Value)
+            {
+                if (SymbolEqualityComparer.Default.Equals(originalDefinition, verifyMethod))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsVerifyStaticMethod(ISymbol symbol)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(symbol, this.staticVerifyMethod.Value))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsVerifyAllMethod(ISymbol symbol)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.verifyAllMethod.Value))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsVerifyAllStaticMethod(ISymbol symbol)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(symbol, this.staticVerifyAllMethod.Value))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool IsCallback(ISymbol? symbol)
@@ -208,7 +254,7 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(symbol, this.mockBehaviorEnum))
+            if (!SymbolEqualityComparer.Default.Equals(symbol, this.mockBehaviorEnum.Value))
             {
                 return false;
             }
@@ -223,7 +269,7 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(symbol, this.mockBehaviorStrictField))
+            if (!SymbolEqualityComparer.Default.Equals(symbol, this.mockBehaviorStrictField.Value))
             {
                 return false;
             }
@@ -274,6 +320,16 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return false;
+        }
+
+        public bool IsAsMethod(IMethodSymbol method)
+        {
+            if (!SymbolEqualityComparer.Default.Equals(method.OriginalDefinition, this.asMethod.Value))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

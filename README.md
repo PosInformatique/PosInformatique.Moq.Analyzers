@@ -44,4 +44,8 @@ All the rules of this category should not be disabled (or changed their severity
 | [PosInfoMoq2004: Constructor arguments cannot be passed for interface mocks](docs/Compilation/PosInfoMoq2004.md) | No arguments can be passed to a mocked interface. |
 | [PosInfoMoq2005: Constructor arguments must match the constructors of the mocked class](docs/Compilation/PosInfoMoq2005.md) | When instantiating a `Mock<T>`, the parameters must match one of the constructors of the mocked type.  |
 | [PosInfoMoq2006: The Protected().Setup() method must be use with overridable protected or internal methods](docs/Compilation/PosInfoMoq2006.md) | When using the `Protected().Setup()` configuration, the method mocked must be overridable and protected or internal. |
+| [PosInfoMoq2007: The `As<T>()` method can be used only with interfaces.](docs/Compilation/PosInfoMoq2007.md) | The `As<T>()` can only be use with the interfaces. |
+| [PosInfoMoq2008: The `Verify()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2008.md)) | The `Verify()` method must be applied only for overridable members. |
+
+
 

@@ -22,7 +22,8 @@ namespace PosInformatique.Moq.Analyzers
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "Constructor arguments cannot be passed for interface mocks.");
+            description: "Constructor arguments cannot be passed for interface mocks.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2004.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -45,10 +46,10 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
             // Check there is "new Mock<I>()" statement.
-            var mockedType = moqExpressionAnalyzer.GetMockedType(moqSymbols, objectCreation, out var typeExpression, context.CancellationToken);
+            var mockedType = moqExpressionAnalyzer.GetMockedType(objectCreation, out var typeExpression, context.CancellationToken);
             if (mockedType is null)
             {
                 return;
@@ -77,7 +78,7 @@ namespace PosInformatique.Moq.Analyzers
             // Check if the first argument is MockBehavior argument
             var argumentCheckStart = 0;
 
-            if (moqExpressionAnalyzer.IsStrictBehaviorArgument(moqSymbols, firstArgument, out var _, context.CancellationToken))
+            if (moqExpressionAnalyzer.IsStrictBehaviorArgument(firstArgument, out var _, context.CancellationToken))
             {
                 argumentCheckStart = 1;
             }

@@ -22,7 +22,8 @@ namespace PosInformatique.Moq.Analyzers
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "The Callback() delegate expression must match the signature of the mocked method.");
+            description: "The Callback() delegate expression must match the signature of the mocked method.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2003.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -45,8 +46,6 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
-
             // Try to determine if the invocation expression is a Callback() expression.
             var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
 
@@ -56,6 +55,8 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // If yes, we extract the lambda expression of it.
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
+
             var callBackLambdaExpressionSymbol = moqExpressionAnalyzer.ExtractCallBackLambdaExpressionMethod(invocationExpression, out var lambdaExpression, context.CancellationToken);
 
             if (callBackLambdaExpressionSymbol is null)
@@ -70,6 +71,11 @@ namespace PosInformatique.Moq.Analyzers
             {
                 // Find the symbol of the mocked method (if not symbol found, it is mean we Setup() method that not currently compile)
                 // so we skip the analysis.
+                if (!moqExpressionAnalyzer.IsMockSetupMethod(followingMethod, out var _, context.CancellationToken))
+                {
+                    continue;
+                }
+
                 var mockedMethod = moqExpressionAnalyzer.ExtractSetupMethod(followingMethod, out var _, context.CancellationToken);
 
                 if (mockedMethod is null)

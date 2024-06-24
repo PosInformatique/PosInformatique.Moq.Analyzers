@@ -22,7 +22,8 @@ namespace PosInformatique.Moq.Analyzers
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "The Returns() or ReturnsAsync() methods must be call for Strict mocks.");
+            description: "The Returns() or ReturnsAsync() methods must be call for Strict mocks.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2000.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -45,10 +46,10 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
             // Check is Setup() method.
-            if (!moqExpressionAnalyzer.IsMockSetupMethod(moqSymbols, invocationExpression, out var localVariableExpression, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsMockSetupMethod(invocationExpression, out var localVariableExpression, context.CancellationToken))
             {
                 return;
             }
@@ -66,7 +67,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check the behavior of the mock instance is Strict.
-            if (!moqExpressionAnalyzer.IsStrictBehavior(moqSymbols, localVariableExpression!, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsStrictBehavior(localVariableExpression!, context.CancellationToken))
             {
                 return;
             }
@@ -76,7 +77,7 @@ namespace PosInformatique.Moq.Analyzers
 
             foreach (var followingMethod in followingMethods)
             {
-                var methodSymbol = context.SemanticModel.GetSymbolInfo(followingMethod);
+                var methodSymbol = context.SemanticModel.GetSymbolInfo(followingMethod, context.CancellationToken);
 
                 if (methodSymbol.Symbol is null)
                 {

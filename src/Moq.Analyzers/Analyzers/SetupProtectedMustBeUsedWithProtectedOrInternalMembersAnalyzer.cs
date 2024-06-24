@@ -22,7 +22,8 @@ namespace PosInformatique.Moq.Analyzers
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "The Protected().Setup() method must be use with overridable protected or internal methods.");
+            description: "The Protected().Setup() method must be use with overridable protected or internal methods.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2006.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -45,10 +46,10 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(context.SemanticModel);
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
             // Check is Protected() method.
-            if (!moqExpressionAnalyzer.IsMockSetupMethodProtected(moqSymbols, invocationExpression, out var localVariableExpression, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsMockSetupMethodProtected(invocationExpression, out var localVariableExpression, context.CancellationToken))
             {
                 return;
             }
@@ -72,7 +73,7 @@ namespace PosInformatique.Moq.Analyzers
             var methodName = literalExpression.Token.ValueText;
 
             // Gets the mocked type
-            var mockedType = moqExpressionAnalyzer.GetMockedType(moqSymbols, localVariableExpression!, context.CancellationToken);
+            var mockedType = moqExpressionAnalyzer.GetMockedType(localVariableExpression!, context.CancellationToken);
 
             if (mockedType is null)
             {

@@ -70,6 +70,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
                                 .Callback()
                                 .Throws()
                                 .Callback();
+
+                            // Special case add a Verify() method inside the Callback() method.
+                            var innerMock = new Mock<I>();
+
+                            mock1.Setup(m => m.TestMethod())
+                                .Callback(() => { innerMock.Verify(im => im.TestMethod(""a"")); });
                         }
                     }
 

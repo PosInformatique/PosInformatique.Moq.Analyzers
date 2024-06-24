@@ -6,6 +6,8 @@
 
 namespace PosInformatique.Moq.Analyzers.Sandbox
 {
+    using global::Moq;
+
     public class Sandbox
     {
         public void TestCodeHere()

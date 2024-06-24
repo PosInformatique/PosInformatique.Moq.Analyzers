@@ -12,24 +12,40 @@ namespace PosInformatique.Moq.Analyzers.Tests
             namespace Moq
             {
                 using System;
+                using System.Linq.Expressions;
 
-                public class Mock<T>
+                public class Mock<T> : Mock
                 {
                     public Mock(MockBehavior _ = MockBehavior.Loose, params object[] args) { }
 
                     public Mock(params object[] args) { }
 
+                    public Mock<TInterface> As<TInterface>() { return null; }
+
                     public ISetup Setup(Action<T> act) { return null; }
 
                     public ISetup<TResult> Setup<TResult>(Func<T, TResult> func) { return default; }
 
-                    public void VerifyAll() { }
+                    public void Verify(Expression<Action<T>> _) { }
+
+                    public void Verify<TResult>(Expression<Func<T, TResult>> _) { }
+
+                    public void Verify(Expression<Action<T>> _, string failedMessage) { }
+
+                    public void Verify<TResult>(Expression<Func<T, TResult>> _, string failedMessage) { }
+
+                    public object Property { get; set; }
+                }
+
+                public class Mock
+                {
+                    public static void Verify(params Mock[] mocks) { }
 
                     public void Verify() { }
 
-                    public void Verify(int a, int b) { }
+                    public void VerifyAll() { }
 
-                    public object Property { get; set; }
+                    public static void VerifyAll(params Mock[] mocks) { }
                 }
 
                 public enum MockBehavior { Strict, Loose }
