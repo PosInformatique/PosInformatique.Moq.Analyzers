@@ -17,6 +17,15 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      1.6.0
+      - Add new rules:
+        - PosInfoMoq2007: The As&lt;T&gt;() method can be used only with interfaces.
+        - PosInfoMoq2008: The Verify() method must be used only on overridable members
+      - Add the support of static methods VerifyAll() and Verify() for the PosInfoMoq2000 rule.
+      - Various optimizations to increase speed of analysis.
+      - Various optimizations to reduce memory usage.
+      - Add hyperlink to the documentation of the r
+      
       1.5.0
       - Add new rules:
         - PosInfoMoq2004: Check that constructor arguments can not be passed to a mocked interface.
