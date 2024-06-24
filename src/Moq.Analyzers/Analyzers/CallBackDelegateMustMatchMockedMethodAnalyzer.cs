@@ -71,6 +71,11 @@ namespace PosInformatique.Moq.Analyzers
             {
                 // Find the symbol of the mocked method (if not symbol found, it is mean we Setup() method that not currently compile)
                 // so we skip the analysis.
+                if (!moqExpressionAnalyzer.IsMockSetupMethod(followingMethod, out var _, context.CancellationToken))
+                {
+                    continue;
+                }
+
                 var mockedMethod = moqExpressionAnalyzer.ExtractSetupMethod(followingMethod, out var _, context.CancellationToken);
 
                 if (mockedMethod is null)
