@@ -151,6 +151,49 @@ namespace PosInformatique.Moq.Analyzers.Tests
         }
 
         [Fact]
+        public async Task CallBackWithCustomSetupMethod_NoDiagnosticReported()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+                    using Moq.Language.Flow;
+                    using System;
+                    using System.Linq.Expressions;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var m = new Mock<IRepository>(MockBehavior.Strict);
+
+                            m.MySetup(i => i.Get(""Foobar""))
+                                .Callback(() =>
+                                {
+                                });
+                        }
+                    }
+
+                    public static class MoqExtensions
+                    {
+                        public static ISetup<T> MySetup<T>(this Mock<T> mock, Expression<Action<T>> exp)
+                            where T : class
+                        {
+                            return mock.Setup(exp);
+                        }
+                    }
+
+                    public interface IRepository
+                    {
+                        void Get(string s);
+                    }
+                }
+                ";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
         public async Task NoMoqLibrary()
         {
             var source = @"
