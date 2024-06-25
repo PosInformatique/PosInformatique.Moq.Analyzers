@@ -100,6 +100,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock5 = new Mock<C>(default, null, 1234);
                             var mock6 = new Mock<C>(1, ""An object"", 3, null);
                             var mock7 = new Mock<C>(1, ""An object"", 3, new System.IO.MemoryStream());
+
+                            var mock8 = new Mock<ClassWithNoConstructor>();
                         }
                     }
 
@@ -125,6 +127,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
+
+                    public class ClassWithNoConstructor { }
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);
@@ -145,7 +149,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock1 = new Mock<C>(MockBehavior.Strict, 1, ""B"");
                             var mock6 = new Mock<C>(MockBehavior.Strict, 1, ""An object"", 3, null);
                             var mock7 = new Mock<C>(MockBehavior.Strict, 1, ""An object"", 3, new System.IO.MemoryStream());
-                        }
+ 
+                            var mock8 = new Mock<ClassWithNoConstructor>(MockBehavior.Strict);
+                       }
                     }
 
                     public class C
@@ -166,6 +172,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
+
+                    public class ClassWithNoConstructor { }
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);
@@ -187,6 +195,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock2 = new Mock<C>([|null|]);
                             var mock3 = new Mock<C>([|""The string"", 2|]);
                             var mock4 = new Mock<C>([|1, 2, 3, ""The string""|]);
+ 
+                            var mock8 = new Mock<ClassWithNoConstructor>([|1, 2|]);
                         }
                     }
 
@@ -208,6 +218,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
+
+                    public class ClassWithNoConstructor { }
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);
@@ -229,6 +241,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock2 = new Mock<C>(MockBehavior.Strict, [|null|]);
                             var mock3 = new Mock<C>(MockBehavior.Strict, [|""The string"", 2|]);
                             var mock4 = new Mock<C>(MockBehavior.Strict, [|1, 2, 3, ""The string""|]);
+ 
+                            var mock8 = new Mock<ClassWithNoConstructor>(MockBehavior.Strict, [|1, 2|]);
                         }
                     }
 
@@ -246,7 +260,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-                }";
+ 
+                    public class ClassWithNoConstructor { }
+               }";
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
