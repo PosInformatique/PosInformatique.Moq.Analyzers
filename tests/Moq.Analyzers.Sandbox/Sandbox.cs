@@ -10,19 +10,5 @@ namespace PosInformatique.Moq.Analyzers.Sandbox
 
     public class Sandbox
     {
-        [Fact]
-        public void TestCodeHere()
-        {
-            var m = new Mock<IRepository>();
-            m.Setup(m => m.GetData())
-                .Verifiable();
-
-            m.VerifyAll();
-        }
-
-        public interface IRepository
-        {
-            void GetData();
-        }
     }
 }

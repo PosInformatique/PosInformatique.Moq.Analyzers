@@ -35,7 +35,7 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<ISymbol> asMethod;
 
-        private readonly Lazy<INamedTypeSymbol> verifiesInterface; 
+        private readonly Lazy<INamedTypeSymbol> verifiesInterface;
 
         private MoqSymbols(INamedTypeSymbol mockGenericClass, Compilation compilation)
         {

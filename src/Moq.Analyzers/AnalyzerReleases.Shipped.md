@@ -1,4 +1,12 @@
-﻿## Release 1.6.0
+﻿## Release 1.7.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|--------------------
+PosInfoMoq1002 | Design | Warning | `Verify()` methods should be called when `Verifiable()` has been setup.
+
+## Release 1.6.0
 
 ### New Rules
 
@@ -48,5 +56,5 @@ PosInfoMoq2000  | Compilation | Error  | The `Returns()` or `ReturnsAsync()` met
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
-PosInfoMoq1000  | Design   | Warning  | `Verify()` and `VerifyAll()` methods should be called when instantiate a Mock<T> instances.
+PosInfoMoq1000  | Design   | Warning  | `VerifyAll()` method should be called when instantiate a Mock<T> instances.
 PosInfoMoq1001  | Design   | Warning  | The `Mock<T>` instance behavior should be defined to Strict mode.
