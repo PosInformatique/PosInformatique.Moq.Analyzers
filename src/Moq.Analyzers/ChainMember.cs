@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="SetupMember.cs" company="P.O.S Informatique">
+// <copyright file="ChainMember.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -9,9 +9,9 @@ namespace PosInformatique.Moq.Analyzers
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-    internal class SetupMember
+    internal class ChainMember
     {
-        public SetupMember(NameSyntax syntax, ISymbol symbol)
+        public ChainMember(NameSyntax syntax, ISymbol symbol)
         {
             this.Syntax = syntax;
             this.Symbol = symbol;

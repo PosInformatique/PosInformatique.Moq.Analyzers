@@ -174,8 +174,13 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
-        public bool IsVerifyStaticMethod(ISymbol symbol)
+        public bool IsVerifyStaticMethod(ISymbol? symbol)
         {
+            if (symbol is null)
+            {
+                return false;
+            }
+
             if (!SymbolEqualityComparer.Default.Equals(symbol, this.staticVerifyMethod.Value))
             {
                 return false;

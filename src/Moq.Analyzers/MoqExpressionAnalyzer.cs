@@ -133,14 +133,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Gets the method and check it is Setup() method.
-            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(invocationExpression.Expression, cancellationToken);
-
-            if (!this.moqSymbols.IsSetupMethod(methodSymbolInfo.Symbol))
-            {
-                return false;
-            }
-
-            return true;
+            return this.IsMockSetupMethod(invocationExpression, cancellationToken);
         }
 
         public bool IsMockSetupMethodProtected(InvocationExpressionSyntax invocationExpression, out IdentifierNameSyntax? localVariableExpression, CancellationToken cancellationToken)
@@ -310,46 +303,39 @@ namespace PosInformatique.Moq.Analyzers
             return null;
         }
 
-        public IMethodSymbol? ExtractSetupMethod(InvocationExpressionSyntax invocationExpression, out NameSyntax? memberIdentifierName, CancellationToken cancellationToken)
+        public ChainMembersInvocation? ExtractSetupMethod(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
         {
-            memberIdentifierName = null;
+            var setupMethod = this.GetSetupMethod(invocationExpression, cancellationToken);
 
-            var members = this.ExtractChainedMembersInvocationFromLambdaExpression(invocationExpression, cancellationToken);
-
-            var member = members.FirstOrDefault();
-
-            if (member is null)
+            if (setupMethod is null)
             {
                 return null;
             }
 
-            if (member.Symbol is not IMethodSymbol methodSymbol)
-            {
-                return null;
-            }
+            var chain = this.ExtractChainedMembersInvocationFromLambdaExpression(setupMethod, cancellationToken);
 
-            memberIdentifierName = member.Syntax;
-
-            return methodSymbol;
+            return chain;
         }
 
-        public IReadOnlyList<SetupMember> ExtractChainedMembersInvocationFromLambdaExpression(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
+        public ChainMembersInvocation? ExtractChainedMembersInvocationFromLambdaExpression(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
         {
             // Check the invocation expression is Setup(m => xxxxx) / Verify(m => xxxx) expression which contains a lambda expression.
             if (invocationExpression.ArgumentList.Arguments.Count == 0)
             {
-                return Array.Empty<SetupMember>();
+                return null;
             }
 
             if (invocationExpression.ArgumentList.Arguments[0].Expression is not SimpleLambdaExpressionSyntax lambdaExpression)
             {
-                return Array.Empty<SetupMember>();
+                return null;
             }
 
             // Extract inside the body expression the chained members.
             ExpressionSyntax bodyExpression;
 
-            if (lambdaExpression.Body is InvocationExpressionSyntax invocationMemberExpression)
+            var invocationMemberExpression = lambdaExpression.Body as InvocationExpressionSyntax;
+
+            if (invocationMemberExpression is not null)
             {
                 // It is a method in the Setup() method.
                 bodyExpression = invocationMemberExpression.Expression;
@@ -359,13 +345,13 @@ namespace PosInformatique.Moq.Analyzers
                 // It is a property in the Setup() method.
                 if (lambdaExpression.ExpressionBody is null)
                 {
-                    return Array.Empty<SetupMember>();
+                    return null;
                 }
 
                 bodyExpression = lambdaExpression.ExpressionBody;
             }
 
-            var members = new List<SetupMember>();
+            var members = new List<ChainMember>();
 
             MemberAccessExpressionSyntax? memberAccessExpression;
 
@@ -375,15 +361,40 @@ namespace PosInformatique.Moq.Analyzers
 
                 if (symbol.Symbol is null)
                 {
-                    return Array.Empty<SetupMember>();
+                    return null;
                 }
 
-                members.Add(new SetupMember(memberAccessExpression.Name, symbol.Symbol));
+                members.Add(new ChainMember(memberAccessExpression.Name, symbol.Symbol));
 
                 bodyExpression = memberAccessExpression.Expression;
             }
 
-            return members;
+            var lastMember = members.FirstOrDefault();
+
+            if (lastMember is null)
+            {
+                return null;
+            }
+
+            var invocationArguments = new List<ChainInvocationArgument>();
+
+            if (invocationMemberExpression is not null)
+            {
+                if (lastMember.Symbol is not IMethodSymbol methodSymbol)
+                {
+                    return null;
+                }
+
+                for (var i = 0; i < invocationMemberExpression.ArgumentList.Arguments.Count; i++)
+                {
+                    var argumentSyntax = invocationMemberExpression.ArgumentList.Arguments[i];
+                    var parameter = methodSymbol.Parameters[i];
+
+                    invocationArguments.Add(new ChainInvocationArgument(argumentSyntax, parameter));
+                }
+            }
+
+            return new ChainMembersInvocation(members, invocationArguments);
         }
 
         public IMethodSymbol? ExtractCallBackLambdaExpressionMethod(InvocationExpressionSyntax invocationExpression, out ParenthesizedLambdaExpressionSyntax? lambdaExpression, CancellationToken cancellationToken)
@@ -469,6 +480,34 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return null;
+        }
+
+        private InvocationExpressionSyntax? GetSetupMethod(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
+        {
+            var followingMethods = invocationExpression.DescendantNodes().OfType<InvocationExpressionSyntax>();
+
+            foreach (var followingMethod in followingMethods)
+            {
+                if (this.IsMockSetupMethod(followingMethod, cancellationToken))
+                {
+                    return followingMethod;
+                }
+            }
+
+            return null;
+        }
+
+        private bool IsMockSetupMethod(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
+        {
+            // Gets the method and check it is Setup() method.
+            var methodSymbolInfo = this.semanticModel.GetSymbolInfo(invocationExpression.Expression, cancellationToken);
+
+            if (!this.moqSymbols.IsSetupMethod(methodSymbolInfo.Symbol))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

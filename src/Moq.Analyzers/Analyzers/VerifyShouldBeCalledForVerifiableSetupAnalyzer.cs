@@ -54,9 +54,17 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            // Retrieve the variable name
+            // Retrieve the setup method
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
+            var setupMethod = moqExpressionAnalyzer.ExtractSetupMethod(invocationExpression, context.CancellationToken);
+
+            if (setupMethod is null)
+            {
+                return;
+            }
+
+            // Gets the variable of the mocked instance.
             var variableNameModel = moqExpressionAnalyzer.GetMockVariable(invocationExpression, out var localVariableExpression, context.CancellationToken);
 
             if (variableNameModel is null)
@@ -76,7 +84,7 @@ namespace PosInformatique.Moq.Analyzers
             // Retrieve all method invocation expressions.
             var invocationExpressions = parentMethod.DescendantNodes().OfType<InvocationExpressionSyntax>();
 
-            var verifyCalled = invocationExpressions.Any(expression => IsMockVerifyInvocation(expression, variableNameModel, moqSymbols, context.SemanticModel, context.CancellationToken));
+            var verifyCalled = invocationExpressions.Any(expression => IsMockVerifyInvocation(expression, moqExpressionAnalyzer, variableNameModel, setupMethod, moqSymbols, context.SemanticModel, context.CancellationToken));
 
             if (!verifyCalled)
             {
@@ -90,24 +98,19 @@ namespace PosInformatique.Moq.Analyzers
             }
         }
 
-        private static bool IsMockVerifyInvocation(InvocationExpressionSyntax invocation, ISymbol variableNameSymbol, MoqSymbols moqSymbols, SemanticModel semanticModel, CancellationToken cancellationToken)
+        private static bool IsMockVerifyInvocation(InvocationExpressionSyntax invocation, MoqExpressionAnalyzer moqExpressionAnalyzer, ISymbol variableNameSymbol, ChainMembersInvocation setupMethod, MoqSymbols moqSymbols, SemanticModel semanticModel, CancellationToken cancellationToken)
         {
             if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
             {
                 return false;
             }
 
-            // Check if the invocation expression is a Verify() / VerifyAll() methods.
-            var verifyMethod = semanticModel.GetSymbolInfo(memberAccess, cancellationToken);
+            // Check if the invocation expression is a Verify() method.
+            var verifyMethodSymbol = semanticModel.GetSymbolInfo(memberAccess, cancellationToken);
 
-            if (verifyMethod.Symbol is null)
+            if (!moqSymbols.IsVerifyMethod(verifyMethodSymbol.Symbol))
             {
-                return false;
-            }
-
-            if (!moqSymbols.IsVerifyMethod(verifyMethod.Symbol))
-            {
-                if (!moqSymbols.IsVerifyStaticMethod(verifyMethod.Symbol))
+                if (!moqSymbols.IsVerifyStaticMethod(verifyMethodSymbol.Symbol))
                 {
                     return false;
                 }
@@ -132,11 +135,33 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            // Gets the variable name symbol.
+            // Here we called the myMock.Verify() method. So check the variable is related to the variable of the invoked expression.
             var identifierSymbol = semanticModel.GetSymbolInfo(memberAccess.Expression, cancellationToken);
 
             // If the variable name of .Verify() does not match the variable, so the Verify() was for other Mock instance.
             if (!SymbolEqualityComparer.Default.Equals(identifierSymbol.Symbol, variableNameSymbol))
+            {
+                return false;
+            }
+
+            // The variable "myMock.Verify()" match the "myMock.Setup()", so now check the Verify() expression.
+            // First check if there is no argument to the verify method (in this case, the developer call the Verify() method, so it is OK).
+            if (invocation.ArgumentList.Arguments.Count == 0)
+            {
+                return true;
+            }
+
+            // Else extract the members chain the Verify(xxx) lambda expression.
+            // Compare the members chain between the Setup() and the Verify() method.
+            var verifyMethod = moqExpressionAnalyzer.ExtractChainedMembersInvocationFromLambdaExpression(invocation, cancellationToken);
+
+            if (verifyMethod is null)
+            {
+                return false;
+            }
+
+            // Members comparisons
+            if (!verifyMethod.HasSameMembers(setupMethod))
             {
                 return false;
             }

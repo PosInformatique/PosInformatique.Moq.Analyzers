@@ -33,7 +33,17 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock3 = new Mock<I>();
                             mock3.Setup(m => m.Method())
                                 .Verifiable();
-                           
+
+                            var mock4 = new Mock<I>();
+                            mock4.Setup(m => m.Method())
+                                .Verifiable();
+                            mock4.Setup(m => m.OtherMethod())
+                                .Verifiable();
+
+                            var mock5 = new Mock<I>();
+                            mock5.Setup(m => m.Method(1, 2))
+                                .Verifiable();
+                      
                             var mock9 = new Mock<I>();
                             mock9.Setup(m => m.Method());   // No Verifiable()
                  
@@ -44,12 +54,24 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                             mock1.Verify();
                             Mock.Verify(mock2, mock3, default);
+
+                            mock4.Verify(m => m.Method());
+                            mock4.Verify(m => m.OtherMethod());
+
+                            mock5.Verify(m => m.Method(1, 2));
+                            mock5.Verify(m => m.Method(""A"", 3));  // Not used
                        }
                     }
 
                     public interface I
                     {
                         void Method();
+
+                        void OtherMethod();
+
+                        void Method(int a, int b);
+
+                        void Method(string c, int d);
                     }
                 }";
 
@@ -57,7 +79,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         }
 
         [Fact]
-        public async Task Verify_NotCalled()
+        public async Task Verify_Missing()
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -71,9 +93,88 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock1 = new Mock<I>();
                             mock1.Setup(m => m.Method())
                                 .[|Verifiable|]();
+
+                            var mock4 = new Mock<I>();
+                            mock4.Setup(m => m.Method())
+                                .Verifiable();
+                            mock4.Setup(m => m.OtherMethod())
+                                .[|Verifiable|]();
+
+                            var mock5 = new Mock<I>();
+                            mock5.Setup(m => m.Method(1, 2))
+                                .[|Verifiable|]();
                             
                             var o = new object();
                             o.ToString();       // Ignored
+
+                            mock4.Verify(m => m.Method());
+
+                            mock5.Verify(m => m.Method());
+                            mock5.Verify(m => m.Method(""A"", 3));
+
+                            Mock.Verify();      // Do nothing
+                      }
+                    }
+
+                    public interface I
+                    {
+                        void Method();
+
+                        void OtherMethod();
+
+                        void Method(int a, int b);
+
+                        void Method(string c, int d);
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Verify_MissingWithNullLambdaExpression()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>();
+                            mock1.Setup(m => m.Method())
+                                .[|Verifiable|]();
+
+                            mock1.Verify(null);
+                       }
+                    }
+
+                    public interface I
+                    {
+                        void Method();
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Verify_SetupNullArgument()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>();
+                            mock1.Setup(null)
+                                .Verifiable();
                        }
                     }
 
