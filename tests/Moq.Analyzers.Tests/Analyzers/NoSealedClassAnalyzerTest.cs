@@ -6,11 +6,7 @@
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using System.Threading.Tasks;
-    using Xunit;
-    using Verify = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<
-        NoSealedClassAnalyzer,
-        Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
+    using Verifier = MoqCSharpAnalyzerVerifier<NoSealedClassAnalyzer>;
 
     public class NoSealedClassAnalyzerTest
     {
@@ -48,10 +44,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public abstract class AbstractClass
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -69,17 +64,15 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<[|SealedClass|]>();
                             var mock2 = new Mock<[|string|]>();
-                            var mock3 = new Mock<[|int|]>();
                         }
                     }
 
                     public sealed class SealedClass
                     {
                     }
-                }
-                " + MoqLibrary.Code;
+                }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
@@ -113,7 +106,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public enum MockBehavior { Strict, Loose }
                 }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
     }
 }

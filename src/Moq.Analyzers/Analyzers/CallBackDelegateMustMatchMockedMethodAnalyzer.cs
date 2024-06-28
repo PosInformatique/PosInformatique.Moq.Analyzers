@@ -64,57 +64,45 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            // Check each CallBack() method for the following calls.
-            var followingMethods = invocationExpression.DescendantNodes().OfType<InvocationExpressionSyntax>();
+            // Extracts the setup method from the Callback() method call.
+            var setupMethod = moqExpressionAnalyzer.ExtractSetupMethod(invocationExpression, context.CancellationToken);
 
-            foreach (var followingMethod in followingMethods)
+            if (setupMethod is null)
             {
-                // Find the symbol of the mocked method (if not symbol found, it is mean we Setup() method that not currently compile)
-                // so we skip the analysis.
-                if (!moqExpressionAnalyzer.IsMockSetupMethod(followingMethod, out var _, context.CancellationToken))
+                return;
+            }
+
+            // Compare the parameters between the mocked method and lambda expression in the CallBack() method.
+            // 1- Compare the number of the parameters
+            if (callBackLambdaExpressionSymbol.Parameters.Length != setupMethod.InvocationArguments.Count)
+            {
+                var diagnostic = Diagnostic.Create(Rule, lambdaExpression!.ParameterList.GetLocation());
+                context.ReportDiagnostic(diagnostic);
+
+                return;
+            }
+
+            // 2- Iterate for each parameter
+            for (var i = 0; i < callBackLambdaExpressionSymbol.Parameters.Length; i++)
+            {
+                // Special case, if the argument is IsAnyType
+                if (moqSymbols.IsAnyType(setupMethod.InvocationArguments[i].ParameterSymbol.Type))
                 {
-                    continue;
-                }
-
-                var mockedMethod = moqExpressionAnalyzer.ExtractSetupMethod(followingMethod, out var _, context.CancellationToken);
-
-                if (mockedMethod is null)
-                {
-                    continue;
-                }
-
-                // Compare the parameters between the mocked method and lambda expression in the CallBack() method.
-                // 1- Compare the number of the parameters
-                if (callBackLambdaExpressionSymbol.Parameters.Length != mockedMethod.Parameters.Length)
-                {
-                    var diagnostic = Diagnostic.Create(Rule, lambdaExpression!.ParameterList.GetLocation());
-                    context.ReportDiagnostic(diagnostic);
-
-                    continue;
-                }
-
-                // 2- Iterate for each parameter
-                for (var i = 0; i < callBackLambdaExpressionSymbol.Parameters.Length; i++)
-                {
-                    // Special case, if the argument is IsAnyType
-                    if (moqSymbols.IsAnyType(mockedMethod.Parameters[i].Type))
-                    {
-                        // The callback parameter associated must be an object.
-                        if (callBackLambdaExpressionSymbol.Parameters[i].Type.SpecialType != SpecialType.System_Object)
-                        {
-                            var diagnostic = Diagnostic.Create(Rule, lambdaExpression!.ParameterList.Parameters[i].GetLocation());
-                            context.ReportDiagnostic(diagnostic);
-
-                            continue;
-                        }
-                    }
-                    else if (!SymbolEqualityComparer.Default.Equals(callBackLambdaExpressionSymbol.Parameters[i].Type, mockedMethod.Parameters[i].Type))
+                    // The callback parameter associated must be an object.
+                    if (callBackLambdaExpressionSymbol.Parameters[i].Type.SpecialType != SpecialType.System_Object)
                     {
                         var diagnostic = Diagnostic.Create(Rule, lambdaExpression!.ParameterList.Parameters[i].GetLocation());
                         context.ReportDiagnostic(diagnostic);
 
                         continue;
                     }
+                }
+                else if (!SymbolEqualityComparer.Default.Equals(callBackLambdaExpressionSymbol.Parameters[i].Type, setupMethod.InvocationArguments[i].ParameterSymbol.Type))
+                {
+                    var diagnostic = Diagnostic.Create(Rule, lambdaExpression!.ParameterList.Parameters[i].GetLocation());
+                    context.ReportDiagnostic(diagnostic);
+
+                    continue;
                 }
             }
         }

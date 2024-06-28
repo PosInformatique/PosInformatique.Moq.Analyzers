@@ -57,10 +57,15 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Extracts the method in the lambda expression of the Setup() method
-            var members = moqExpressionAnalyzer.ExtractChainedMembersInvocationFromLambdaExpression(invocationExpression, context.CancellationToken);
+            var verifyMethod = moqExpressionAnalyzer.ExtractChainedMembersInvocationFromLambdaExpression(invocationExpression, context.CancellationToken);
+
+            if (verifyMethod is null)
+            {
+                return;
+            }
 
             // Check if the member is overridable.
-            foreach (var member in members)
+            foreach (var member in verifyMethod.Members)
             {
                 if (!moqSymbols.IsOverridable(member.Symbol))
                 {

@@ -10,15 +10,5 @@ namespace PosInformatique.Moq.Analyzers.Sandbox
 
     public class Sandbox
     {
-        public void TestCodeHere()
-        {
-        }
-
-        public class Test
-        {
-            public Test(int a)
-            {
-            }
-        }
     }
 }

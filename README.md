@@ -26,9 +26,9 @@ Design rules used to make your unit tests more strongly strict.
 
 | Rule | Description |
 | - | - |
-| [PosInfoMoq1000: `Verify()` and `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances](docs/Design/PosInfoMoq1000.md) | When instantiating a `Mock<T>` in the *Arrange* phase of an unit test, `Verify()` or `VerifyAll()` method should be called in the *Assert* phase to check the setup methods has been called. |
+| [PosInfoMoq1000: `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances](docs/Design/PosInfoMoq1000.md) | When instantiating a `Mock<T>` in the *Arrange* phase of an unit test, `VerifyAll()` method should be called in the *Assert* phase to check the setup methods has been called. |
 | [PosInfoMoq1001: The `Mock<T>` instance behavior should be defined to Strict mode](docs/Design/PosInfoMoq1001.md) | When instantiating a `Mock<T>` instance, the `MockBehavior` of the `Mock` instance should be defined to `Strict`. |
-
+| [PosInfoMoq1002: `Verify()` methods should be called when `Verifiable()` has been setup](docs/Design/PosInfoMoq1002.md) | When a mocked member has been setup with the `Verifiable()` method, the `Verify()` method must be called at the end of the unit test. |
 
 ### Compilation
 
