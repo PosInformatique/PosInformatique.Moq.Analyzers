@@ -11,11 +11,14 @@ namespace PosInformatique.Moq.Analyzers
 
     internal sealed class ChainInvocationArgument
     {
-        public ChainInvocationArgument(ArgumentSyntax syntax, IParameterSymbol symbol)
+        public ChainInvocationArgument(ArgumentSyntax syntax, ISymbol? symbol, IParameterSymbol parameterSymbol)
         {
             this.Syntax = syntax;
-            this.ParameterSymbol = symbol;
+            this.Symbol = symbol;
+            this.ParameterSymbol = parameterSymbol;
         }
+
+        public ISymbol? Symbol { get; }
 
         public ArgumentSyntax Syntax { get; }
 

@@ -1,4 +1,13 @@
-﻿## Release 1.7.0
+﻿## Release 1.8.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|--------------------
+PosInfoMoq1003 | Design | Warning | The `Callback()` method should be used to check the parameters when mocking a method with `It.IsAny<T>()` arguments.
+PosInfoMoq1004 | Design | Warning | The `Callback()` parameter should not be ignored if it has been setup as an `It.IsAny<T>()` argument.
+
+## Release 1.7.0
 
 ### New Rules
 

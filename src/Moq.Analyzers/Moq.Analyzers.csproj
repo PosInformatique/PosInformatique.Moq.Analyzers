@@ -17,6 +17,11 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      1.8.0
+      - Add new rules:
+        - PosInfoMoq1003: The Callback() method should be used to check the parameters when mocking a method with It.IsAny&lt;T&gt;() arguments.
+        - PosInfoMoq1004: The Callback() parameter should not be ignored if it has been setup as an It.IsAny&lt;T&gt;() argument.
+      
       1.7.0
       - Add new rules:
         - PosInfoMoq1002: Verify() methods should be called when Verifiable() has been setup.

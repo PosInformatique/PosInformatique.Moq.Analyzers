@@ -19,13 +19,13 @@ should be called in the *Assert* phase to check the setup methods has been calle
 
 ```csharp
 [Fact]
-public void GetCustomer_ShouldCallRepository()
+public void SendMail_ShouldCallSmtpService()
 {
 	// Arrange
 	var smtpService = new Mock<ISmtpService>();
 	smtpService.Setup(s => s.SendMail("sender@domain.com", "Gilles"));
 
-	var service = new CustomerService(repository.Object);
+	var service = new CustomerService(smtpService.Object);
 
 	// Act
 	service.SendMail("Gilles");

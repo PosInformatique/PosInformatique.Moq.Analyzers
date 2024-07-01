@@ -33,6 +33,8 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<INamedTypeSymbol> isAnyTypeClass;
 
+        private readonly Lazy<ISymbol> isAnyMethod;
+
         private readonly Lazy<ISymbol> asMethod;
 
         private readonly Lazy<INamedTypeSymbol> verifiesInterface;
@@ -42,6 +44,7 @@ namespace PosInformatique.Moq.Analyzers
             this.mockGenericClass = mockGenericClass;
             this.mockBehaviorEnum = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.MockBehavior")!);
             this.isAnyTypeClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.It+IsAnyType")!);
+            this.isAnyMethod = new Lazy<ISymbol>(() => compilation.GetTypeByMetadataName("Moq.It")!.GetMembers("IsAny").Single());
             this.verifiesInterface = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.Language.IVerifies")!);
 
             this.setupMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Setup").OfType<IMethodSymbol>().ToArray());
@@ -72,6 +75,21 @@ namespace PosInformatique.Moq.Analyzers
         public bool IsAnyType(ITypeSymbol symbol)
         {
             if (!SymbolEqualityComparer.Default.Equals(symbol, this.isAnyTypeClass.Value))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsItIsAny(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.isAnyMethod.Value))
             {
                 return false;
             }
