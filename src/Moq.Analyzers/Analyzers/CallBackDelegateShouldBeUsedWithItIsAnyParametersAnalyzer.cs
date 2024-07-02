@@ -15,7 +15,7 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer : DiagnosticAnalyzer
     {
-        internal static readonly DiagnosticDescriptor CallbackShouldBeUsedRule = new DiagnosticDescriptor(
+        internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             "PosInfoMoq1003",
             "The Callback() method should be used to check the parameters when mocking a method with It.IsAny<T>() arguments",
             "The Callback() method should be used to check the '{0}' parameter when setup the method with It.IsAny<T>()",
@@ -25,17 +25,7 @@ namespace PosInformatique.Moq.Analyzers
             description: "The Callback() method should be used to check the parameters when mocking a method with a It.IsAny<T>() arguments.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1003.html");
 
-        internal static readonly DiagnosticDescriptor CallbackParameterShouldNotBeIgnoredRule = new DiagnosticDescriptor(
-            "PosInfoMoq1004",
-            "The Callback() parameter should not be ignored if it has been setup as an It.IsAny<T>() argument",
-            "The '{0}' parameter should not be ignored if it has been setup as an It.IsAny<T>() argument",
-            "Design",
-            DiagnosticSeverity.Warning,
-            isEnabledByDefault: true,
-            description: "The Callback() parameter should not be ignored if it has been setup as an It.IsAny<T>() argument.",
-            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1004.html");
-
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(CallbackShouldBeUsedRule, CallbackParameterShouldNotBeIgnoredRule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -75,16 +65,14 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check each parameter if it is an It.Any<T>() parameter.
-            var itIsAnyArguments = new Dictionary<int, ChainInvocationArgument>();
+            var itIsAnyArguments = new List<ChainInvocationArgument>();
 
-            for (var i = 0; i < setupMethod.InvocationArguments.Count; i++)
+            foreach (var argument in setupMethod.InvocationArguments)
             {
-                var argument = setupMethod.InvocationArguments[i];
-
                 if (moqSymbols.IsItIsAny(argument.Symbol))
                 {
                     // The Callback() method is required for the argument, add in the list.
-                    itIsAnyArguments.Add(i, argument);
+                    itIsAnyArguments.Add(argument);
                 }
             }
 
@@ -99,33 +87,16 @@ namespace PosInformatique.Moq.Analyzers
 
                     if (callbackMethod is not null)
                     {
-                        // Check each parameter of the Callback() method.
-                        for (var i = 0; i < callbackMethod.Parameters.Length; i++)
-                        {
-                            if (!itIsAnyArguments.TryGetValue(i, out var itIsAnyArgument))
-                            {
-                                // The parameter in the Callback() method is not related to a It.IsAny<T>() expression.
-                                continue;
-                            }
-
-                            if (callbackMethod.Parameters[i].Name == "_")
-                            {
-                                // Raise warning for the parameter which is not used.
-                                var parameterName = setupMethod.InvocationArguments[i].ParameterSymbol.Name;
-
-                                context.ReportDiagnostic(CallbackParameterShouldNotBeIgnoredRule, lambdaExpression!.ParameterList.Parameters[i].GetLocation(), parameterName);
-                            }
-                        }
-
                         // Callback() method exists and parameters has been verified, exit the analysis.
                         return;
                     }
                 }
 
                 // Report the warning PosInfo1003 for missing Callback() method.
+                // Do it for each It.IsAny<T>() arguments.
                 foreach (var itIsAnyArgument in itIsAnyArguments)
                 {
-                    context.ReportDiagnostic(CallbackShouldBeUsedRule, itIsAnyArgument.Value.Syntax.GetLocation(), itIsAnyArgument.Value.ParameterSymbol.Name);
+                    context.ReportDiagnostic(Rule, itIsAnyArgument.Syntax.GetLocation(), itIsAnyArgument.ParameterSymbol.Name);
                 }
             }
         }

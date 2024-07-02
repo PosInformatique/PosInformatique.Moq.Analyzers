@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzerTest.cs" company="P.O.S Informatique">
+// <copyright file="CallBackDelegateParametersShouldNotBeIgnoredAnalyzerTest.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -7,12 +7,12 @@
 namespace PosInformatique.Moq.Analyzers.Tests
 {
     using Microsoft.CodeAnalysis.Testing;
-    using Verifier = MoqCSharpAnalyzerVerifier<CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer>;
+    using Verifier = MoqCSharpAnalyzerVerifier<CallBackDelegateParametersShouldNotBeIgnoredAnalyzer>;
 
-    public class CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzerTest
+    public class CallBackDelegateParametersShouldNotBeIgnoredAnalyzerTest
     {
         [Fact]
-        public async Task NoCallback_DiagnosticReported()
+        public async Task NotUsedParameters_DiagnosticReported()
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -25,10 +25,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<I>();
-                            mock1.Setup(m => m.TestMethod({|#0:It.IsAny<string>()|#0}, {|#1:It.IsAny<int>()|#1}));
-                            mock1.Setup(m => m.TestMethod(""Ignored"", {|#2:It.IsAny<int>()|#2}));
-                            mock1.Setup(m => m.TestMethod({|#3:It.IsAny<string>()|#3}, 1234));
-                            mock1.Setup(m => m.TestMethod({|#4:It.IsAny<string>()|#4}));
+                            mock1.Setup(m => m.TestMethod(It.IsAny<string>(), It.IsAny<int>()))
+                                .Callback(({|#0:string _|#0}, {|#1:int _|#1}) => { });
+                            mock1.Setup(m => m.TestMethod(""OK"", It.IsAny<int>()))
+                                .Callback((string _, {|#2:int _|#2}) => { });
+                            mock1.Setup(m => m.TestMethod(It.IsAny<string>(), 1234))
+                                .Callback(({|#3:string _|#3}, int _) => { });
                        }
                     }
 
@@ -43,21 +45,19 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(
                 source,
                 [
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(12, 59, 12, 77).WithArguments("a"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(12, 79, 12, 94).WithArguments("b"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(13, 70, 13, 85).WithArguments("b"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(14, 59, 14, 77).WithArguments("a"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(15, 59, 15, 77).WithArguments("a"),
+                    new DiagnosticResult(CallBackDelegateParametersShouldNotBeIgnoredAnalyzer.Rule)
+                        .WithSpan(13, 44, 13, 52).WithArguments("a"),
+                    new DiagnosticResult(CallBackDelegateParametersShouldNotBeIgnoredAnalyzer.Rule)
+                        .WithSpan(13, 54, 13, 59).WithArguments("b"),
+                    new DiagnosticResult(CallBackDelegateParametersShouldNotBeIgnoredAnalyzer.Rule)
+                        .WithSpan(15, 54, 15, 59).WithArguments("b"),
+                    new DiagnosticResult(CallBackDelegateParametersShouldNotBeIgnoredAnalyzer.Rule)
+                        .WithSpan(17, 44, 17, 52).WithArguments("a"),
                 ]);
         }
 
         [Fact]
-        public async Task Callback_NoDiagnosticReported()
+        public async Task UsedParameters_NoDiagnosticReported()
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -71,13 +71,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>();
                             mock1.Setup(m => m.TestMethod(It.IsAny<string>()))
-                                .Callback(() => { });
+                                .Callback((string a) => { });
                             mock1.Setup(m => m.TestMethod(It.IsAny<string>(), It.IsAny<int>()))
-                                .Callback(() => { });
+                                .Callback((string a, int b) => { });
                             mock1.Setup(m => m.TestMethod(""OK"", It.IsAny<int>()))
-                                .Callback(() => { });
+                                .Callback((string _, int b) => { });
                             mock1.Setup(m => m.TestMethod(It.IsAny<string>(), 1234))
-                                .Callback(() => { });
+                                .Callback((string a, int _) => { });
 
                             var mock2 = new Mock<I>();
                             mock2.Setup(m => m.TestMethod());
