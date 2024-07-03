@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design", "Design", "{815BE8
 		docs\design\PosInfoMoq1000.md = docs\design\PosInfoMoq1000.md
 		docs\design\PosInfoMoq1001.md = docs\design\PosInfoMoq1001.md
 		docs\Design\PosInfoMoq1002.md = docs\Design\PosInfoMoq1002.md
+		docs\Design\PosInfoMoq1003.md = docs\Design\PosInfoMoq1003.md
+		docs\Design\PosInfoMoq1004.md = docs\Design\PosInfoMoq1004.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Compilation", "Compilation", "{D9C84D36-7F9C-4EFB-BE6F-9F7A05FE957D}"

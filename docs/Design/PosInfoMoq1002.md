@@ -19,14 +19,14 @@ In the *Arrange* phase of an unit test, when `Verifiable()` method has been setu
 
 ```csharp
 [Fact]
-public void GetCustomer_ShouldCallRepository()
+public void SendMail_ShouldCallSmtpService()
 {
 	// Arrange
 	var smtpService = new Mock<ISmtpService>();
 	smtpService.Setup(s => s.SendMail("sender@domain.com", "Gilles"))
 		.Verifiable();
 
-	var service = new CustomerService(repository.Object);
+	var service = new CustomerService(smtpService.Object);
 
 	// Act
 	service.SendMail("Gilles");

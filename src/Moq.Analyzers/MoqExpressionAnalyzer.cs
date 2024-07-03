@@ -387,10 +387,11 @@ namespace PosInformatique.Moq.Analyzers
 
                 for (var i = 0; i < invocationMemberExpression.ArgumentList.Arguments.Count; i++)
                 {
-                    var argumentSyntax = invocationMemberExpression.ArgumentList.Arguments[i];
                     var parameter = methodSymbol.Parameters[i];
+                    var argumentSyntax = invocationMemberExpression.ArgumentList.Arguments[i];
+                    var argumentSymbol = this.semanticModel.GetSymbolInfo(argumentSyntax.Expression, cancellationToken);
 
-                    invocationArguments.Add(new ChainInvocationArgument(argumentSyntax, parameter));
+                    invocationArguments.Add(new ChainInvocationArgument(argumentSyntax, argumentSymbol.Symbol, parameter));
                 }
             }
 
@@ -400,6 +401,14 @@ namespace PosInformatique.Moq.Analyzers
         public IMethodSymbol? ExtractCallBackLambdaExpressionMethod(InvocationExpressionSyntax invocationExpression, out ParenthesizedLambdaExpressionSyntax? lambdaExpression, CancellationToken cancellationToken)
         {
             lambdaExpression = null;
+
+            // Try to determine if the invocation expression is a Callback() expression.
+            var callbackMethodSymbol = this.semanticModel.GetSymbolInfo(invocationExpression, cancellationToken);
+
+            if (!this.moqSymbols.IsCallback(callbackMethodSymbol.Symbol))
+            {
+                return null;
+            }
 
             if (invocationExpression.ArgumentList.Arguments.Count != 1)
             {
@@ -484,7 +493,7 @@ namespace PosInformatique.Moq.Analyzers
 
         private InvocationExpressionSyntax? GetSetupMethod(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
         {
-            var followingMethods = invocationExpression.DescendantNodes().OfType<InvocationExpressionSyntax>();
+            var followingMethods = invocationExpression.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>();
 
             foreach (var followingMethod in followingMethods)
             {
