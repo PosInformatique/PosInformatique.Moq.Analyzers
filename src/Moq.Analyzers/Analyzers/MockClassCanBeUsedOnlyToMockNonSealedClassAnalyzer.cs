@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="NoSealedClassAnalyzer.cs" company="P.O.S Informatique">
+// <copyright file="MockClassCanBeUsedOnlyToMockNonSealedClassAnalyzer.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,7 +13,7 @@ namespace PosInformatique.Moq.Analyzers
     using Microsoft.CodeAnalysis.Diagnostics;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class NoSealedClassAnalyzer : DiagnosticAnalyzer
+    public class MockClassCanBeUsedOnlyToMockNonSealedClassAnalyzer : DiagnosticAnalyzer
     {
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             "PosInfoMoq2002",
