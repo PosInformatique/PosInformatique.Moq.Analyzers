@@ -1,4 +1,11 @@
-﻿## Release 1.8.0
+﻿## Release 1.9.0
+
+### New Rules
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+PosInfoMoq2009 | Compilation | Error | `Mock.Of<T>` method must be used only to mock non-sealed class.
+
+## Release 1.8.0
 
 ### New Rules
 

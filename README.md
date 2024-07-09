@@ -41,13 +41,14 @@ All the rules of this category should not be disabled (or changed their severity
 | - | - |
 | [PosInfoMoq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks](docs/Compilation/PosInfoMoq2000.md) | When a `Mock<T>` has been defined with the `Strict` behavior, the `Returns()` or `ReturnsAsync()` method must be called when setup a method to mock which returns a value. |
 | [PosInfoMoq2001: The `Setup()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2001.md)) | The `Setup()` method must be applied only for overridable members. |
-| [PosInfoMoq2002: `Mock<T>` class can be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2002.md) | The `Mock<T>` can mock only interfaces or non-`sealed` classes. |
+| [PosInfoMoq2002: `Mock<T>` class can be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2002.md) | The `Mock<T>` class can mock only interfaces or non-`sealed` classes. |
 | [PosInfoMoq2003: The `Callback()` delegate expression must match the signature of the mocked method](docs/Compilation/PosInfoMoq2003.md) | The delegate in the argument of the `Callback()` method must match the signature of the mocked method. |
 | [PosInfoMoq2004: Constructor arguments cannot be passed for interface mocks](docs/Compilation/PosInfoMoq2004.md) | No arguments can be passed to a mocked interface. |
 | [PosInfoMoq2005: Constructor arguments must match the constructors of the mocked class](docs/Compilation/PosInfoMoq2005.md) | When instantiating a `Mock<T>`, the parameters must match one of the constructors of the mocked type.  |
 | [PosInfoMoq2006: The Protected().Setup() method must be use with overridable protected or internal methods](docs/Compilation/PosInfoMoq2006.md) | When using the `Protected().Setup()` configuration, the method mocked must be overridable and protected or internal. |
 | [PosInfoMoq2007: The `As<T>()` method can be used only with interfaces.](docs/Compilation/PosInfoMoq2007.md) | The `As<T>()` can only be use with the interfaces. |
 | [PosInfoMoq2008: The `Verify()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2008.md)) | The `Verify()` method must be applied only for overridable members. |
+| [PosInfoMoq2009: `Mock.Of<T>` method must be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2009.md) | The `Mock.Of<T>` method can mock only interfaces or non-`sealed` classes |
 
 
 

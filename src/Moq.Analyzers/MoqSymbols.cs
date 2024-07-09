@@ -25,6 +25,8 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<IMethodSymbol> staticVerifyAllMethod;
 
+        private readonly Lazy<IReadOnlyList<IMethodSymbol>> mockOfMethods;
+
         private readonly Lazy<IMethodSymbol> verifyAllMethod;
 
         private readonly Lazy<IReadOnlyList<IMethodSymbol>> verifiableMethods;
@@ -58,6 +60,7 @@ namespace PosInformatique.Moq.Analyzers
             this.verifyAllMethod = new Lazy<IMethodSymbol>(() => mockGenericClass.BaseType!.GetMembers("VerifyAll").Where(m => !m.IsStatic).OfType<IMethodSymbol>().Single());
 
             this.verifiableMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => this.verifiesInterface.Value.GetMembers("Verifiable").OfType<IMethodSymbol>().ToArray());
+            this.mockOfMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.BaseType!.GetMembers("Of").Where(m => m.IsStatic).OfType<IMethodSymbol>().ToArray());
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
@@ -367,6 +370,24 @@ namespace PosInformatique.Moq.Analyzers
             if (!type.IsSealed)
             {
                 return true;
+            }
+
+            return false;
+        }
+
+        public bool IsMockOfMethod(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            foreach (var mockOfMethod in this.mockOfMethods.Value)
+            {
+                if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, mockOfMethod))
+                {
+                    return true;
+                }
             }
 
             return false;
