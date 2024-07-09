@@ -27,7 +27,7 @@ Design rules used to make your unit tests more strongly strict.
 | Rule | Description |
 | - | - |
 | [PosInfoMoq1000: `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances](docs/Design/PosInfoMoq1000.md) | When instantiating a `Mock<T>` in the *Arrange* phase of an unit test, `VerifyAll()` method should be called in the *Assert* phase to check the setup methods has been called. |
-| [PosInfoMoq1001: The `Mock<T>` instance behavior should be defined to Strict mode](docs/Design/PosInfoMoq1001.md) | When instantiating a `Mock<T>` instance, the `MockBehavior` of the `Mock` instance should be defined to `Strict`. |
+| [PosInfoMoq1001: The mocked instances behaviors should be defined to `Strict` mode](docs/Design/PosInfoMoq1001.md) | When instantiating a `Mock<T>` instance, the `MockBehavior` of the `Mock` instance should be defined to `Strict`. |
 | [PosInfoMoq1002: `Verify()` methods should be called when `Verifiable()` has been setup](docs/Design/PosInfoMoq1002.md) | When a mocked member has been setup with the `Verifiable()` method, the `Verify()` method must be called at the end of the unit test. |
 | [PosInfoMoq1003: The `Callback()` method should be used to check the parameters when mocking a method with `It.IsAny<T>()` arguments](docs/Design/PosInfoMoq1003.md) | When a mocked method contains a `It.IsAny<T>()` argument, the related parameter should be checked in the `Callback()` method. |
 | [PosInfoMoq1004: The `Callback()` parameter should not be ignored if it has been setup as an `It.IsAny<T>()` argument](docs/Design/PosInfoMoq1004.md) | When a mocked method contains a `It.IsAny<T>()` argument, the related parameter should not be ignored in the `Callback()` method. |

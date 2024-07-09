@@ -22,6 +22,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 .AddPackages([new PackageIdentity("Moq", "4.20.70")]);
 
             context.ExpectedDiagnostics.AddRange(expectedDiagnostics);
+            context.FixedCode = expectedFixedSource;
             context.TestCode = source;
 
             await context.RunAsync();

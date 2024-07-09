@@ -195,15 +195,57 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsStrictBehavior(ObjectCreationExpressionSyntax mockCreationExpression, CancellationToken cancellationToken)
+        public bool IsMockCreationStrictBehavior(ArgumentListSyntax? argumentList, CancellationToken cancellationToken, bool firstOrLast = true)
         {
             // Check that the "new Mock<I>()" statement have at least one argument (else Strict is missing...).
-            if (mockCreationExpression.ArgumentList is null)
+            if (argumentList is null)
             {
                 return false;
             }
 
-            var firstArgument = mockCreationExpression.ArgumentList.Arguments.FirstOrDefault();
+            ArgumentSyntax? firstOrLastArgument;
+
+            if (firstOrLast)
+            {
+                firstOrLastArgument = argumentList.Arguments.FirstOrDefault();
+            }
+            else
+            {
+                firstOrLastArgument = argumentList.Arguments.LastOrDefault();
+            }
+
+            if (firstOrLastArgument is null)
+            {
+                return false;
+            }
+
+            // Gets the first argument of "new Mock<I>(...)" and ensures it is a MemberAccessExpressionSyntax
+            // (because we searching for MockBehavior.Strict).
+            if (!this.IsStrictBehaviorArgument(firstOrLastArgument, out var memberAccessExpression, cancellationToken))
+            {
+                return false;
+            }
+
+            // Check that the memberAccessExpression.Name reference the Strict field
+            var firstOrLastArgumentField = this.semanticModel.GetSymbolInfo(memberAccessExpression!.Name, cancellationToken);
+
+            if (!this.moqSymbols.IsMockBehaviorStrictField(firstOrLastArgumentField.Symbol))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsMockOfStrictBehavior(InvocationExpressionSyntax mockOfExpression, CancellationToken cancellationToken)
+        {
+            // Check that the "new Mock<I>()" statement have at least one argument (else Strict is missing...).
+            if (mockOfExpression.ArgumentList is null)
+            {
+                return false;
+            }
+
+            var firstArgument = mockOfExpression.ArgumentList.Arguments.FirstOrDefault();
 
             if (firstArgument is null)
             {
@@ -261,7 +303,7 @@ namespace PosInformatique.Moq.Analyzers
 
                 if (mockCreation is not null)
                 {
-                    if (this.IsStrictBehavior(mockCreation, cancellationToken))
+                    if (this.IsMockCreationStrictBehavior(mockCreation.ArgumentList, cancellationToken))
                     {
                         return true;
                     }
