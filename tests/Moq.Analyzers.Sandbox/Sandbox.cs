@@ -10,5 +10,32 @@ namespace PosInformatique.Moq.Analyzers.Sandbox
 
     public class Sandbox
     {
+        [Fact]
+        public void T()
+        {
+            var repository = Mock.Of<IRepository>();
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public class IRepository
+    {
+        //void Method(int a, string s);
+    }
