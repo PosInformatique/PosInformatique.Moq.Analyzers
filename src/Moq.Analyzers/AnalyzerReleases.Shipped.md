@@ -1,9 +1,10 @@
-﻿## Release 1.9.0
+﻿## Release 1.9.1
 
 ### New Rules
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 PosInfoMoq2009 | Compilation | Error | `Mock.Of<T>` method must be used only to mock non-sealed class.
+PosInfoMoq2010 | Compilation | Error | `Mock.Of<T>` method must be used only with types that contains parameterless contructor.
 
 ## Release 1.8.0
 

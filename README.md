@@ -49,6 +49,7 @@ All the rules of this category should not be disabled (or changed their severity
 | [PosInfoMoq2007: The `As<T>()` method can be used only with interfaces.](docs/Compilation/PosInfoMoq2007.md) | The `As<T>()` can only be use with the interfaces. |
 | [PosInfoMoq2008: The `Verify()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2008.md)) | The `Verify()` method must be applied only for overridable members. |
 | [PosInfoMoq2009: `Mock.Of<T>` method must be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2009.md) | The `Mock.Of<T>` method can mock only interfaces or non-`sealed` classes |
+| [PosInfoMoq2010: `Mock.Of<T>` method must be used only with types that contains parameterless contructor](docs/Compilation/PosInfoMoq2010.md) | The `Mock.Of<T>` method requires a non-private parameterless contructor |
 
 
 

@@ -20,6 +20,7 @@
       1.9.1
       - Add new rules:
         - PosInfoMoq2009: Mock.Of&lt;T&gt; method must be used only to mock non-sealed class
+        - PosInfoMoq2010: Mock.Of&lt;T&gt; method must be used only with types that contains parameterless contructor
       - Fix the PosInfoMoq1001 to check the MockBehavior usage to strict.
       
       1.8.0

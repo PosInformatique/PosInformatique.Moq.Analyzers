@@ -15,7 +15,7 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class MockOfAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor MustBeUsedOnlyToMockNonSealedClassRule = new DiagnosticDescriptor(
             "PosInfoMoq2009",
             "Mock.Of<T> method must be used only to mock non-sealed class",
             "Mock.Of<T> method must be used only to mock non-sealed class",
@@ -25,7 +25,17 @@ namespace PosInformatique.Moq.Analyzers
             description: "Mock<T> method must be used only to mock non-sealed class.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2009.html");
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        private static readonly DiagnosticDescriptor MustContainsParameterlessContructorRule = new DiagnosticDescriptor(
+            "PosInfoMoq2010",
+            "Mock.Of<T> method must be used only with types that contains parameterless contructor",
+            "Mock.Of<T> method must be used only with types that contains parameterless contructor",
+            "Compilation",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "Mock.Of<T> method must be used only with types that contains parameterless contructor.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2010.html");
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(MustBeUsedOnlyToMockNonSealedClassRule, MustContainsParameterlessContructorRule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -86,22 +96,38 @@ namespace PosInformatique.Moq.Analyzers
                 mockedTypeExpression = genericNameExpression.TypeArgumentList.Arguments[0];
             }
 
-            // Check the expression is a Mock<T> instance creation.
+            // Gets the symbol of the mocked type
             var symbol = context.SemanticModel.GetSymbolInfo(mockedTypeExpression, context.CancellationToken).Symbol;
 
-            if (symbol is not ITypeSymbol mockedType)
+            if (symbol is not INamedTypeSymbol mockedType)
             {
                 return;
             }
 
-            if (moqSymbols.IsMockable(mockedType))
+            // Check if the type is mockable.
+            if (!moqSymbols.IsMockable(mockedType))
+            {
+                // The mocked type is not mockabke. Report the diagnostic issue.
+                context.ReportDiagnostic(MustBeUsedOnlyToMockNonSealedClassRule, mockedTypeExpression.GetLocation());
+                return;
+            }
+
+            // Check if the type contains a parameterless constructor (ignore this check for the interfaces).
+            if (mockedType.TypeKind == TypeKind.Interface)
             {
                 return;
             }
 
-            // The mocked type is not mockabke. Report the diagnostic issue.
-            var diagnostic = Diagnostic.Create(Rule, mockedTypeExpression.GetLocation());
-            context.ReportDiagnostic(diagnostic);
+            foreach (var contructor in mockedType.Constructors)
+            {
+                if (contructor.DeclaredAccessibility != Accessibility.Private && contructor.Parameters.Length == 0)
+                {
+                    return;
+                }
+            }
+
+            // No parameter less constructor has been found. Report the diagnostic issue.
+            context.ReportDiagnostic(MustContainsParameterlessContructorRule, mockedTypeExpression.GetLocation());
         }
     }
 }
