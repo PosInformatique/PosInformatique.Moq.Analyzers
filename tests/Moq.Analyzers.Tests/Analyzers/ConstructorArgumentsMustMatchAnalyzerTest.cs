@@ -299,7 +299,6 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [InlineData("null")]
         [InlineData("\"The string\", 2")]
         [InlineData("1, 2, 3, \"The string\"")]
-        [InlineData("")]
         public async Task Arguments_NotMatch(string parameters)
         {
             var source = @"
@@ -332,7 +331,30 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public C(int a, object b, int c, System.IDisposable d)
                         {
                         }
+                    }
+                }";
 
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Arguments_WithDefaultParameters()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<C>{|PosInfoMoq2005:()|};
+                        }
+                    }
+
+                    public class C
+                    {
                         public C(int a = 0, int b = 1, int c = 2, int d = 3)
                         {
                         }
