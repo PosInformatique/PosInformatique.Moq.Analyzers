@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="MockOfCanBeUsedOnlyToMockNonSealedClassAnalyzer.cs" company="P.O.S Informatique">
+// <copyright file="MockOfAnalyzer.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,7 +13,7 @@ namespace PosInformatique.Moq.Analyzers
     using Microsoft.CodeAnalysis.Diagnostics;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class MockOfCanBeUsedOnlyToMockNonSealedClassAnalyzer : DiagnosticAnalyzer
+    public class MockOfAnalyzer : DiagnosticAnalyzer
     {
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             "PosInfoMoq2009",
@@ -54,7 +54,7 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            // Extract the generic parameter.
+            // Extract the generic parameter in the Mock.Of<T>() expression.
             if (invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
             {
                 return;
@@ -99,7 +99,7 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            // No returns method has been specified with Strict mode. Report the diagnostic issue.
+            // The mocked type is not mockabke. Report the diagnostic issue.
             var diagnostic = Diagnostic.Create(Rule, mockedTypeExpression.GetLocation());
             context.ReportDiagnostic(diagnostic);
         }
