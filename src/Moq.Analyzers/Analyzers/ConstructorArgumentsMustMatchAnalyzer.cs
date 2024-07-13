@@ -72,6 +72,12 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
+            // Check the type is a class (other type are ignored)
+            if (mockedType.TypeKind != TypeKind.Class)
+            {
+                return;
+            }
+
             // Check the type is a named type
             if (mockedType is not INamedTypeSymbol namedTypeSymbol)
             {

@@ -208,8 +208,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task Arguments_Match_WithNoConstructor()
+
+        [Theory]
+        [InlineData("class")]
+        [InlineData("abstract class")]
+        [InlineData("interface")]
+        public async Task Arguments_Match_WithNoConstructor(string type)
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -224,7 +228,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         }
                     }
 
-                    public class ClassWithNoConstructor { }
+                    public " + type + @" ClassWithNoConstructor { }
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);
@@ -272,8 +276,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task Arguments_Match_WithMockBehavior_WithNoConstructor()
+        [Theory]
+        [InlineData("class")]
+        [InlineData("abstract class")]
+        [InlineData("interface")]
+        public async Task Arguments_Match_WithMockBehavior_WithNoConstructor(string type)
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -288,7 +295,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                        }
                     }
 
-                    public class ClassWithNoConstructor { }
+                    public " + type + @" ClassWithNoConstructor { }
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);
