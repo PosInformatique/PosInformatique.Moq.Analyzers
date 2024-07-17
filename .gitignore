@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Specific
+/tests/Moq.Analyzers.Sandbox/Sandbox.cs

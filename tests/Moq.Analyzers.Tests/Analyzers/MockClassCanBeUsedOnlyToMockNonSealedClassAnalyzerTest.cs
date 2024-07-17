@@ -1,14 +1,14 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="NoSealedClassAnalyzerTest.cs" company="P.O.S Informatique">
+// <copyright file="MockClassCanBeUsedOnlyToMockNonSealedClassAnalyzerTest.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using Verifier = MoqCSharpAnalyzerVerifier<NoSealedClassAnalyzer>;
+    using Verifier = MoqCSharpAnalyzerVerifier<MockClassCanBeUsedOnlyToMockNonSealedClassAnalyzer>;
 
-    public class NoSealedClassAnalyzerTest
+    public class MockClassCanBeUsedOnlyToMockNonSealedClassAnalyzerTest
     {
         [Fact]
         public async Task NoSealedClass_NoDiagnosticReported()
@@ -50,7 +50,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         }
 
         [Fact]
-        public async Task SealedClass_NoDiagnosticReported()
+        public async Task SealedClass_DiagnosticReported()
         {
             var source = @"
                 namespace ConsoleApplication1

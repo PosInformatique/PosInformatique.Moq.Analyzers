@@ -17,6 +17,13 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      1.9.1
+      - Add new rules:
+        - PosInfoMoq2009: Mock.Of&lt;T&gt; method must be used only to mock non-sealed class
+        - PosInfoMoq2010: Mock.Of&lt;T&gt; method must be used only with types that contains parameterless contructor
+        - PosInfoMoq2011: Constructor of the mocked class must be accessible.
+      - Fix the PosInfoMoq1001 to check the MockBehavior usage to strict.
+      
       1.8.0
       - Add new rules:
         - PosInfoMoq1003: The Callback() method should be used to check the parameters when mocking a method with It.IsAny&lt;T&gt;() arguments.

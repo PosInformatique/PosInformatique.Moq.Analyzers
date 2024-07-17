@@ -27,7 +27,7 @@ Design rules used to make your unit tests more strongly strict.
 | Rule | Description |
 | - | - |
 | [PosInfoMoq1000: `VerifyAll()` methods should be called when instantiate a `Mock<T>` instances](docs/Design/PosInfoMoq1000.md) | When instantiating a `Mock<T>` in the *Arrange* phase of an unit test, `VerifyAll()` method should be called in the *Assert* phase to check the setup methods has been called. |
-| [PosInfoMoq1001: The `Mock<T>` instance behavior should be defined to Strict mode](docs/Design/PosInfoMoq1001.md) | When instantiating a `Mock<T>` instance, the `MockBehavior` of the `Mock` instance should be defined to `Strict`. |
+| [PosInfoMoq1001: The mocked instances behaviors should be defined to `Strict` mode](docs/Design/PosInfoMoq1001.md) | When instantiating a `Mock<T>` instance, the `MockBehavior` of the `Mock` instance should be defined to `Strict`. |
 | [PosInfoMoq1002: `Verify()` methods should be called when `Verifiable()` has been setup](docs/Design/PosInfoMoq1002.md) | When a mocked member has been setup with the `Verifiable()` method, the `Verify()` method must be called at the end of the unit test. |
 | [PosInfoMoq1003: The `Callback()` method should be used to check the parameters when mocking a method with `It.IsAny<T>()` arguments](docs/Design/PosInfoMoq1003.md) | When a mocked method contains a `It.IsAny<T>()` argument, the related parameter should be checked in the `Callback()` method. |
 | [PosInfoMoq1004: The `Callback()` parameter should not be ignored if it has been setup as an `It.IsAny<T>()` argument](docs/Design/PosInfoMoq1004.md) | When a mocked method contains a `It.IsAny<T>()` argument, the related parameter should not be ignored in the `Callback()` method. |
@@ -41,13 +41,16 @@ All the rules of this category should not be disabled (or changed their severity
 | - | - |
 | [PosInfoMoq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks](docs/Compilation/PosInfoMoq2000.md) | When a `Mock<T>` has been defined with the `Strict` behavior, the `Returns()` or `ReturnsAsync()` method must be called when setup a method to mock which returns a value. |
 | [PosInfoMoq2001: The `Setup()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2001.md)) | The `Setup()` method must be applied only for overridable members. |
-| [PosInfoMoq2002: `Mock<T>` class can be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2002.md) | The `Mock<T>` can mock only interfaces or non-`sealed` classes. |
+| [PosInfoMoq2002: `Mock<T>` class can be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2002.md) | The `Mock<T>` class can mock only interfaces or non-`sealed` classes. |
 | [PosInfoMoq2003: The `Callback()` delegate expression must match the signature of the mocked method](docs/Compilation/PosInfoMoq2003.md) | The delegate in the argument of the `Callback()` method must match the signature of the mocked method. |
 | [PosInfoMoq2004: Constructor arguments cannot be passed for interface mocks](docs/Compilation/PosInfoMoq2004.md) | No arguments can be passed to a mocked interface. |
 | [PosInfoMoq2005: Constructor arguments must match the constructors of the mocked class](docs/Compilation/PosInfoMoq2005.md) | When instantiating a `Mock<T>`, the parameters must match one of the constructors of the mocked type.  |
 | [PosInfoMoq2006: The Protected().Setup() method must be use with overridable protected or internal methods](docs/Compilation/PosInfoMoq2006.md) | When using the `Protected().Setup()` configuration, the method mocked must be overridable and protected or internal. |
 | [PosInfoMoq2007: The `As<T>()` method can be used only with interfaces.](docs/Compilation/PosInfoMoq2007.md) | The `As<T>()` can only be use with the interfaces. |
 | [PosInfoMoq2008: The `Verify()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2008.md)) | The `Verify()` method must be applied only for overridable members. |
+| [PosInfoMoq2009: `Mock.Of<T>` method must be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2009.md) | The `Mock.Of<T>` method can mock only interfaces or non-`sealed` classes |
+| [PosInfoMoq2010: `Mock.Of<T>` method must be used only with types that contains parameterless contructor](docs/Compilation/PosInfoMoq2010.md) | The `Mock.Of<T>` method requires a non-private parameterless contructor |
+| [PosInfoMoq2011: Constructor of the mocked class must be accessible.](docs/Compilation/PosInfoMoq2011.md) | The constructor of the instantiate mocked class must non-private. |
 
 
 

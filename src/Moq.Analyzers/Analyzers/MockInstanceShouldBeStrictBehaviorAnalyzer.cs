@@ -19,12 +19,12 @@ namespace PosInformatique.Moq.Analyzers
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             DiagnosticId,
-            "The Mock<T> instance behavior should be defined to Strict mode",
-            "The Mock<T> instance behavior should be defined to Strict mode",
+            "The mocked instances behavior should be defined to Strict mode",
+            "The mocked instances behavior should be defined to Strict mode",
             "Design",
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "The Mock<T> instance behavior should be defined to Strict mode.",
+            description: "The mocked instances behavior should be defined to Strict mode.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1001.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
@@ -34,10 +34,11 @@ namespace PosInformatique.Moq.Analyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.ObjectCreationExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeObjectCreationExpression, SyntaxKind.ObjectCreationExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeInvocationExpression, SyntaxKind.InvocationExpression);
         }
 
-        private static void Analyze(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeObjectCreationExpression(SyntaxNodeAnalysisContext context)
         {
             var objectCreation = (ObjectCreationExpressionSyntax)context.Node;
 
@@ -56,9 +57,38 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            if (!moqExpressionAnalyzer.IsStrictBehavior(objectCreation, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsMockCreationStrictBehavior(objectCreation.ArgumentList, context.CancellationToken))
             {
                 var diagnostic = Diagnostic.Create(Rule, objectCreation.GetLocation());
+                context.ReportDiagnostic(diagnostic);
+            }
+        }
+
+        private static void AnalyzeInvocationExpression(SyntaxNodeAnalysisContext context)
+        {
+            var invocationExpression = (InvocationExpressionSyntax)context.Node;
+
+            var moqSymbols = MoqSymbols.FromCompilation(context.Compilation);
+
+            if (moqSymbols is null)
+            {
+                return;
+            }
+
+            // Check the expression is a Mock.Of method.
+            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken).Symbol;
+
+            if (!moqSymbols.IsMockOfMethod(methodSymbol))
+            {
+                return;
+            }
+
+            // Extract the type
+            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
+
+            if (!moqExpressionAnalyzer.IsMockCreationStrictBehavior(invocationExpression.ArgumentList, context.CancellationToken, false))
+            {
+                var diagnostic = Diagnostic.Create(Rule, invocationExpression.GetLocation());
                 context.ReportDiagnostic(diagnostic);
             }
         }

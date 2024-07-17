@@ -42,7 +42,7 @@ namespace PosInformatique.Moq.Analyzers
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            // Find the "ObjectCreationExpressionSyntax" in the parent of the location where is located the issue in the code.
+            // Find the "ObjectCreationExpressionSyntax" or "InvocationExpression" in the parent of the location where is located the issue in the code.
             var parent = root.FindToken(diagnosticSpan.Start).Parent;
 
             if (parent is null)
@@ -50,28 +50,36 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var mockCreationExpression = parent.AncestorsAndSelf().OfType<ObjectCreationExpressionSyntax>().First();
+            var mockCreationExpression = parent.AncestorsAndSelf().OfType<ObjectCreationExpressionSyntax>().FirstOrDefault();
 
-            // Register a code to fix the enumeration.
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: "Defines the MockBehavior to Strict",
-                    createChangedDocument: cancellationToken => AddMockBehiavorStrictArgumentAsync(context.Document, mockCreationExpression, cancellationToken),
-                    equivalenceKey: "Defines the MockBehavior to Strict"),
-                diagnostic);
+            if (mockCreationExpression is null)
+            {
+                var invocationExpression = parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
+
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: "Defines the MockBehavior to Strict",
+                        createChangedDocument: cancellationToken => AddMockBehiavorStrictArgumentAsync(context.Document, invocationExpression, cancellationToken),
+                        equivalenceKey: "Defines the MockBehavior to Strict"),
+                    diagnostic);
+            }
+            else
+            {
+                // Register a code to fix the enumeration.
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: "Defines the MockBehavior to Strict",
+                        createChangedDocument: cancellationToken => AddMockBehiavorStrictArgumentAsync(context.Document, mockCreationExpression, cancellationToken),
+                        equivalenceKey: "Defines the MockBehavior to Strict"),
+                    diagnostic);
+            }
         }
 
         private static async Task<Document> AddMockBehiavorStrictArgumentAsync(Document document, ObjectCreationExpressionSyntax oldMockCreationExpression, CancellationToken cancellationToken)
         {
-            var mockBehaviorArgument = SyntaxFactory.Argument(
-                SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName("MockBehavior"),
-                    SyntaxFactory.IdentifierName("Strict")));
-
             var arguments = new List<ArgumentSyntax>()
             {
-                mockBehaviorArgument,
+                CreateMockBehaviorArgument(),
             };
 
             if (oldMockCreationExpression.ArgumentList is not null && oldMockCreationExpression.ArgumentList.Arguments.Count > 0)
@@ -104,6 +112,52 @@ namespace PosInformatique.Moq.Analyzers
             var newRoot = oldRoot.ReplaceNode(oldMockCreationExpression, newMockCreationExpression);
 
             return document.WithSyntaxRoot(newRoot);
+        }
+
+        private static async Task<Document> AddMockBehiavorStrictArgumentAsync(Document document, InvocationExpressionSyntax oldInvocationExpression, CancellationToken cancellationToken)
+        {
+            var arguments = new List<ArgumentSyntax>();
+
+            if (oldInvocationExpression.ArgumentList is not null && oldInvocationExpression.ArgumentList.Arguments.Count > 0)
+            {
+                var lastArgument = oldInvocationExpression.ArgumentList.Arguments.Last();
+
+                if (IsMockBehaviorArgument(lastArgument))
+                {
+                    // The old last argument is MockBehavior.xxxxx, so we skip the last argument.
+                    arguments.AddRange(oldInvocationExpression.ArgumentList.Arguments.Take(oldInvocationExpression.ArgumentList.Arguments.Count - 1));
+                }
+                else
+                {
+                    // Retrieves all the arguments of the "Mock.Of<T>()" instantiation.
+                    arguments.AddRange(oldInvocationExpression.ArgumentList.Arguments);
+                }
+            }
+
+            arguments.Add(CreateMockBehaviorArgument());
+
+            var newInvocationExpression = oldInvocationExpression.WithArgumentList(
+                SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments)));
+
+            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken);
+
+            if (oldRoot is null)
+            {
+                return document;
+            }
+
+            var newRoot = oldRoot.ReplaceNode(oldInvocationExpression, newInvocationExpression);
+
+            return document.WithSyntaxRoot(newRoot);
+        }
+
+        private static ArgumentSyntax CreateMockBehaviorArgument()
+        {
+            return SyntaxFactory.Argument(
+                SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.IdentifierName("MockBehavior"),
+                    SyntaxFactory.IdentifierName("Strict")));
         }
 
         private static bool IsMockBehaviorArgument(ArgumentSyntax argument)

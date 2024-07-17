@@ -16,7 +16,7 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ConstructorArgumentsMustMatchAnalyzer : DiagnosticAnalyzer
     {
-        internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor ConstructorArgumentsMustMatchMockedClassRule = new DiagnosticDescriptor(
             "PosInfoMoq2005",
             "Constructor arguments must match the constructors of the mocked class",
             "Constructor arguments must match the constructors of the mocked class",
@@ -26,7 +26,17 @@ namespace PosInformatique.Moq.Analyzers
             description: "Constructor arguments must match the constructors of the mocked class.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2005.html");
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        private static readonly DiagnosticDescriptor ConstructorMockedClassMustBeAccessibleRule = new DiagnosticDescriptor(
+            "PosInfoMoq2011",
+            "Constructor of the mocked class must be accessible",
+            "Constructor of the mocked class must be accessible",
+            "Compilation",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "Constructor of the mocked class must be accessible.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2011.html");
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(ConstructorArgumentsMustMatchMockedClassRule, ConstructorMockedClassMustBeAccessibleRule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -62,6 +72,12 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
+            // Check the type is a class (other type are ignored)
+            if (mockedType.TypeKind != TypeKind.Class)
+            {
+                return;
+            }
+
             // Check the type is a named type
             if (mockedType is not INamedTypeSymbol namedTypeSymbol)
             {
@@ -87,17 +103,17 @@ namespace PosInformatique.Moq.Analyzers
                 }
             }
 
-            var matchedConstructor = true;
+            var matchedConstructor = default(MatchedConstructor);
 
             // Iterate on each constructor and check if the arguments match.
             foreach (var constructor in namedTypeSymbol.Constructors)
             {
-                matchedConstructor = true;
+                matchedConstructor.Try(constructor);
 
                 // If the number of arguments is different, check the next constructor definition.
                 if (constructor.Parameters.Length != constructorArguments.Count)
                 {
-                    matchedConstructor = false;
+                    matchedConstructor.Cancel();
                     continue;
                 }
 
@@ -108,7 +124,7 @@ namespace PosInformatique.Moq.Analyzers
                         // Null parameter, just check the parameter type is a reference type.
                         if (!constructor.Parameters[i].Type.IsReferenceType)
                         {
-                            matchedConstructor = false;
+                            matchedConstructor.Cancel();
                             break;
                         }
 
@@ -125,20 +141,15 @@ namespace PosInformatique.Moq.Analyzers
 
                     if (!constructorArgumentSymbol.Type.IsOrInheritFrom(constructor.Parameters[i].Type))
                     {
-                        matchedConstructor = false;
+                        matchedConstructor.Cancel();
                         break;
                     }
                 }
 
-                if (matchedConstructor)
+                if (matchedConstructor.IsMatched)
                 {
                     break;
                 }
-            }
-
-            if (matchedConstructor)
-            {
-                return;
             }
 
             Location location;
@@ -155,8 +166,40 @@ namespace PosInformatique.Moq.Analyzers
                 location = Location.Create(context.Node.SyntaxTree, new TextSpan(firstLocation.SourceSpan.Start, lastLocation.SourceSpan.End - firstLocation.SourceSpan.Start));
             }
 
-            var diagnostic = Diagnostic.Create(Rule, location);
-            context.ReportDiagnostic(diagnostic);
+            if (!matchedConstructor.IsMatched)
+            {
+                context.ReportDiagnostic(ConstructorArgumentsMustMatchMockedClassRule, location);
+                return;
+            }
+
+            if (matchedConstructor.Constructor is not null && matchedConstructor.Constructor.DeclaredAccessibility == Accessibility.Private)
+            {
+                context.ReportDiagnostic(ConstructorMockedClassMustBeAccessibleRule, location);
+            }
+        }
+
+        private struct MatchedConstructor
+        {
+            public MatchedConstructor()
+            {
+                this.IsMatched = true;
+            }
+
+            public bool IsMatched { get; private set; }
+
+            public IMethodSymbol? Constructor { get; private set; }
+
+            public void Cancel()
+            {
+                this.IsMatched = false;
+                this.Constructor = null;
+            }
+
+            public void Try(IMethodSymbol constructor)
+            {
+                this.IsMatched = true;
+                this.Constructor = constructor;
+            }
         }
     }
 }

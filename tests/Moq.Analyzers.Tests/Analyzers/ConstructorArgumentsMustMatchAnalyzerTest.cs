@@ -82,7 +82,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         }
 
         [Fact]
-        public async Task Arguments_Match()
+        public async Task Arguments_Empty_WithPrivateConstructor()
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -93,15 +93,41 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>(1, ""B"");
-                            var mock2 = new Mock<C>(1, null);
-                            var mock3 = new Mock<C>(default, ""B"");
-                            var mock4 = new Mock<C>((int)default, default);
-                            var mock5 = new Mock<C>(default, null, 1234);
-                            var mock6 = new Mock<C>(1, ""An object"", 3, null);
-                            var mock7 = new Mock<C>(1, ""An object"", 3, new System.IO.MemoryStream());
+                            var mock1 = new Mock<C>{|PosInfoMoq2011:()|};
+                        }
+                    }
 
-                            var mock8 = new Mock<ClassWithNoConstructor>();
+                    public class C
+                    {
+                        private C()
+                        {
+                        }
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("1, \"B\"")]
+        [InlineData("1, null")]
+        [InlineData("default, \"B\"")]
+        [InlineData("(int)default, default")]
+        [InlineData("default, null, 1234")]
+        [InlineData("1, \"An object\", 3, null")]
+        [InlineData("1, \"An object\", 3, new System.IO.MemoryStream()")]
+        public async Task Arguments_Match(string parameters)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<C>(" + parameters + @");
                         }
                     }
 
@@ -127,15 +153,20 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-
-                    public class ClassWithNoConstructor { }
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task Arguments_Match_WithMockBehavior()
+        [Theory]
+        [InlineData("1, \"B\"")]
+        [InlineData("1, null")]
+        [InlineData("default, \"B\"")]
+        [InlineData("(int)default, default")]
+        [InlineData("default, null, 1234")]
+        [InlineData("1, \"An object\", 3, null")]
+        [InlineData("1, \"An object\", 3, new System.IO.MemoryStream()")]
+        public async Task Arguments_Match_WithPrivateConstructor(string parameters)
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -146,11 +177,79 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>(MockBehavior.Strict, 1, ""B"");
-                            var mock6 = new Mock<C>(MockBehavior.Strict, 1, ""An object"", 3, null);
-                            var mock7 = new Mock<C>(MockBehavior.Strict, 1, ""An object"", 3, new System.IO.MemoryStream());
- 
-                            var mock8 = new Mock<ClassWithNoConstructor>(MockBehavior.Strict);
+                            var mock = new Mock<C>({|PosInfoMoq2011:" + parameters + @"|});
+                        }
+                    }
+
+                    public class C
+                    {
+                        private C(int a)
+                        {
+                        }
+
+                        private C(int a, string b)
+                        {
+                        }
+
+                        private C(int a, object b)
+                        {
+                        }
+
+                        private C(int a, int[] b, int c)
+                        {
+                        }
+
+                        private C(int a, object b, int c, System.IDisposable d)
+                        {
+                        }
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+
+        [Theory]
+        [InlineData("class")]
+        [InlineData("abstract class")]
+        [InlineData("interface")]
+        public async Task Arguments_Match_WithNoConstructor(string type)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<ClassWithNoConstructor>();
+                        }
+                    }
+
+                    public " + type + @" ClassWithNoConstructor { }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("1, \"B\"")]
+        [InlineData("1, \"An object\", 3, null")]
+        [InlineData("1, \"An object\", 3, new System.IO.MemoryStream()")]
+        public async Task Arguments_Match_WithMockBehavior(string parameters)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<C>(MockBehavior.Strict, " + parameters + @");
                        }
                     }
 
@@ -172,15 +271,16 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-
-                    public class ClassWithNoConstructor { }
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task Arguments_NotMatch()
+        [Theory]
+        [InlineData("class")]
+        [InlineData("abstract class")]
+        [InlineData("interface")]
+        public async Task Arguments_Match_WithMockBehavior_WithNoConstructor(string type)
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -191,12 +291,33 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>([|1, 2, 3|]);
-                            var mock2 = new Mock<C>([|null|]);
-                            var mock3 = new Mock<C>([|""The string"", 2|]);
-                            var mock4 = new Mock<C>([|1, 2, 3, ""The string""|]);
- 
-                            var mock8 = new Mock<ClassWithNoConstructor>([|1, 2|]);
+                            var mock = new Mock<ClassWithNoConstructor>(MockBehavior.Strict);
+                       }
+                    }
+
+                    public " + type + @" ClassWithNoConstructor { }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("1, 2, 3")]
+        [InlineData("null")]
+        [InlineData("\"The string\", 2")]
+        [InlineData("1, 2, 3, \"The string\"")]
+        public async Task Arguments_NotMatch(string parameters)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<C>({|PosInfoMoq2005:" + parameters + @"|});
                         }
                     }
 
@@ -218,15 +339,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                         }
                     }
-
-                    public class ClassWithNoConstructor { }
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
-        public async Task Arguments_NotMatch_WithMockBehavior()
+        public async Task Arguments_WithDefaultParameters()
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -237,12 +356,60 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>(MockBehavior.Strict, [|1, 2, 3|]);
-                            var mock2 = new Mock<C>(MockBehavior.Strict, [|null|]);
-                            var mock3 = new Mock<C>(MockBehavior.Strict, [|""The string"", 2|]);
-                            var mock4 = new Mock<C>(MockBehavior.Strict, [|1, 2, 3, ""The string""|]);
- 
-                            var mock8 = new Mock<ClassWithNoConstructor>(MockBehavior.Strict, [|1, 2|]);
+                            var mock = new Mock<C>{|PosInfoMoq2005:()|};
+                        }
+                    }
+
+                    public class C
+                    {
+                        public C(int a = 0, int b = 1, int c = 2, int d = 3)
+                        {
+                        }
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Arguments_NotMatch_WithNoContructor()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<ClassWithNoConstructor>({|PosInfoMoq2005:1, 2|});
+                        }
+                    }
+
+                    public class ClassWithNoConstructor { }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("1, 2, 3")]
+        [InlineData("null")]
+        [InlineData("\"The string\", 2")]
+        [InlineData("1, 2, 3, \"The string\"")]
+        public async Task Arguments_NotMatch_WithMockBehavior(string parameters)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<C>(MockBehavior.Strict, {|PosInfoMoq2005:" + parameters + @"|});
                         }
                     }
 
@@ -258,6 +425,26 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                         public C(int a, object c)
                         {
+                        }
+                    }
+               }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Arguments_NotMatch_WithMockBehavior_WithNoConstructor()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<ClassWithNoConstructor>(MockBehavior.Strict, {|PosInfoMoq2005:1, 2|});
                         }
                     }
  
@@ -279,7 +466,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>[|()|];
+                            var mock1 = new Mock<C>{|PosInfoMoq2005:()|};
                         }
                     }
 
@@ -314,7 +501,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>[|(MockBehavior.Strict)|];
+                            var mock1 = new Mock<C>{|PosInfoMoq2005:(MockBehavior.Strict)|};
                         }
                     }
 
