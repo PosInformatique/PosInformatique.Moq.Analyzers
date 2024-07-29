@@ -17,6 +17,10 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      1.9.2
+      - Fix the PosInfoMoq1003 to raise warnings when using InSequence() method.
+      - Fix the PosInfoMoq2003 to raise errors when using InSequence() method.
+
       1.9.1
       - Add new rules:
         - PosInfoMoq2009: Mock.Of&lt;T&gt; method must be used only to mock non-sealed class
