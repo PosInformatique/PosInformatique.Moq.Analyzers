@@ -10,8 +10,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
     public class CallBackDelegateMustMatchMockedMethodAnalyzerTest
     {
-        [Fact]
-        public async Task CallBackSignatureMatch_NoDiagnosticReported()
+        [Theory]
+        [InlineData("")]
+        [InlineData(".InSequence(sequence)")]
+        public async Task CallBackSignatureMatch_NoDiagnosticReported(string sequence)
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -23,31 +25,33 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
+                            var sequence = new MockSequence();
+
                             var mock1 = new Mock<I>();
 
-                            mock1.Setup(m => m.TestMethod())
+                            mock1" + sequence + @".Setup(m => m.TestMethod())
                                 .Callback(() => { })
                                 .Throws(new Exception());
-                            mock1.Setup(m => m.TestMethod(default))
+                            mock1" + sequence + @".Setup(m => m.TestMethod(default))
                                 .Callback((string x) => { })
                                 .Throws(new Exception());
-                            mock1.Setup(m => m.TestMethod(default, default))
+                            mock1" + sequence + @".Setup(m => m.TestMethod(default, default))
                                 .Callback((string x, int y) => { })
                                 .Throws(new Exception());
-                            mock1.Setup(m => m.TestGenericMethod(1234))
+                            mock1" + sequence + @".Setup(m => m.TestGenericMethod(1234))
                                 .Callback((int x) => { })
                                 .Throws(new Exception());
-                            mock1.Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
+                            mock1" + sequence + @".Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
                                 .Callback((object x) => { })
                                 .Throws(new Exception());
 
-                            mock1.Setup(m => m.TestMethodReturn())
+                            mock1" + sequence + @".Setup(m => m.TestMethodReturn())
                                 .Callback(() => { })
                                 .Returns(1234);
-                            mock1.Setup(m => m.TestMethodReturn(default))
+                            mock1" + sequence + @".Setup(m => m.TestMethodReturn(default))
                                 .Callback((string x) => { })
                                 .Returns(1234);
-                            mock1.Setup(m => m.TestMethodReturn(default, default))
+                            mock1" + sequence + @".Setup(m => m.TestMethodReturn(default, default))
                                 .Callback((string x, int y) => { })
                                 .Returns(1234);
 
@@ -80,8 +84,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task CallBackSignatureNotMatch_DiagnosticReported()
+        [Theory]
+        [InlineData("")]
+        [InlineData(".InSequence(sequence)")]
+        public async Task CallBackSignatureNotMatch_DiagnosticReported(string sequence)
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -93,37 +99,39 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
+                            var sequence = new MockSequence();
+
                             var mock1 = new Mock<I>();
 
-                            mock1.Setup(m => m.TestMethod())
+                            mock1" + sequence + @".Setup(m => m.TestMethod())
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Throws(new Exception());
-                            mock1.Setup(m => m.TestMethod(default))
+                            mock1" + sequence + @".Setup(m => m.TestMethod(default))
                                 .Callback([|()|] => { })
                                 .Throws(new Exception());
-                            mock1.Setup(m => m.TestMethod(default))
+                            mock1" + sequence + @".Setup(m => m.TestMethod(default))
                                 .Callback(([|int otherType|]) => { })
                                 .Throws(new Exception());
-                            mock1.Setup(m => m.TestMethod(default))
+                            mock1" + sequence + @".Setup(m => m.TestMethod(default))
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Throws(new Exception());
-                            mock1.Setup(m => m.TestGenericMethod(1234))
+                            mock1" + sequence + @".Setup(m => m.TestGenericMethod(1234))
                                 .Callback(([|string x|]) => { })
                                 .Throws(new Exception());
-                            mock1.Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
+                            mock1" + sequence + @".Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
                                 .Callback(([|string x|]) => { })
                                 .Throws(new Exception());
 
-                            mock1.Setup(m => m.TestMethodReturn())
+                            mock1" + sequence + @".Setup(m => m.TestMethodReturn())
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Returns(1234);
-                            mock1.Setup(m => m.TestMethodReturn(default))
+                            mock1" + sequence + @".Setup(m => m.TestMethodReturn(default))
                                 .Callback([|()|] => { })
                                 .Returns(1234);
-                            mock1.Setup(m => m.TestMethodReturn(default))
+                            mock1" + sequence + @".Setup(m => m.TestMethodReturn(default))
                                 .Callback(([|int otherType|]) => { })
                                 .Returns(1234);
-                            mock1.Setup(m => m.TestMethodReturn(default))
+                            mock1" + sequence + @".Setup(m => m.TestMethodReturn(default))
                                 .Callback([|(int too, int much, int parameters)|] => { })
                                 .Returns(1234);
                         }
