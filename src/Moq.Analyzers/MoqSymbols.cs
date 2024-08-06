@@ -44,12 +44,15 @@ namespace PosInformatique.Moq.Analyzers
         private MoqSymbols(INamedTypeSymbol mockGenericClass, Compilation compilation)
         {
             this.mockGenericClass = mockGenericClass;
+
+            var setupConditionResultInterface = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.Language.ISetupConditionResult`1")!);
+
             this.mockBehaviorEnum = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.MockBehavior")!);
             this.isAnyTypeClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.It+IsAnyType")!);
             this.isAnyMethod = new Lazy<ISymbol>(() => compilation.GetTypeByMetadataName("Moq.It")!.GetMembers("IsAny").Single());
             this.verifiesInterface = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.Language.IVerifies")!);
 
-            this.setupMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Setup").OfType<IMethodSymbol>().ToArray());
+            this.setupMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Setup").Concat(setupConditionResultInterface.Value.GetMembers("Setup")).OfType<IMethodSymbol>().ToArray());
             this.mockBehaviorStrictField = new Lazy<ISymbol>(() => this.mockBehaviorEnum.Value.GetMembers("Strict").First());
             this.setupProtectedMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => compilation.GetTypeByMetadataName("Moq.Protected.IProtectedMock`1")!.GetMembers("Setup").OfType<IMethodSymbol>().ToArray());
             this.asMethod = new Lazy<ISymbol>(() => mockGenericClass.GetMembers("As").Single());

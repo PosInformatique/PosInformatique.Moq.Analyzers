@@ -208,7 +208,6 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-
         [Theory]
         [InlineData("class")]
         [InlineData("abstract class")]

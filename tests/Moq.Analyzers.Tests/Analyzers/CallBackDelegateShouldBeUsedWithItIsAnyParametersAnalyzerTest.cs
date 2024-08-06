@@ -57,7 +57,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         }
 
         [Fact]
-        public async Task Callback_NoDiagnosticReported()
+        public async Task NoCallback_DiagnosticReported_WithSequence()
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -69,21 +69,72 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
+                            var sequence = new MockSequence();
+
                             var mock1 = new Mock<I>();
-                            mock1.Setup(m => m.TestMethod(It.IsAny<string>()))
+                            mock1.InSequence(sequence).Setup(m => m.TestMethod({|#0:It.IsAny<string>()|#0}, {|#1:It.IsAny<int>()|#1}));
+                            mock1.InSequence(sequence).Setup(m => m.TestMethod(""Ignored"", {|#2:It.IsAny<int>()|#2}));
+                            mock1.InSequence(sequence).Setup(m => m.TestMethod({|#3:It.IsAny<string>()|#3}, 1234));
+                            mock1.InSequence(sequence).Setup(m => m.TestMethod({|#4:It.IsAny<string>()|#4}));
+                       }
+                    }
+
+                    public interface I
+                    {
+                        void TestMethod(string a);
+
+                        void TestMethod(string a, int b);
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(
+                source,
+                [
+                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
+                        .WithSpan(14, 80, 14, 98).WithArguments("a"),
+                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
+                        .WithSpan(14, 100, 14, 115).WithArguments("b"),
+                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
+                        .WithSpan(15, 91, 15, 106).WithArguments("b"),
+                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
+                        .WithSpan(16, 80, 16, 98).WithArguments("a"),
+                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
+                        .WithSpan(17, 80, 17, 98).WithArguments("a"),
+                ]);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(".InSequence(sequence)")]
+        public async Task Callback_NoDiagnosticReported(string sequence)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+                    using System;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var sequence = new MockSequence();
+
+                            var mock1 = new Mock<I>();
+                            mock1" + sequence + @".Setup(m => m.TestMethod(It.IsAny<string>()))
                                 .Callback(() => { });
-                            mock1.Setup(m => m.TestMethod(It.IsAny<string>(), It.IsAny<int>()))
+                            mock1" + sequence + @".Setup(m => m.TestMethod(It.IsAny<string>(), It.IsAny<int>()))
                                 .Callback(() => { });
-                            mock1.Setup(m => m.TestMethod(""OK"", It.IsAny<int>()))
+                            mock1" + sequence + @".Setup(m => m.TestMethod(""OK"", It.IsAny<int>()))
                                 .Callback(() => { });
-                            mock1.Setup(m => m.TestMethod(It.IsAny<string>(), 1234))
+                            mock1" + sequence + @".Setup(m => m.TestMethod(It.IsAny<string>(), 1234))
                                 .Callback(() => { });
 
                             var mock2 = new Mock<I>();
-                            mock2.Setup(m => m.TestMethod());
+                            mock2" + sequence + @".Setup(m => m.TestMethod());
 
                             var mock3 = new Mock<I>();
-                            mock3.Setup(m => m.TestMethod(""OK"", 1234));
+                            mock3" + sequence + @".Setup(m => m.TestMethod(""OK"", 1234));
 
                             var o = new object();
                             o.ToString();   // Ignored
