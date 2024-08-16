@@ -90,7 +90,7 @@ namespace PosInformatique.Moq.Analyzers
 
                 if (method.IsSealed)
                 {
-                    continue;
+                    break;
                 }
 
                 if (method.DeclaredAccessibility == Accessibility.Protected)
