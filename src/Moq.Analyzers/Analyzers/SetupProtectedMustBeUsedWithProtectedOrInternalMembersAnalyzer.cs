@@ -81,7 +81,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check if a method exists with the specified name
-            foreach (var method in mockedType.GetMembers(methodName).OfType<IMethodSymbol>())
+            foreach (var method in mockedType.GetAllMembers(methodName).OfType<IMethodSymbol>())
             {
                 if (!method.IsAbstract && !method.IsVirtual && !method.IsOverride)
                 {
