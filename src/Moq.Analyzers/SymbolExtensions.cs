@@ -32,5 +32,21 @@ namespace PosInformatique.Moq.Analyzers
 
             return IsOrInheritFrom(symbol.BaseType, type);
         }
+
+        public static IEnumerable<ISymbol> GetAllMembers(this ITypeSymbol symbol, string name)
+        {
+            IEnumerable<ISymbol> baseTypeMembers;
+
+            if (symbol.BaseType is not null)
+            {
+                baseTypeMembers = symbol.BaseType.GetAllMembers(name);
+            }
+            else
+            {
+                baseTypeMembers = Enumerable.Empty<ISymbol>();
+            }
+
+            return symbol.GetMembers(name).Concat(baseTypeMembers);
+        }
     }
 }

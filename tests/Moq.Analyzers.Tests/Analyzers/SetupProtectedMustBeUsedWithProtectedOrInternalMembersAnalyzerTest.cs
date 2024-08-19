@@ -31,8 +31,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock1.Protected().Setup(""ProtectedAbstractMethod"");
                             mock1.Protected().Setup(""ProtectedInternalAbstractMethod"");
                             mock1.Protected().Setup(""InternalAbstractMethod"");
+                            mock1.Protected().Setup(""ProtectedMethod"");
                             mock1.Protected().Setup(""ProtectedOverrideMethod"");
                             mock1.Protected().Setup(""ProtectedInternalOverrideMethod"");
+                            mock1.Protected().Setup(""ProtectedInternalMethod"");
+                            mock1.Protected().Setup(""InternalMethod"");
                             mock1.Protected().Setup(""InternalOverrideMethod"");
 
                             mock1.Protected().Setup<int>(""ProtectedVirtualMethod"");
@@ -75,9 +78,15 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         protected virtual void ProtectedOverrideMethod() { }
 
+                        protected virtual void ProtectedMethod() { }
+
                         protected internal virtual void ProtectedInternalOverrideMethod() { }
 
+                        protected internal virtual void ProtectedInternalMethod() { }
+
                         internal virtual void InternalOverrideMethod() { }
+
+                        internal virtual void InternalMethod() { }
                     }
                 }";
 
