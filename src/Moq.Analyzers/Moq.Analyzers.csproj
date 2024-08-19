@@ -17,6 +17,9 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      1.9.3
+      - Fix the PosInfoMoq2006 when Setup() a method/property in inherited class.
+      
       1.9.2
       - Fix the PosInfoMoq1003 to raise warnings when using InSequence() method.
       - Fix the PosInfoMoq2003 to raise errors when using InSequence() method.
