@@ -1,4 +1,12 @@
-﻿## Release 1.9.1
+﻿## Release 1.10.0
+
+### New Rules
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+PosInfoMoq2012 | Compilation | Error | The delegate in the argument of the `Returns()` method must return a value with same type of the mocked method.
+PosInfoMoq2013 | Compilation | Error | The delegate in the argument of the `Returns()`/`ReturnsAsync()` method must have the same parameter types of the mocked method/property.
+
+## Release 1.9.1
 
 ### New Rules
 Rule ID | Category | Severity | Notes

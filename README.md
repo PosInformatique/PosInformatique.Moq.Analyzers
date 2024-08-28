@@ -51,6 +51,8 @@ All the rules of this category should not be disabled (or changed their severity
 | [PosInfoMoq2009: `Mock.Of<T>` method must be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2009.md) | The `Mock.Of<T>` method can mock only interfaces or non-`sealed` classes |
 | [PosInfoMoq2010: `Mock.Of<T>` method must be used only with types that contains parameterless contructor](docs/Compilation/PosInfoMoq2010.md) | The `Mock.Of<T>` method requires a non-private parameterless contructor |
 | [PosInfoMoq2011: Constructor of the mocked class must be accessible.](docs/Compilation/PosInfoMoq2011.md) | The constructor of the instantiate mocked class must non-private. |
+| [PosInfoMoq2012: The delegate in the argument of the `Returns()` method must return a value with same type of the mocked method.](docs/Compilation/PosInfoMoq2012.md) | The lambda expression, anonymous method or method in the argument of the `Returns()` must return return a value of the same type as the mocked method or property. |
+| [PosInfoMoq2013: The delegate in the argument of the `Returns()`/`ReturnsAsync()` method must have the same parameter types of the mocked method/property.](docs/Compilation/PosInfoMoq2013.md) | The lambda expression, anonymous method or method in the argument of the `Returns()`/`ReturnsAsync()` must have the same arguments type of the mocked method or property. |
 
 
 
