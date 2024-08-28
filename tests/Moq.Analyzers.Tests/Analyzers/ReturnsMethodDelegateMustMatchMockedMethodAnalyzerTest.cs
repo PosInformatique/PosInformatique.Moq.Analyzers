@@ -12,12 +12,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
     public class ReturnsMethodDelegateMustMatchMockedMethodAnalyzerTest
     {
         [Theory]
-        [InlineData("Returns")]
-        [InlineData("ReturnsAsync")]
-        public async Task Returns_ValidReturnsType_Method_NoDiagnosticReported(string methodName)
+        [InlineData("Returns", "int")]
+        [InlineData("ReturnsAsync", "int")]
+        [InlineData("Returns", "object")]
+        [InlineData("ReturnsAsync", "object")]
+        public async Task Returns_ValidReturnsType_Method_NoDiagnosticReported(string methodName, string returnType)
         {
-            var returnType = "int";
-
             if (methodName == "ReturnsAsync")
             {
                 returnType = "Task<" + returnType + ">";
@@ -43,6 +43,37 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public interface I
                     {
                         " + returnType + @" TestMethod();
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("1234")]
+        [InlineData("\"Foobar\"")]
+        public async Task Returns_ValidReturnsType_Method_Generic_NoDiagnosticReported(string value)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+                    using System.Threading.Tasks;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>();
+                            mock1.Setup(i => i.TestMethod<It.IsAnyType>())
+                                .Callback(() => { })
+                                .Returns(() => { return " + value + @"; });
+                        }
+                    }
+
+                    public interface I
+                    {
+                        T TestMethod<T>();
                     }
                 }";
 

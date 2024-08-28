@@ -103,7 +103,7 @@ namespace PosInformatique.Moq.Analyzers
             {
                 var expectedReturnType = setupMethod.ReturnType;
 
-                if (!SymbolEqualityComparer.Default.Equals(delegateMethodSymbol.ReturnType, expectedReturnType))
+                if (!moqSymbols.IsAnyType(expectedReturnType) && !SymbolEqualityComparer.Default.Equals(delegateMethodSymbol.ReturnType, expectedReturnType))
                 {
                     context.ReportDiagnostic(ReturnValueMustMatchRule, firstArgumentExpression.GetLocation(), expectedReturnType.Name);
                 }
