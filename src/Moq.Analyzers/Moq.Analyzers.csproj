@@ -17,16 +17,21 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      1.10.0
+      - Add new rules:
+        - PosInfoMoq2012: The delegate in the argument of the Returns() method must return a value with same type of the mocked method.
+        - PosInfoMoq2013: The delegate in the argument of the Returns()/ReturnsAsync() method must have the same parameter types of the mocked method/property.
+
       1.9.3
       - Fix the PosInfoMoq2006 when Setup() a method/property in inherited class.
-      
+
       1.9.2
       - Fix the PosInfoMoq1003 to raise warnings when using InSequence() method.
       - Fix the PosInfoMoq2003 to raise errors when using InSequence() method.
 
       1.9.1
       - Add new rules:
-        - PosInfoMoq2009: Mock.Of&lt;T&gt; method must be used only to mock non-sealed class
+      - PosInfoMoq2009: Mock.Of&lt;T&gt; method must be used only to mock non-sealed class
         - PosInfoMoq2010: Mock.Of&lt;T&gt; method must be used only with types that contains parameterless contructor
         - PosInfoMoq2011: Constructor of the mocked class must be accessible.
       - Fix the PosInfoMoq1001 to check the MockBehavior usage to strict.
