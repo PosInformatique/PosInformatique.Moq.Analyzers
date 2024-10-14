@@ -33,7 +33,7 @@ namespace PosInformatique.Moq.Analyzers
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
             description: "The delegate in the argument of the Returns()/ReturnsAsync() method must have the same parameter types of the mocked method/property.",
-            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2012.html");
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2013.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(ReturnValueMustMatchRule, ArgumentMustMatchRule);
 
