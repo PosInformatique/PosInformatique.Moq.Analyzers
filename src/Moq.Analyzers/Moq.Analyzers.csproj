@@ -19,6 +19,10 @@
     <PackageReleaseNotes>
       1.10.0
       - Add new rules:
+        - PosInfoMoq2014: The delegate in the argument of the Returns() method must return a value with same type of the mocked method.
+
+      1.10.0
+      - Add new rules:
         - PosInfoMoq2012: The delegate in the argument of the Returns() method must return a value with same type of the mocked method.
         - PosInfoMoq2013: The delegate in the argument of the Returns()/ReturnsAsync() method must have the same parameter types of the mocked method/property.
 

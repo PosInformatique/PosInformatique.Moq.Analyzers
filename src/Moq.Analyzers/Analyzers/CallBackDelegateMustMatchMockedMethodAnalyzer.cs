@@ -15,7 +15,7 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class CallBackDelegateMustMatchMockedMethodAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        internal static readonly DiagnosticDescriptor CallbackMustMatchSignature = new DiagnosticDescriptor(
             "PosInfoMoq2003",
             "The Callback() delegate expression must match the signature of the mocked method",
             "The Callback() delegate expression must match the signature of the mocked method",
@@ -25,7 +25,17 @@ namespace PosInformatique.Moq.Analyzers
             description: "The Callback() delegate expression must match the signature of the mocked method.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2003.html");
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        internal static readonly DiagnosticDescriptor CallbackMustNotReturnValue = new DiagnosticDescriptor(
+            "PosInfoMoq2014",
+            "The Callback() delegate expression must not return a value",
+            "The Callback() delegate expression must not return a value",
+            "Compilation",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "The Callback() delegate expression must not return a value.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2014.html");
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(CallbackMustMatchSignature, CallbackMustNotReturnValue);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -56,6 +66,15 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
+            if (!callBackLambdaExpressionSymbol.ReturnsVoid)
+            {
+                var allReturnsStatements = ReturnStatementSyntaxFinder.GetAllReturnStatements(lambdaExpression!.Block!);
+
+                var allReturnsStatementsLocations = allReturnsStatements.Select(statement => statement.GetLocation());
+
+                context.ReportDiagnostic(CallbackMustNotReturnValue, allReturnsStatementsLocations);
+            }
+
             // Extracts the setup method from the Callback() method call.
             var setupMethod = moqExpressionAnalyzer.ExtractSetupMethod(invocationExpression, context.CancellationToken);
 
@@ -68,7 +87,7 @@ namespace PosInformatique.Moq.Analyzers
             // 1- Compare the number of the parameters
             if (callBackLambdaExpressionSymbol.Parameters.Length != setupMethod.InvocationArguments.Count)
             {
-                var diagnostic = Diagnostic.Create(Rule, lambdaExpression!.ParameterList.GetLocation());
+                var diagnostic = Diagnostic.Create(CallbackMustMatchSignature, lambdaExpression!.ParameterList.GetLocation());
                 context.ReportDiagnostic(diagnostic);
 
                 return;
@@ -83,7 +102,7 @@ namespace PosInformatique.Moq.Analyzers
                     // The callback parameter associated must be an object.
                     if (callBackLambdaExpressionSymbol.Parameters[i].Type.SpecialType != SpecialType.System_Object)
                     {
-                        var diagnostic = Diagnostic.Create(Rule, lambdaExpression!.ParameterList.Parameters[i].GetLocation());
+                        var diagnostic = Diagnostic.Create(CallbackMustMatchSignature, lambdaExpression!.ParameterList.Parameters[i].GetLocation());
                         context.ReportDiagnostic(diagnostic);
 
                         continue;
@@ -91,11 +110,37 @@ namespace PosInformatique.Moq.Analyzers
                 }
                 else if (!SymbolEqualityComparer.Default.Equals(callBackLambdaExpressionSymbol.Parameters[i].Type, setupMethod.InvocationArguments[i].ParameterSymbol.Type))
                 {
-                    var diagnostic = Diagnostic.Create(Rule, lambdaExpression!.ParameterList.Parameters[i].GetLocation());
+                    var diagnostic = Diagnostic.Create(CallbackMustMatchSignature, lambdaExpression!.ParameterList.Parameters[i].GetLocation());
                     context.ReportDiagnostic(diagnostic);
 
                     continue;
                 }
+            }
+        }
+
+        private sealed class ReturnStatementSyntaxFinder : CSharpSyntaxWalker
+        {
+            private readonly List<ReturnStatementSyntax> returnStatements;
+
+            private ReturnStatementSyntaxFinder()
+            {
+                this.returnStatements = new List<ReturnStatementSyntax>();
+            }
+
+            public static IList<ReturnStatementSyntax> GetAllReturnStatements(BlockSyntax blockSyntax)
+            {
+                var finder = new ReturnStatementSyntaxFinder();
+
+                finder.Visit(blockSyntax);
+
+                return finder.returnStatements;
+            }
+
+            public override void VisitReturnStatement(ReturnStatementSyntax node)
+            {
+                this.returnStatements.Add(node);
+
+                base.VisitReturnStatement(node);
             }
         }
     }

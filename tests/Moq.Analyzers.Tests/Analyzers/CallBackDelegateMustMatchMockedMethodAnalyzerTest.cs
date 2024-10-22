@@ -6,6 +6,7 @@
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
+    using Microsoft.CodeAnalysis.Testing;
     using Verifier = MoqCSharpAnalyzerVerifier<CallBackDelegateMustMatchMockedMethodAnalyzer>;
 
     public class CallBackDelegateMustMatchMockedMethodAnalyzerTest
@@ -104,35 +105,57 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock1 = new Mock<I>();
 
                             mock1" + sequence + @".Setup(m => m.TestMethod())
-                                .Callback([|(int too, int much, int parameters)|] => { })
+                                .Callback({|PosInfoMoq2003:(int too, int much, int parameters)|} => { })
                                 .Throws(new Exception());
                             mock1" + sequence + @".Setup(m => m.TestMethod(default))
-                                .Callback([|()|] => { })
+                                .Callback({|PosInfoMoq2003:()|} => { })
                                 .Throws(new Exception());
                             mock1" + sequence + @".Setup(m => m.TestMethod(default))
-                                .Callback(([|int otherType|]) => { })
+                                .Callback(({|PosInfoMoq2003:int otherType|}) => { })
                                 .Throws(new Exception());
                             mock1" + sequence + @".Setup(m => m.TestMethod(default))
-                                .Callback([|(int too, int much, int parameters)|] => { })
+                                .Callback({|PosInfoMoq2003:(int too, int much, int parameters)|} => { })
                                 .Throws(new Exception());
                             mock1" + sequence + @".Setup(m => m.TestGenericMethod(1234))
-                                .Callback(([|string x|]) => { })
+                                .Callback(({|PosInfoMoq2003:string x|}) => { })
                                 .Throws(new Exception());
                             mock1" + sequence + @".Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
-                                .Callback(([|string x|]) => { })
+                                .Callback(({|PosInfoMoq2003:string x|}) => { })
                                 .Throws(new Exception());
 
                             mock1" + sequence + @".Setup(m => m.TestMethodReturn())
-                                .Callback([|(int too, int much, int parameters)|] => { })
+                                .Callback({|PosInfoMoq2003:(int too, int much, int parameters)|} => { })
                                 .Returns(1234);
                             mock1" + sequence + @".Setup(m => m.TestMethodReturn(default))
-                                .Callback([|()|] => { })
+                                .Callback({|PosInfoMoq2003:()|} => { })
                                 .Returns(1234);
                             mock1" + sequence + @".Setup(m => m.TestMethodReturn(default))
-                                .Callback(([|int otherType|]) => { })
+                                .Callback(({|PosInfoMoq2003:int otherType|}) => { })
                                 .Returns(1234);
                             mock1" + sequence + @".Setup(m => m.TestMethodReturn(default))
-                                .Callback([|(int too, int much, int parameters)|] => { })
+                                .Callback({|PosInfoMoq2003:(int too, int much, int parameters)|} => { })
+                                .Returns(1234);
+
+                            // Callback with return value
+                            mock1" + sequence + @".Setup(m => m.TestMethodReturn())
+                                .Callback(() => { {|PosInfoMoq2014:return false;|} })
+                                .Returns(1234);
+                            mock1" + sequence + @".Setup(m => m.TestMethodReturn())
+                                .Callback(() =>
+                                {
+                                    var b = false;
+                                    if (b)
+                                    {
+                                        for (int i=0; i<10; i++)
+                                        {
+                                            if (i == 0) {|#0:return false;|};
+                                        }
+
+                                        {|#1:return false;|}
+                                    }
+
+                                    {|#2:return true;|}
+                                })
                                 .Returns(1234);
                         }
                     }
@@ -155,7 +178,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
                 }";
 
-            await Verifier.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(
+                source,
+                [
+                    new DiagnosticResult(CallBackDelegateMustMatchMockedMethodAnalyzer.CallbackMustNotReturnValue)
+                        .WithSpan(59, 57, 59, 70).WithSpan(62, 41, 62, 54).WithSpan(65, 37, 65, 49),
+                ]);
         }
 
         [Fact]
