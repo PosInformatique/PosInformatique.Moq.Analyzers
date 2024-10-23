@@ -5,7 +5,7 @@ Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 PosInfoMoq2014 | Compilation | Error | The `Callback()` delegate expression must not return a value.
 PosInfoMoq2015 | Compilation | Error | The `Protected().Setup()` method must match the return type of the mocked method.
-
+PosInfoMoq2016 | Compilation | Error | `Mock<T>` constructor with factory lambda expression can be used only with classes.
 ## Release 1.10.0
 
 ### New Rules

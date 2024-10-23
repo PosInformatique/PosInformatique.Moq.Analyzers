@@ -17,10 +17,11 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
-      1.10.0
+      1.11.0
       - Add new rules:
         - PosInfoMoq2014: The delegate in the argument of the Returns() method must return a value with same type of the mocked method.
         - PosInfoMoq2015: The Protected().Setup() method must match the return type of the mocked method.
+        - PosInfoMoq2016: Mock&lt;T&gt; constructor with factory lambda expression can be used only with classes.
       - Fix the PosInfoMoq1001 rule for the Mock&lt;T&gt; instantiation with the lambda expression to create mock instances.
       - Fix the PosInfoMoq2004 rule for the Mock&lt;T&gt; instantiation with the lambda expression to create mock instances.
 

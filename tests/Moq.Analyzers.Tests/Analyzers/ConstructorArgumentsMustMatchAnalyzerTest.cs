@@ -523,6 +523,84 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
+        [Theory]
+        [InlineData("")]
+        [InlineData(", MockBehavior.Strict")]
+        public async Task Arguments_WithFactory(string behavior)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<C>(() => new C(10)" + behavior + @");
+                        }
+                    }
+
+                    public class C
+                    {
+                        public C(int a)
+                        {
+                        }
+
+                        public C(int a, string b)
+                        {
+                        }
+
+                        public C(int a, object c)
+                        {
+                        }
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(", MockBehavior.Strict")]
+        public async Task Arguments_WithFactory_NotClass(string behavior)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<{|PosInfoMoq2016:I|}>(() => new C(10)" + behavior + @");
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+
+                    public class C : I
+                    {
+                        public C(int a)
+                        {
+                        }
+
+                        public C(int a, string b)
+                        {
+                        }
+
+                        public C(int a, object c)
+                        {
+                        }
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
         [Fact]
         public async Task NoMoqLibrary()
         {

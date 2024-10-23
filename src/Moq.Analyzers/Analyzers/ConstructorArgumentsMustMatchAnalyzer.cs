@@ -36,7 +36,20 @@ namespace PosInformatique.Moq.Analyzers
             description: "Constructor of the mocked class must be accessible.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2011.html");
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(ConstructorArgumentsMustMatchMockedClassRule, ConstructorMockedClassMustBeAccessibleRule);
+        private static readonly DiagnosticDescriptor ConstructorWithLambdaExpressionCanBeUseWithClassesOnlyRule = new DiagnosticDescriptor(
+            "PosInfoMoq2016",
+            "Mock<T> constructor with factory lambda expression can be used only with classes",
+            "Mock<T> constructor with factory lambda expression can be used only with classes",
+            "Compilation",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "Mock<T> constructor with factory lambda expression can be used only with classes.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2016.html");
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+            ConstructorArgumentsMustMatchMockedClassRule,
+            ConstructorMockedClassMustBeAccessibleRule,
+            ConstructorWithLambdaExpressionCanBeUseWithClassesOnlyRule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -60,9 +73,24 @@ namespace PosInformatique.Moq.Analyzers
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
             // Check there is "new Mock<I>()" statement.
-            var mockedType = moqExpressionAnalyzer.GetMockedType(objectCreation, out var _, context.CancellationToken);
+            var mockedType = moqExpressionAnalyzer.GetMockedType(objectCreation, out var typeExpression, context.CancellationToken);
             if (mockedType is null)
             {
+                return;
+            }
+
+            // Check if the mock instantiation is with a factory.
+            var constructorSymbol = context.SemanticModel.GetSymbolInfo(objectCreation, context.CancellationToken);
+
+            if (moqSymbols.IsMockConstructorWithFactory(constructorSymbol.Symbol))
+            {
+                // In this case, we ignore the matching of the constructor arguments.
+                // But we check it is an interface (else it is not supported).
+                if (mockedType.TypeKind != TypeKind.Class)
+                {
+                    context.ReportDiagnostic(ConstructorWithLambdaExpressionCanBeUseWithClassesOnlyRule, typeExpression!.GetLocation());
+                }
+
                 return;
             }
 
