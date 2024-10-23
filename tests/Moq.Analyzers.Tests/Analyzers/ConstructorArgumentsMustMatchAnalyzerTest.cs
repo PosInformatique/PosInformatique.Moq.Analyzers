@@ -6,6 +6,7 @@
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
+    using Microsoft.CodeAnalysis.Testing;
     using Verifier = MoqCSharpAnalyzerVerifier<ConstructorArgumentsMustMatchAnalyzer>;
 
     public class ConstructorArgumentsMustMatchAnalyzerTest
@@ -52,6 +53,108 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Interface_NoMock()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var obj = new object();
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Interface_WithNoArgument()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>();
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Interface_WithoutBehaviorStrict()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>({|#0:1|}, {|#1:2|});
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(
+                source,
+                new DiagnosticResult(ConstructorArgumentsMustMatchAnalyzer.ConstructorArgumentsCanBePassedToInterfaceRule)
+                    .WithLocation(0).WithArguments("1")
+                    .WithLocation(1).WithArguments("2"));
+        }
+
+        [Fact]
+        public async Task Interface_WithBehaviorStrict()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>(MockBehavior.Strict, {|#0:1|}, {|#1:2|});
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(
+                source,
+                new DiagnosticResult(ConstructorArgumentsMustMatchAnalyzer.ConstructorArgumentsCanBePassedToInterfaceRule)
+                    .WithLocation(0).WithArguments("1")
+                    .WithLocation(1).WithArguments("2"));
         }
 
         [Fact]

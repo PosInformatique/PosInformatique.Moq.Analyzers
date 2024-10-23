@@ -16,6 +16,16 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ConstructorArgumentsMustMatchAnalyzer : DiagnosticAnalyzer
     {
+        internal static readonly DiagnosticDescriptor ConstructorArgumentsCanBePassedToInterfaceRule = new DiagnosticDescriptor(
+            "PosInfoMoq2004",
+            "Constructor arguments cannot be passed for interface mocks",
+            "Constructor arguments cannot be passed for interface mocks",
+            "Compilation",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "Constructor arguments cannot be passed for interface mocks.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2004.html");
+
         private static readonly DiagnosticDescriptor ConstructorArgumentsMustMatchMockedClassRule = new DiagnosticDescriptor(
             "PosInfoMoq2005",
             "Constructor arguments must match the constructors of the mocked class",
@@ -47,6 +57,7 @@ namespace PosInformatique.Moq.Analyzers
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2016.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+            ConstructorArgumentsCanBePassedToInterfaceRule,
             ConstructorArgumentsMustMatchMockedClassRule,
             ConstructorMockedClassMustBeAccessibleRule,
             ConstructorWithLambdaExpressionCanBeUseWithClassesOnlyRule);
@@ -100,12 +111,6 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            // Check the type is a class (other type are ignored)
-            if (mockedType.TypeKind != TypeKind.Class)
-            {
-                return;
-            }
-
             // Check the type is a named type
             if (mockedType is not INamedTypeSymbol namedTypeSymbol)
             {
@@ -129,6 +134,21 @@ namespace PosInformatique.Moq.Analyzers
                 {
                     constructorArguments.RemoveAt(0);
                 }
+            }
+
+            // If the type is an interface and contains arguments, raise an error.
+            if (mockedType.TypeKind == TypeKind.Interface)
+            {
+                if (constructorArguments.Count > 0)
+                {
+                    context.ReportDiagnostic(ConstructorArgumentsCanBePassedToInterfaceRule, constructorArguments.Select(a => a.GetLocation()));
+                }
+            }
+
+            // Check the type is a class (other type are ignored)
+            if (mockedType.TypeKind != TypeKind.Class)
+            {
+                return;
             }
 
             var matchedConstructor = default(MatchedConstructor);
