@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="ConstructorArgumentsMustMatchAnalyzerTest.cs" company="P.O.S Informatique">
+// <copyright file="ConstructorArgumentsAnalyzerTest.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -7,9 +7,9 @@
 namespace PosInformatique.Moq.Analyzers.Tests
 {
     using Microsoft.CodeAnalysis.Testing;
-    using Verifier = MoqCSharpAnalyzerVerifier<ConstructorArgumentsMustMatchAnalyzer>;
+    using Verifier = MoqCSharpAnalyzerVerifier<ConstructorArgumentsAnalyzer>;
 
-    public class ConstructorArgumentsMustMatchAnalyzerTest
+    public class ConstructorArgumentsAnalyzerTest
     {
         [Fact]
         public async Task NoMock()
@@ -124,7 +124,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
             await Verifier.VerifyAnalyzerAsync(
                 source,
-                new DiagnosticResult(ConstructorArgumentsMustMatchAnalyzer.ConstructorArgumentsCanBePassedToInterfaceRule)
+                new DiagnosticResult(ConstructorArgumentsAnalyzer.ConstructorArgumentsCanBePassedToInterfaceRule)
                     .WithLocation(0).WithArguments("1")
                     .WithLocation(1).WithArguments("2"));
         }
@@ -152,7 +152,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
             await Verifier.VerifyAnalyzerAsync(
                 source,
-                new DiagnosticResult(ConstructorArgumentsMustMatchAnalyzer.ConstructorArgumentsCanBePassedToInterfaceRule)
+                new DiagnosticResult(ConstructorArgumentsAnalyzer.ConstructorArgumentsCanBePassedToInterfaceRule)
                     .WithLocation(0).WithArguments("1")
                     .WithLocation(1).WithArguments("2"));
         }

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="ConstructorArgumentsMustMatchAnalyzer.cs" company="P.O.S Informatique">
+// <copyright file="ConstructorArgumentsAnalyzer.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -14,7 +14,7 @@ namespace PosInformatique.Moq.Analyzers
     using Microsoft.CodeAnalysis.Text;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class ConstructorArgumentsMustMatchAnalyzer : DiagnosticAnalyzer
+    public class ConstructorArgumentsAnalyzer : DiagnosticAnalyzer
     {
         internal static readonly DiagnosticDescriptor ConstructorArgumentsCanBePassedToInterfaceRule = new DiagnosticDescriptor(
             "PosInfoMoq2004",
