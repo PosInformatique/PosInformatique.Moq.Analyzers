@@ -3,7 +3,8 @@
 ### New Rules
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-PosInfoMoq2014 | Compilation | Error | CallBackDelegateMustMatchMockedMethodAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2014.html)PosInfoMoq2013 | Compilation | Error | The delegate in the argument of the `Returns()`/`ReturnsAsync()` method must have the same parameter types of the mocked method/property.
+PosInfoMoq2014 | Compilation | Error | The `Callback()` delegate expression must not return a value.
+PosInfoMoq2015 | Compilation | Error | The `Protected().Setup()` method must match the return type of the mocked method.
 
 ## Release 1.10.0
 

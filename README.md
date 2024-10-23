@@ -54,6 +54,7 @@ All the rules of this category should not be disabled (or changed their severity
 | [PosInfoMoq2012: The delegate in the argument of the `Returns()` method must return a value with same type of the mocked method.](docs/Compilation/PosInfoMoq2012.md) | The lambda expression, anonymous method or method in the argument of the `Returns()` must return return a value of the same type as the mocked method or property. |
 | [PosInfoMoq2013: The delegate in the argument of the `Returns()`/`ReturnsAsync()` method must have the same parameter types of the mocked method/property.](docs/Compilation/PosInfoMoq2013.md) | The lambda expression, anonymous method or method in the argument of the `Returns()`/`ReturnsAsync()` must have the same arguments type of the mocked method or property. |
 | [PosInfoMoq2014: The `Callback()` delegate expression must not return a value.](docs/Compilation/PosInfoMoq2014.md) | The `Callback()` delegate expression must not return a value. |
+| [PosInfoMoq2014: PosInfoMoq2015: The `Protected().Setup()` method must match the return type of the mocked method](docs/Compilation/PosInfoMoq2015.md) | The method setup with `Protected().Setup()` must match the return type of the mocked method. |
 
 
 

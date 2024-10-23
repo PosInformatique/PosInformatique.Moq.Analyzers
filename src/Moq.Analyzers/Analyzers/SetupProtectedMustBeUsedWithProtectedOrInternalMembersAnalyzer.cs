@@ -15,7 +15,7 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SetupProtectedMustBeUsedWithProtectedOrInternalMembersAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor SetupMustBeOnOverridableMethods = new DiagnosticDescriptor(
             "PosInfoMoq2006",
             "The Protected().Setup() method must be use with overridable protected or internal methods",
             "The Protected().Setup() method must be use with overridable protected or internal methods",
@@ -25,7 +25,17 @@ namespace PosInformatique.Moq.Analyzers
             description: "The Protected().Setup() method must be use with overridable protected or internal methods.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2006.html");
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        private static readonly DiagnosticDescriptor SetupReturnTypeMustMatch = new DiagnosticDescriptor(
+            "PosInfoMoq2015",
+            "The Protected().Setup() method must match the return type of the mocked method",
+            "The Protected().Setup() method must match the return type of the mocked method",
+            "Compilation",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "The Protected().Setup() method must match the return type of the mocked method.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2015.html");
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(SetupMustBeOnOverridableMethods, SetupReturnTypeMustMatch);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -81,6 +91,8 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check if a method exists with the specified name
+            IMethodSymbol? methodMatch = null;
+
             foreach (var method in mockedType.GetAllMembers(methodName).OfType<IMethodSymbol>())
             {
                 if (!method.IsAbstract && !method.IsVirtual && !method.IsOverride)
@@ -95,23 +107,78 @@ namespace PosInformatique.Moq.Analyzers
 
                 if (method.DeclaredAccessibility == Accessibility.Protected)
                 {
-                    return;
+                    methodMatch = method;
+                    break;
                 }
 
                 if (method.DeclaredAccessibility == Accessibility.Internal)
                 {
-                    return;
+                    methodMatch = method;
+                    break;
                 }
 
                 if (method.DeclaredAccessibility == Accessibility.ProtectedOrInternal)
                 {
-                    return;
+                    methodMatch = method;
+                    break;
                 }
             }
 
-            // No returns method has been specified with Strict mode. Report the diagnostic issue.
-            var diagnostic = Diagnostic.Create(Rule, literalExpression.GetLocation());
-            context.ReportDiagnostic(diagnostic);
+            if (methodMatch is null)
+            {
+                // No method match, raise an error.
+                context.ReportDiagnostic(SetupMustBeOnOverridableMethods, literalExpression.GetLocation());
+                return;
+            }
+
+            // Else check the argument type of the Setup<T>() method and the method found.
+            var setupMethodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
+
+            if (setupMethodSymbol.Symbol is not IMethodSymbol setupMethod)
+            {
+                return;
+            }
+
+            if (invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpressionSyntax)
+            {
+                return;
+            }
+
+            if (methodMatch.ReturnsVoid)
+            {
+                if (setupMethod.TypeArguments.Length > 0)
+                {
+                    if (memberAccessExpressionSyntax.Name is not GenericNameSyntax genericNameSyntax)
+                    {
+                        return;
+                    }
+
+                    // The method mocked is void and no generic arguments has been specified in the Setup<T>() method.
+                    context.ReportDiagnostic(SetupReturnTypeMustMatch, genericNameSyntax.TypeArgumentList.Arguments[0].GetLocation());
+                }
+
+                return;
+            }
+
+            if (setupMethod.TypeArguments.Length != 1)
+            {
+                // No generic type has been specified in the Setup<T>().
+                context.ReportDiagnostic(SetupReturnTypeMustMatch, memberAccessExpressionSyntax.Name.GetLocation());
+                return;
+            }
+
+            if (!SymbolEqualityComparer.Default.Equals(setupMethod.TypeArguments[0], methodMatch.ReturnType))
+            {
+                if (memberAccessExpressionSyntax.Name is not GenericNameSyntax genericNameSyntax)
+                {
+                    return;
+                }
+
+                // The method mocked return a type which does not match the argument type of the Setup<T>() method.
+                context.ReportDiagnostic(SetupReturnTypeMustMatch, genericNameSyntax.TypeArgumentList.Arguments[0].GetLocation());
+
+                return;
+            }
         }
     }
 }
