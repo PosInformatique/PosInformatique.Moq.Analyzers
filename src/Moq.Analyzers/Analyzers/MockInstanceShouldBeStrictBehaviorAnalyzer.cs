@@ -57,7 +57,7 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            if (!moqExpressionAnalyzer.IsMockCreationStrictBehavior(objectCreation.ArgumentList, context.CancellationToken))
+            if (!moqExpressionAnalyzer.IsMockCreationStrictBehavior(objectCreation, context.CancellationToken))
             {
                 var diagnostic = Diagnostic.Create(Rule, objectCreation.GetLocation());
                 context.ReportDiagnostic(diagnostic);
@@ -86,7 +86,7 @@ namespace PosInformatique.Moq.Analyzers
             // Extract the type
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
-            if (!moqExpressionAnalyzer.IsMockCreationStrictBehavior(invocationExpression.ArgumentList, context.CancellationToken, false))
+            if (!moqExpressionAnalyzer.IsMockOfStrictBehavior(invocationExpression.ArgumentList, context.CancellationToken))
             {
                 var diagnostic = Diagnostic.Create(Rule, invocationExpression.GetLocation());
                 context.ReportDiagnostic(diagnostic);

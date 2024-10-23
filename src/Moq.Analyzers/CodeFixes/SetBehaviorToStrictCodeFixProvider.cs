@@ -86,16 +86,24 @@ namespace PosInformatique.Moq.Analyzers
             {
                 var firstArgument = oldMockCreationExpression.ArgumentList.Arguments.First();
 
-                if (IsMockBehaviorArgument(firstArgument))
+                if (IsLambdaExpressionArgument(firstArgument))
                 {
-                    // The old first argument is MockBehavior.xxxxx, so we take the following arguments
-                    // and ignore it.
-                    arguments.AddRange(oldMockCreationExpression.ArgumentList.Arguments.Skip(1));
+                    // The old first argument is lambda expression, so we insert it at the first argument position.
+                    arguments.Insert(0, firstArgument);
                 }
                 else
                 {
-                    // Retrieves all the arguments of the "new Mock<T>(...)" instantiation.
-                    arguments.AddRange(oldMockCreationExpression.ArgumentList.Arguments);
+                    if (IsMockBehaviorArgument(firstArgument))
+                    {
+                        // The old first argument is MockBehavior.xxxxx, so we take the following arguments
+                        // and ignore it.
+                        arguments.AddRange(oldMockCreationExpression.ArgumentList.Arguments.Skip(1));
+                    }
+                    else
+                    {
+                        // Retrieves all the arguments of the "new Mock<T>(...)" instantiation.
+                        arguments.AddRange(oldMockCreationExpression.ArgumentList.Arguments);
+                    }
                 }
             }
 
@@ -173,6 +181,21 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             if (targetExpression.Identifier.ValueText != "MockBehavior")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsLambdaExpressionArgument(ArgumentSyntax argument)
+        {
+            if (argument.Expression is not ParenthesizedLambdaExpressionSyntax lambdaExpression)
+            {
+                return false;
+            }
+
+            if (lambdaExpression.ParameterList.Parameters.Count > 0)
             {
                 return false;
             }

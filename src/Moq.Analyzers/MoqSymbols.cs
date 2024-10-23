@@ -41,6 +41,8 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<INamedTypeSymbol> verifiesInterface;
 
+        private readonly Lazy<IMethodSymbol> mockConstructorWithFactory;
+
         private MoqSymbols(INamedTypeSymbol mockGenericClass, Compilation compilation)
         {
             this.mockGenericClass = mockGenericClass;
@@ -64,6 +66,8 @@ namespace PosInformatique.Moq.Analyzers
 
             this.verifiableMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => this.verifiesInterface.Value.GetMembers("Verifiable").OfType<IMethodSymbol>().ToArray());
             this.mockOfMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.BaseType!.GetMembers("Of").Where(m => m.IsStatic).OfType<IMethodSymbol>().ToArray());
+
+            this.mockConstructorWithFactory = new Lazy<IMethodSymbol>(() => mockGenericClass.Constructors.Single(c => c.Parameters.Length == 2 && c.Parameters[0].Type.Name == "Expression"));
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
@@ -394,6 +398,21 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return false;
+        }
+
+        public bool IsMockConstructorWithFactory(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.mockConstructorWithFactory.Value))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool IsAsMethod(IMethodSymbol method)
