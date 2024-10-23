@@ -113,6 +113,36 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     .WithLocation(1).WithArguments("2"));
         }
 
+        [Theory]
+        [InlineData("")]
+        [InlineData(", MockBehavior.Strict")]
+        public async Task Interface_WithFactoryLambdaExpression(string behavior)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>(() => new C()" + behavior + @");
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+
+                    public class C : I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
         [Fact]
         public async Task Class()
         {

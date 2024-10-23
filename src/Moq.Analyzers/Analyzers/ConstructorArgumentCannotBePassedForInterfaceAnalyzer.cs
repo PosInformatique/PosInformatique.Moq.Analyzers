@@ -46,6 +46,15 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
+            // Check if the mock instantiation is with a factory.
+            // In this case, we ignore the matching of the constructor arguments.
+            var constructorSymbol = context.SemanticModel.GetSymbolInfo(objectCreation, context.CancellationToken);
+
+            if (moqSymbols.IsMockConstructorWithFactory(constructorSymbol.Symbol))
+            {
+                return;
+            }
+
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
             // Check there is "new Mock<I>()" statement.
@@ -90,8 +99,7 @@ namespace PosInformatique.Moq.Analyzers
                     .Select(a => a.Expression.GetLocation())
                     .ToArray();
 
-                var diagnostic = Diagnostic.Create(Rule, locations[0], locations.Skip(1));
-                context.ReportDiagnostic(diagnostic);
+                context.ReportDiagnostic(Rule, locations);
 
                 return;
             }
