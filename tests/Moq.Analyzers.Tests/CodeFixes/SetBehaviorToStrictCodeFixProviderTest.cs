@@ -247,5 +247,65 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
             await Verifier.VerifyCodeFixAsync(source, expectedFixedSource);
         }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("MockBehavior.Loose")]
+        [InlineData("MockBehavior.Default")]
+        public async Task MockOf_InConstructor_Fix(string behavior)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new C([|Mock.Of<I>(" + behavior + @")|], [|Mock.Of<I>(" + behavior + @")|]);
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+
+                    public class C
+                    {
+                        public C(I r1, I r2)
+                        {
+                        }
+                    }
+                }";
+
+            var expectedFixedSource =
+            @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new C(Mock.Of<I>(MockBehavior.Strict), Mock.Of<I>(MockBehavior.Strict));
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+
+                    public class C
+                    {
+                        public C(I r1, I r2)
+                        {
+                        }
+                    }
+                }";
+
+            await Verifier.VerifyCodeFixAsync(source, expectedFixedSource);
+        }
     }
 }

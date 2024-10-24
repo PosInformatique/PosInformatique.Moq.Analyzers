@@ -42,28 +42,15 @@ namespace PosInformatique.Moq.Analyzers
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            // Find the "ObjectCreationExpressionSyntax" or "InvocationExpression" in the parent of the location where is located the issue in the code.
-            var parent = root.FindToken(diagnosticSpan.Start).Parent;
+            // Gets the syntax node where is located the issue in the code.
+            var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
 
-            if (parent is null)
+            if (node is null)
             {
                 return;
             }
 
-            var mockCreationExpression = parent.AncestorsAndSelf().OfType<ObjectCreationExpressionSyntax>().FirstOrDefault();
-
-            if (mockCreationExpression is null)
-            {
-                var invocationExpression = parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
-
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        title: "Defines the MockBehavior to Strict",
-                        createChangedDocument: cancellationToken => AddMockBehiavorStrictArgumentAsync(context.Document, invocationExpression, cancellationToken),
-                        equivalenceKey: "Defines the MockBehavior to Strict"),
-                    diagnostic);
-            }
-            else
+            if (node is ObjectCreationExpressionSyntax mockCreationExpression)
             {
                 // Register a code to fix the enumeration.
                 context.RegisterCodeFix(
@@ -72,6 +59,20 @@ namespace PosInformatique.Moq.Analyzers
                         createChangedDocument: cancellationToken => AddMockBehiavorStrictArgumentAsync(context.Document, mockCreationExpression, cancellationToken),
                         equivalenceKey: "Defines the MockBehavior to Strict"),
                     diagnostic);
+
+                return;
+            }
+
+            if (node is InvocationExpressionSyntax invocationExpression)
+            {
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: "Defines the MockBehavior to Strict",
+                        createChangedDocument: cancellationToken => AddMockBehiavorStrictArgumentAsync(context.Document, invocationExpression, cancellationToken),
+                        equivalenceKey: "Defines the MockBehavior to Strict"),
+                    diagnostic);
+
+                return;
             }
         }
 
