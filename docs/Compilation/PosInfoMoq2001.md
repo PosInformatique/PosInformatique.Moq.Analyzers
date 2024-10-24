@@ -1,15 +1,15 @@
-# PosInfoMoq2001: The `Setup()` method must be used only on overridable members
+# PosInfoMoq2001: The `Setup()`/`SetupSet()` method must be used only on overridable members
 
 | Property                            | Value                                                         |
 |-------------------------------------|---------------------------------------------------------------|
 | **Rule ID**                         | PosInfoMoq2001                                                |
-| **Title**                           | The `Setup()` method must be used only on overridable members |
+| **Title**                           | The `Setup()`/`SetupSet()` method must be used only on overridable members |
 | **Category**                        | Compilation													  |
 | **Default severity**				  | Error														  |
 
 ## Cause
 
-The `Setup()` method must be applied only for overridable members.
+The `Setup()` or `SetupSet()` methods must be applied only for overridable members.
 An overridable member is a **method** or **property** which is in:
 - An `interface`.
 - A non-`sealed` `class`. In this case, the member must be:
@@ -20,13 +20,18 @@ An overridable member is a **method** or **property** which is in:
 
 The `Setup()` method must be applied only for overridable members.
 
-For example, the following methods and properties can be mock and used in the `Setup()` method:
-- `IService.MethodCanBeMocked()`
-- `IService.PropertyCanBeMocked`
-- `Service.VirtualMethodCanBeMocked`
-- `Service.VirtualPropertyCanBeMocked`
-- `Service.AbstractMethodCanBeMocked`
-- `Service.AbstractPropertyCanBeMocked`
+For example:
+- The following methods and properties can be mock and used in the `Setup()` method:
+	- `IService.MethodCanBeMocked()`
+	- `IService.PropertyCanBeMocked`
+	- `Service.VirtualMethodCanBeMocked`
+	- `Service.VirtualPropertyCanBeMocked`
+	- `Service.AbstractMethodCanBeMocked`
+	- `Service.AbstractPropertyCanBeMocked`
+- The following properties can be mock and used in the `SetupSet()` method:
+	- `IService.PropertyCanBeMocked`
+	- `Service.VirtualPropertyCanBeMocked`
+	- `Service.AbstractPropertyCanBeMocked`
 
 ```csharp
 public interface IService
@@ -53,7 +58,7 @@ static methods which can not be overriden.
 
 ## How to fix violations
 
-To fix a violation of this rule, be sure to mock a member in the `Setup()` method which can be overriden.
+To fix a violation of this rule, be sure to mock a member in the `Setup()` or `SetupSet()` method which can be overriden.
 
 ## When to suppress warnings
 

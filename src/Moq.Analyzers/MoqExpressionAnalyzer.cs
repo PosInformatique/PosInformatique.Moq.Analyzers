@@ -367,6 +367,13 @@ namespace PosInformatique.Moq.Analyzers
                 }
 
                 bodyExpression = lambdaExpression.ExpressionBody;
+
+                // Special case for the SetupSet(), if the body expression is an assignment syntax
+                // "mock => mock.Property = xxx", so we get the left part of the assignment.
+                if (bodyExpression is AssignmentExpressionSyntax assignmentExpressionSyntax)
+                {
+                    bodyExpression = assignmentExpressionSyntax.Left;
+                }
             }
 
             var members = new List<ChainMember>();

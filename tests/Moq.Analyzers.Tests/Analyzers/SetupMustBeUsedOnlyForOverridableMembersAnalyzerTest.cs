@@ -26,48 +26,84 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock1 = new Mock<I>();
                             mock1.Setup(i => i.TestMethod());
                             mock1.Setup(i => i.TestProperty);
+                            mock1.SetupSet(i => i.TestProperty = ""Foobard"");
+                            mock1.SetupSet<string>(i => i.TestProperty = ""Foobard"");
                             mock1.Setup(i => i.InnerObject.VirtualMethod());
                             mock1.Setup(i => i.InnerObject.VirtualProperty);
+                            mock1.SetupSet(i => i.InnerObject.VirtualProperty = ""Foobard"");
+                            mock1.SetupSet<string>(i => i.InnerObject.VirtualProperty = ""Foobard"");
                             mock1.Setup(i => i.InnerObject.AbstractMethod());
                             mock1.Setup(i => i.InnerObject.AbstractProperty);
+                            mock1.SetupSet(i => i.InnerObject.AbstractProperty = ""Foobard"");
+                            mock1.SetupSet<string>(i => i.InnerObject.AbstractProperty = ""Foobard"");
 
                             var mock2 = new Mock<StandardClass>();
                             mock2.Setup(i => i.VirtualMethod());
                             mock2.Setup(i => i.VirtualProperty);
+                            mock2.SetupSet(i => i.VirtualProperty = ""Foobard"");
+                            mock2.SetupSet<string>(i => i.VirtualProperty = ""Foobard"");
                             mock2.Setup(i => i.InnerObject.VirtualMethod());
                             mock2.Setup(i => i.InnerObject.VirtualProperty);
+                            mock2.SetupSet(i => i.InnerObject.VirtualProperty = ""Foobard"");
+                            mock2.SetupSet<string>(i => i.InnerObject.VirtualProperty = ""Foobard"");
                             mock2.Setup(i => i.InnerObject.AbstractMethod());
                             mock2.Setup(i => i.InnerObject.AbstractProperty);
+                            mock2.SetupSet(i => i.InnerObject.AbstractProperty = ""Foobard"");
+                            mock2.SetupSet<string>(i => i.InnerObject.AbstractProperty = ""Foobard"");
 
                             var mock3 = new Mock<AbstractClass>();
                             mock3.Setup(i => i.VirtualMethod());
                             mock3.Setup(i => i.VirtualProperty);
+                            mock3.SetupSet(i => i.VirtualProperty = ""Foobard"");
+                            mock3.SetupSet<string>(i => i.VirtualProperty = ""Foobard"");
                             mock3.Setup(i => i.AbstractMethod());
                             mock3.Setup(i => i.AbstractProperty);
+                            mock3.SetupSet(i => i.InnerObject.AbstractProperty = ""Foobard"");
+                            mock3.SetupSet<string>(i => i.InnerObject.AbstractProperty = ""Foobard"");
                             mock3.Setup(i => i.InnerObject.VirtualMethod());
                             mock3.Setup(i => i.InnerObject.VirtualProperty);
+                            mock3.SetupSet(i => i.InnerObject.VirtualProperty = ""Foobard"");
+                            mock3.SetupSet<string>(i => i.InnerObject.VirtualProperty = ""Foobard"");
                             mock3.Setup(i => i.InnerObject.AbstractMethod());
                             mock3.Setup(i => i.InnerObject.AbstractProperty);
+                            mock3.SetupSet(i => i.InnerObject.AbstractProperty = ""Foobard"");
+                            mock3.SetupSet<string>(i => i.InnerObject.AbstractProperty = ""Foobard"");
 
                             var mock4 = new Mock<InheritedFromAbstractClass>();
                             mock4.Setup(i => i.VirtualMethod());
                             mock4.Setup(i => i.VirtualProperty);
+                            mock4.SetupSet(i => i.VirtualProperty = ""Foobard"");
+                            mock4.SetupSet<string>(i => i.VirtualProperty = ""Foobard"");
                             mock4.Setup(i => i.AbstractMethod());
                             mock4.Setup(i => i.AbstractProperty);
+                            mock4.SetupSet(i => i.InnerObject.AbstractProperty = ""Foobard"");
+                            mock4.SetupSet<string>(i => i.InnerObject.AbstractProperty = ""Foobard"");
                             mock4.Setup(i => i.InnerObject.VirtualMethod());
                             mock4.Setup(i => i.InnerObject.VirtualProperty);
+                            mock4.SetupSet(i => i.InnerObject.VirtualProperty = ""Foobard"");
+                            mock4.SetupSet<string>(i => i.InnerObject.VirtualProperty = ""Foobard"");
                             mock4.Setup(i => i.InnerObject.AbstractMethod());
                             mock4.Setup(i => i.InnerObject.AbstractProperty);
+                            mock4.SetupSet(i => i.InnerObject.AbstractProperty = ""Foobard"");
+                            mock4.SetupSet<string>(i => i.InnerObject.AbstractProperty = ""Foobard"");
 
                             var mock5 = new Mock<InheritedFromAbstractClassDontOverrideVirtual>();
                             mock5.Setup(i => i.VirtualMethod());
                             mock5.Setup(i => i.VirtualProperty);
+                            mock5.SetupSet(i => i.VirtualProperty = ""Foobard"");
+                            mock5.SetupSet<string>(i => i.VirtualProperty = ""Foobard"");
                             mock5.Setup(i => i.AbstractMethod());
                             mock5.Setup(i => i.AbstractProperty);
+                            mock5.SetupSet(i => i.InnerObject.AbstractProperty = ""Foobard"");
+                            mock5.SetupSet<string>(i => i.InnerObject.AbstractProperty = ""Foobard"");
                             mock5.Setup(i => i.InnerObject.VirtualMethod());
                             mock5.Setup(i => i.InnerObject.VirtualProperty);
+                            mock5.SetupSet(i => i.InnerObject.VirtualProperty = ""Foobard"");
+                            mock5.SetupSet<string>(i => i.InnerObject.VirtualProperty = ""Foobard"");
                             mock5.Setup(i => i.InnerObject.AbstractMethod());
                             mock5.Setup(i => i.InnerObject.AbstractProperty);
+                            mock5.SetupSet(i => i.InnerObject.AbstractProperty = ""Foobard"");
+                            mock5.SetupSet<string>(i => i.InnerObject.AbstractProperty = ""Foobard"");
                         }
                     }
 
@@ -75,7 +111,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         int TestMethod();
 
-                        string TestProperty { get; }
+                        string TestProperty { get; set; }
 
                         InnerObject InnerObject { get; }
                     }
@@ -84,20 +120,20 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public virtual void VirtualMethod() { }
 
-                        public virtual string VirtualProperty => null;
+                        public virtual string VirtualProperty { get => null; set { } }
 
-                        public virtual InnerObject InnerObject { get => null; }
+                        public virtual InnerObject InnerObject { get => null; set { } }
                     }
 
                     public abstract class AbstractClass
                     {
                         public virtual void VirtualMethod() { }
 
-                        public virtual string VirtualProperty => null;
+                        public virtual string VirtualProperty { get => null; set { } }
 
                         public abstract void AbstractMethod();
 
-                        public abstract string AbstractProperty { get; }
+                        public abstract string AbstractProperty { get; set; }
 
                         public abstract InnerObject InnerObject { get; }
                     }
@@ -106,11 +142,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public override void AbstractMethod() { }
 
-                        public override string AbstractProperty => null;
+                        public override string AbstractProperty { get => null; set { } }
 
                         public override void VirtualMethod() { }
 
-                        public override string VirtualProperty => null;
+                        public override string VirtualProperty { get => null; set { } }
 
                         public override InnerObject InnerObject => null;
                     }
@@ -119,7 +155,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public override void AbstractMethod() { }
 
-                        public override string AbstractProperty => null;
+                        public override string AbstractProperty { get => null; set { } }
 
                         public override InnerObject InnerObject => null;
                     }
@@ -128,11 +164,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public virtual void VirtualMethod() { }
 
-                        public virtual string VirtualProperty => null;
+                        public virtual string VirtualProperty { get => null; set { } }
 
                         public abstract void AbstractMethod();
 
-                        public abstract string AbstractProperty { get; }
+                        public abstract string AbstractProperty { get; set; }
                     }
                 }";
 
@@ -155,12 +191,20 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock1 = new Mock<StandardClass>();
                             mock1.Setup(i => i.[|Method|]());
                             mock1.Setup(i => i.[|Property|]);
+                            mock1.SetupSet(i => i.[|Property|] = ""1234"");
+                            mock1.SetupSet<string>(i => i.[|Property|] = ""1234"");
                             mock1.Setup(i => i.[|InnerObject|].VirtualMethod());
                             mock1.Setup(i => i.[|InnerObject|].VirtualProperty);
+                            mock1.SetupSet(i => i.[|InnerObject|].VirtualProperty = ""1234"");
+                            mock1.SetupSet<string>(i => i.[|InnerObject|].VirtualProperty = ""1234"");
                             mock1.Setup(i => i.AbstractInnerObject.[|Method|]());
                             mock1.Setup(i => i.AbstractInnerObject.[|Property|]);
+                            mock1.SetupSet(i => i.AbstractInnerObject.[|Property|] = ""1234"");
+                            mock1.SetupSet<string>(i => i.AbstractInnerObject.[|Property|] = ""1234"");
                             mock1.Setup(i => i.[|SealedInnerObject|].VirtualMethod());
                             mock1.Setup(i => i.[|SealedInnerObject|].VirtualProperty);
+                            mock1.SetupSet(i => i.[|SealedInnerObject|].VirtualProperty = ""1234"");
+                            mock1.SetupSet<string>(i => i.[|SealedInnerObject|].VirtualProperty = ""1234"");
 
                             var mock2 = new Mock<StandardClass>();
                             mock2.Setup(i => StandardClass.[|StaticMethod|]());
@@ -168,6 +212,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock3 = new Mock<AbstractClass>();
                             mock3.Setup(i => i.[|Method|]());
                             mock3.Setup(i => i.[|Property|]);
+                            mock3.SetupSet(i => i.[|Property|] = ""1234"");
+                            mock3.SetupSet<string>(i => i.[|Property|] = ""1234"");
 
                             var mock4 = new Mock<I>();
                             mock4.Setup(i => i.[|ExtensionMethod|]());
@@ -178,7 +224,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void Method() { }
 
-                        public string Property => null;
+                        public string Property { get => null; set { } }
 
                         public static void StaticMethod() { }
 
@@ -193,7 +239,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void Method() { }
 
-                        public string Property => null;
+                        public string Property { get => null; set { } }
                     }
 
                     public interface I
@@ -210,25 +256,25 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public virtual void VirtualMethod() { }
 
-                        public virtual string VirtualProperty => null;
+                        public virtual string VirtualProperty { get => null; set { } }
                     }
 
                     public abstract class AbstractInnerObject
                     {
                         public void Method() { }
 
-                        public string Property { get => null; }
+                        public string Property { get => null; set { } }
 
                         public abstract void VirtualMethod();
 
-                        public abstract string VirtualProperty { get; }
+                        public abstract string VirtualProperty { get; set; }
                     }
 
                     public sealed class SealedInnerObject : AbstractInnerObject
                     {
                         public override void VirtualMethod() { }
 
-                        public override string VirtualProperty => null;
+                        public override string VirtualProperty { get => null; set { } }
                     }
                 }";
 
