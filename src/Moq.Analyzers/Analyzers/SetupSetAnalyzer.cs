@@ -19,8 +19,8 @@ namespace PosInformatique.Moq.Analyzers
             "PosInfoMoq1005",
             "Defines the generic argument of the SetupSet() method with the type of the mocked property",
             "Defines the generic argument of the SetupSet() method with the type of the mocked property",
-            "Compilation",
-            DiagnosticSeverity.Error,
+            "Design",
+            DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: "The SetupSet<T>() method must be used when setting up a mocked property.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq1005.html");
