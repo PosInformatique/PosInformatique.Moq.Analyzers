@@ -31,6 +31,7 @@ Design rules used to make your unit tests more strongly strict.
 | [PosInfoMoq1002: `Verify()` methods should be called when `Verifiable()` has been setup](docs/Design/PosInfoMoq1002.md) | When a mocked member has been setup with the `Verifiable()` method, the `Verify()` method must be called at the end of the unit test. |
 | [PosInfoMoq1003: The `Callback()` method should be used to check the parameters when mocking a method with `It.IsAny<T>()` arguments](docs/Design/PosInfoMoq1003.md) | When a mocked method contains a `It.IsAny<T>()` argument, the related parameter should be checked in the `Callback()` method. |
 | [PosInfoMoq1004: The `Callback()` parameter should not be ignored if it has been setup as an `It.IsAny<T>()` argument](docs/Design/PosInfoMoq1004.md) | When a mocked method contains a `It.IsAny<T>()` argument, the related parameter should not be ignored in the `Callback()` method. |
+| [PosInfoMoq1005: Defines the generic argument of the `SetupSet()` method with the type of the mocked property](docs/Design/PosInfoMoq1005.md) | When mocking the setter of a property, use the `SetupSet<TProperty>()` method version. |
 
 ### Compilation
 
