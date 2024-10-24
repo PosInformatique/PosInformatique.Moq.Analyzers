@@ -48,13 +48,13 @@ namespace PosInformatique.Moq.Analyzers
 
             var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
 
-            // Check if not obsolete extension
-            if (moqSymbols.IsObsoleteMockExtension(methodSymbol.Symbol))
+            // Check if SetupSet() method.
+            if (!moqSymbols.IsSetupSetMethod(methodSymbol.Symbol))
             {
                 return;
             }
 
-            // Check is Setup() method.
+            // Check is SetupSet<T>() method.
             if (!moqSymbols.IsSetupSetMethodWithoutGenericArgument(methodSymbol.Symbol))
             {
                 var nameSyntax = ((MemberAccessExpressionSyntax)invocationExpression.Expression).Name;

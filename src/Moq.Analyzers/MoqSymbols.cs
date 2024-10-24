@@ -45,7 +45,7 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<IMethodSymbol> setupSetMethodWithoutGenericArgument;
 
-        private readonly Lazy<INamedTypeSymbol> obsoleteExtensionsClass;
+        private readonly Lazy<IReadOnlyList<IMethodSymbol>> setupSetMethods;
 
         private MoqSymbols(INamedTypeSymbol mockGenericClass, Compilation compilation)
         {
@@ -57,7 +57,6 @@ namespace PosInformatique.Moq.Analyzers
             this.isAnyTypeClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.It+IsAnyType")!);
             this.isAnyMethod = new Lazy<ISymbol>(() => compilation.GetTypeByMetadataName("Moq.It")!.GetMembers("IsAny").Single());
             this.verifiesInterface = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.Language.IVerifies")!);
-            this.obsoleteExtensionsClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.ObsoleteMockExtensions")!);
 
             this.setupMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Setup").Concat(setupConditionResultInterface.Value.GetMembers("Setup")).OfType<IMethodSymbol>().ToArray());
             this.mockBehaviorStrictField = new Lazy<ISymbol>(() => this.mockBehaviorEnum.Value.GetMembers("Strict").First());
@@ -73,7 +72,9 @@ namespace PosInformatique.Moq.Analyzers
             this.mockOfMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.BaseType!.GetMembers("Of").Where(m => m.IsStatic).OfType<IMethodSymbol>().ToArray());
 
             this.mockConstructorWithFactory = new Lazy<IMethodSymbol>(() => mockGenericClass.Constructors.Single(c => c.Parameters.Length == 2 && c.Parameters[0].Type.Name == "Expression"));
+
             this.setupSetMethodWithoutGenericArgument = new Lazy<IMethodSymbol>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().Single(c => c.TypeArguments.Length == 1));
+            this.setupSetMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().ToArray());
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
@@ -128,21 +129,6 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsObsoleteMockExtension(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            if (!SymbolEqualityComparer.Default.Equals(symbol.ContainingType, this.obsoleteExtensionsClass.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         public bool IsSetupMethod(ISymbol? symbol)
         {
             if (symbol is null)
@@ -175,6 +161,26 @@ namespace PosInformatique.Moq.Analyzers
             foreach (var setupProtectedMethod in this.setupProtectedMethods.Value)
             {
                 if (SymbolEqualityComparer.Default.Equals(originalDefinition, setupProtectedMethod))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsSetupSetMethod(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            var originalDefinition = symbol.OriginalDefinition;
+
+            foreach (var setupSetMethod in this.setupSetMethods.Value)
+            {
+                if (SymbolEqualityComparer.Default.Equals(originalDefinition, setupSetMethod))
                 {
                     return true;
                 }

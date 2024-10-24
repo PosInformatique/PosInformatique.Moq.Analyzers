@@ -26,6 +26,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock1 = new Mock<I>();
                             mock1.SetupSet<int>(i => i.TestProperty = 1234);
                             mock1.SetupSet(i => i.TestProperty);   // Ignored because Obsolete by Moq
+
+                            var s = ""The string"";
+                            s.ToString();       // Invocation should be ignored
                         }
                     }
 
@@ -53,6 +56,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>();
                             mock1.[|SetupSet|](i => i.TestProperty = 1234);
+
+                            var s = ""The string"";
+                            s.ToString();       // Invocation should be ignored
                         }
                     }
 
