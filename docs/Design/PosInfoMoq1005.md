@@ -80,6 +80,12 @@ public void SetNameOfCustomer()
 
 To fix a violation of this rule, use the `SetupSet<TProperty>()` method with the type of the mocked property as the generic argument.
 
+### Visual Studio fixer
+A Visual Studio fixer exists to set explicitly the generic argument of the `SetupSet<T>()` method with the property type
+in the current document, project or solution.
+
+![Visual Studio rule fixer](PosInfoMoq1005-Fixer.png)
+
 ## When to suppress warnings
 
 Do not suppress a warning from this rule. Using the `SetupSet<T>()` method ensures that the delegate argument in the `Callback()`

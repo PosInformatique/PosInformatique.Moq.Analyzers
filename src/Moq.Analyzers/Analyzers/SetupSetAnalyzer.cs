@@ -15,7 +15,7 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SetupSetAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor UseSetupSetWithGenericArgumentRule = new DiagnosticDescriptor(
+        internal static readonly DiagnosticDescriptor UseSetupSetWithGenericArgumentRule = new DiagnosticDescriptor(
             "PosInfoMoq1005",
             "Defines the generic argument of the SetupSet() method with the type of the mocked property",
             "Defines the generic argument of the SetupSet() method with the type of the mocked property",
