@@ -1,14 +1,15 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="ConstructorArgumentsMustMatchAnalyzerTest.cs" company="P.O.S Informatique">
+// <copyright file="ConstructorArgumentsAnalyzerTest.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using Verifier = MoqCSharpAnalyzerVerifier<ConstructorArgumentsMustMatchAnalyzer>;
+    using Microsoft.CodeAnalysis.Testing;
+    using Verifier = MoqCSharpAnalyzerVerifier<ConstructorArgumentsAnalyzer>;
 
-    public class ConstructorArgumentsMustMatchAnalyzerTest
+    public class ConstructorArgumentsAnalyzerTest
     {
         [Fact]
         public async Task NoMock()
@@ -52,6 +53,108 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Interface_NoMock()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var obj = new object();
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Interface_WithNoArgument()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>();
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task Interface_WithoutBehaviorStrict()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>({|#0:1|}, {|#1:2|});
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(
+                source,
+                new DiagnosticResult(ConstructorArgumentsAnalyzer.ConstructorArgumentsCanBePassedToInterfaceRule)
+                    .WithLocation(0).WithArguments("1")
+                    .WithLocation(1).WithArguments("2"));
+        }
+
+        [Fact]
+        public async Task Interface_WithBehaviorStrict()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>(MockBehavior.Strict, {|#0:1|}, {|#1:2|});
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(
+                source,
+                new DiagnosticResult(ConstructorArgumentsAnalyzer.ConstructorArgumentsCanBePassedToInterfaceRule)
+                    .WithLocation(0).WithArguments("1")
+                    .WithLocation(1).WithArguments("2"));
         }
 
         [Fact]
@@ -505,6 +608,84 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
 
                     public class C
+                    {
+                        public C(int a)
+                        {
+                        }
+
+                        public C(int a, string b)
+                        {
+                        }
+
+                        public C(int a, object c)
+                        {
+                        }
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(", MockBehavior.Strict")]
+        public async Task Arguments_WithFactory(string behavior)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<C>(() => new C(10)" + behavior + @");
+                        }
+                    }
+
+                    public class C
+                    {
+                        public C(int a)
+                        {
+                        }
+
+                        public C(int a, string b)
+                        {
+                        }
+
+                        public C(int a, object c)
+                        {
+                        }
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(", MockBehavior.Strict")]
+        public async Task Arguments_WithFactory_NotClass(string behavior)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<{|PosInfoMoq2016:I|}>(() => new C(10)" + behavior + @");
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+
+                    public class C : I
                     {
                         public C(int a)
                         {

@@ -54,6 +54,37 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
+        [Fact]
+        public async Task NewMock_BehaviorStrict_WithFactoryLambdaArgument()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using System;
+                    using System.Linq.Expressions;
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>(() => new C(), MockBehavior.Strict);
+                            var mock2 = new Mock<I>((Expression<Func<I>>)null, MockBehavior.Strict);
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+
+                    public class C : I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
         [Theory]
         [InlineData("Loose", "")]
         [InlineData("Default", "")]
@@ -75,6 +106,36 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
 
                     public interface I
+                    {
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("Loose")]
+        [InlineData("Default")]
+        public async Task NewMock_BehaviorDifferentOfStrict_WithFactoryLambdaArgument(string mode)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = [|new Mock<I>(() => new C(), MockBehavior." + mode + @")|];
+                        }
+                    }
+
+                    public interface I
+                    {
+                    }
+
+                    public class C : I
                     {
                     }
                 }";

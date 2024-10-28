@@ -7,7 +7,7 @@ on:
         type: string
         description: The version of the library
         required: true
-        default: 1.10.0
+        default: 1.11.0
       VersionSuffix:
         type: string
         description: The version suffix of the library (for example rc.1)

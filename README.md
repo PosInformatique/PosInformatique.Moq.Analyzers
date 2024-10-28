@@ -31,6 +31,7 @@ Design rules used to make your unit tests more strongly strict.
 | [PosInfoMoq1002: `Verify()` methods should be called when `Verifiable()` has been setup](docs/Design/PosInfoMoq1002.md) | When a mocked member has been setup with the `Verifiable()` method, the `Verify()` method must be called at the end of the unit test. |
 | [PosInfoMoq1003: The `Callback()` method should be used to check the parameters when mocking a method with `It.IsAny<T>()` arguments](docs/Design/PosInfoMoq1003.md) | When a mocked method contains a `It.IsAny<T>()` argument, the related parameter should be checked in the `Callback()` method. |
 | [PosInfoMoq1004: The `Callback()` parameter should not be ignored if it has been setup as an `It.IsAny<T>()` argument](docs/Design/PosInfoMoq1004.md) | When a mocked method contains a `It.IsAny<T>()` argument, the related parameter should not be ignored in the `Callback()` method. |
+| [PosInfoMoq1005: Defines the generic argument of the `SetupSet()` method with the type of the mocked property](docs/Design/PosInfoMoq1005.md) | When mocking the setter of a property, use the `SetupSet<TProperty>()` method version. |
 
 ### Compilation
 
@@ -40,7 +41,7 @@ All the rules of this category should not be disabled (or changed their severity
 | Rule | Description |
 | - | - |
 | [PosInfoMoq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks](docs/Compilation/PosInfoMoq2000.md) | When a `Mock<T>` has been defined with the `Strict` behavior, the `Returns()` or `ReturnsAsync()` method must be called when setup a method to mock which returns a value. |
-| [PosInfoMoq2001: The `Setup()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2001.md)) | The `Setup()` method must be applied only for overridable members. |
+| [PosInfoMoq2001: The `Setup()`/`SetupSet()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2001.md)) | The `Setup()` method must be applied only for overridable members. |
 | [PosInfoMoq2002: `Mock<T>` class can be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2002.md) | The `Mock<T>` class can mock only interfaces or non-`sealed` classes. |
 | [PosInfoMoq2003: The `Callback()` delegate expression must match the signature of the mocked method](docs/Compilation/PosInfoMoq2003.md) | The delegate in the argument of the `Callback()` method must match the signature of the mocked method. |
 | [PosInfoMoq2004: Constructor arguments cannot be passed for interface mocks](docs/Compilation/PosInfoMoq2004.md) | No arguments can be passed to a mocked interface. |
@@ -53,6 +54,9 @@ All the rules of this category should not be disabled (or changed their severity
 | [PosInfoMoq2011: Constructor of the mocked class must be accessible.](docs/Compilation/PosInfoMoq2011.md) | The constructor of the instantiate mocked class must non-private. |
 | [PosInfoMoq2012: The delegate in the argument of the `Returns()` method must return a value with same type of the mocked method.](docs/Compilation/PosInfoMoq2012.md) | The lambda expression, anonymous method or method in the argument of the `Returns()` must return return a value of the same type as the mocked method or property. |
 | [PosInfoMoq2013: The delegate in the argument of the `Returns()`/`ReturnsAsync()` method must have the same parameter types of the mocked method/property.](docs/Compilation/PosInfoMoq2013.md) | The lambda expression, anonymous method or method in the argument of the `Returns()`/`ReturnsAsync()` must have the same arguments type of the mocked method or property. |
+| [PosInfoMoq2014: The `Callback()` delegate expression must not return a value.](docs/Compilation/PosInfoMoq2014.md) | The `Callback()` delegate expression must not return a value. |
+| [PosInfoMoq2015: The `Protected().Setup()` method must match the return type of the mocked method](docs/Compilation/PosInfoMoq2015.md) | The method setup with `Protected().Setup()` must match the return type of the mocked method. |
+| [PosInfoMoq2016: `Mock<T>` constructor with factory lambda expression can be used only with classes.](docs/Compilation/PosInfoMoq2016.md) | The factory lambda expression used in `Mock<T>` instantiation must used only for the classes. |
 
 
 

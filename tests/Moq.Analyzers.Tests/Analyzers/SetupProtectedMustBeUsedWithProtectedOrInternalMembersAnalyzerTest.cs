@@ -38,15 +38,16 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock1.Protected().Setup(""InternalMethod"");
                             mock1.Protected().Setup(""InternalOverrideMethod"");
 
-                            mock1.Protected().Setup<int>(""ProtectedVirtualMethod"");
-                            mock1.Protected().Setup<int>(""ProtectedInternalVirtualMethod"");
-                            mock1.Protected().Setup<int>(""InternalVirtualMethod"");
-                            mock1.Protected().Setup<int>(""ProtectedAbstractMethod"");
-                            mock1.Protected().Setup<int>(""ProtectedInternalAbstractMethod"");
-                            mock1.Protected().Setup<int>(""InternalAbstractMethod"");
-                            mock1.Protected().Setup<int>(""ProtectedOverrideMethod"");
-                            mock1.Protected().Setup<int>(""ProtectedInternalOverrideMethod"");
-                            mock1.Protected().Setup<int>(""InternalOverrideMethod"");
+                            mock1.Protected().Setup<int>(""ProtectedVirtualMethodReturnValue"");
+                            mock1.Protected().Setup<int>(""ProtectedInternalVirtualMethodReturnValue"");
+                            mock1.Protected().Setup<int>(""InternalVirtualMethodReturnValue"");
+                            mock1.Protected().Setup<int>(""ProtectedAbstractMethodReturnValue"");
+                            mock1.Protected().Setup<int>(""ProtectedInternalAbstractMethodReturnValue"");
+                            mock1.Protected().Setup<int>(""InternalAbstractMethodReturnValue"");
+                            mock1.Protected().Setup<int>(""ProtectedOverrideMethodReturnValue"");
+                            mock1.Protected().Setup<int>(""ProtectedInternalOverrideMethodReturnValue"");
+                            mock1.Protected().Setup<int>(""InternalOverrideMethodReturnValue"");
+                            mock1.Protected().Setup<int>(""InternalMethodReturnValue"");
                         }
                     }
 
@@ -55,38 +56,64 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         // Virtual
                         protected virtual void ProtectedVirtualMethod() { }
 
+                        protected virtual int ProtectedVirtualMethodReturnValue() { return 10;}
+
                         protected internal virtual void ProtectedInternalVirtualMethod() { }
 
+                        protected internal virtual int ProtectedInternalVirtualMethodReturnValue() { return 10; }
+
                         internal virtual void InternalVirtualMethod() { }
+
+                        internal virtual int InternalVirtualMethodReturnValue() { return 10; }
 
                         // Abstract
                         protected abstract void ProtectedAbstractMethod();
 
+                        protected abstract int ProtectedAbstractMethodReturnValue();
+
                         protected internal abstract void ProtectedInternalAbstractMethod();
 
+                        protected internal abstract int ProtectedInternalAbstractMethodReturnValue();
+
                         internal abstract void InternalAbstractMethod();
+
+                        internal abstract int InternalAbstractMethodReturnValue();
 
                         // Override
                         protected override void ProtectedOverrideMethod() { }
 
+                        protected override int ProtectedOverrideMethodReturnValue() { return 10; }
+
                         protected internal override void ProtectedInternalOverrideMethod() { }
 
+                        protected internal override int ProtectedInternalOverrideMethodReturnValue() { return 10; }
+
                         internal override void InternalOverrideMethod() { }
+
+                        internal override int InternalOverrideMethodReturnValue() { return 10; }
                     }
 
                     public abstract class BaseClass
                     {
                         protected virtual void ProtectedOverrideMethod() { }
 
+                        protected virtual int ProtectedOverrideMethodReturnValue() { return 10; }
+
                         protected virtual void ProtectedMethod() { }
 
                         protected internal virtual void ProtectedInternalOverrideMethod() { }
+
+                        protected internal virtual int ProtectedInternalOverrideMethodReturnValue() { return 10; }
 
                         protected internal virtual void ProtectedInternalMethod() { }
 
                         internal virtual void InternalOverrideMethod() { }
 
+                        internal virtual int InternalOverrideMethodReturnValue() { return 10; }
+
                         internal virtual void InternalMethod() { }
+
+                        internal virtual int InternalMethodReturnValue() { return 10; }
                     }
                 }";
 
@@ -108,8 +135,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<C>();
-                            mock1.Protected().Setup([|""TestMethodPublic""|]);
-                            mock1.Protected().Setup<int>([|""TestMethodPublic""|]);
+                            mock1.Protected().Setup({|PosInfoMoq2006:""TestMethodPublic""|});
+                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""TestMethodPublic""|});
                         }
                     }
 
@@ -137,8 +164,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<C>();
-                            mock1.Protected().Setup([|""TestMethod""|]);
-                            mock1.Protected().Setup<int>([|""TestMethod""|]);
+                            mock1.Protected().Setup({|PosInfoMoq2006:""TestMethod""|});
+                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""TestMethod""|});
                         }
                     }
 
@@ -171,8 +198,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<I>();
-                            mock1.Protected().Setup([|""TestMethodPublic""|]);
-                            mock1.Protected().Setup<int>([|""TestMethodPublic""|]);
+                            mock1.Protected().Setup({|PosInfoMoq2006:""TestMethodPublic""|});
+                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""TestMethodPublic""|});
                         }
                     }
 
@@ -200,13 +227,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<C>();
-                            mock1.Protected().Setup([|""NonOverridableProtectedMethod""|]);
-                            mock1.Protected().Setup([|""NonOverridableProtectedInternalMethod""|]);
-                            mock1.Protected().Setup([|""NonOverridableInternalMethod""|]);
+                            mock1.Protected().Setup({|PosInfoMoq2006:""NonOverridableProtectedMethod""|});
+                            mock1.Protected().Setup({|PosInfoMoq2006:""NonOverridableProtectedInternalMethod""|});
+                            mock1.Protected().Setup({|PosInfoMoq2006:""NonOverridableInternalMethod""|});
 
-                            mock1.Protected().Setup<int>([|""NonOverridableProtectedMethod""|]);
-                            mock1.Protected().Setup<int>([|""NonOverridableProtectedInternalMethod""|]);
-                            mock1.Protected().Setup<int>([|""NonOverridableInternalMethod""|]);
+                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""NonOverridableProtectedMethod""|});
+                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""NonOverridableProtectedInternalMethod""|});
+                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""NonOverridableInternalMethod""|});
                         }
                     }
 
@@ -216,6 +243,38 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         protected internal void NonOverridableProtectedInternalMethod() { }
                         internal void NonOverridableInternalMethod() { }
                     }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task ReturnMethodTypeNotMatching_DiagnosticReported()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+                    using Moq.Protected;
+                    using System;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<C>();
+                            mock1.Protected().Setup<{|PosInfoMoq2015:long|}>(""TestMethodProtectedReturnValue"");
+                            mock1.Protected().Setup<{|PosInfoMoq2015:long|}>(""TestMethodProtected"");
+                            mock1.Protected().{|PosInfoMoq2015:Setup|}(""TestMethodProtectedReturnValue"");
+                        }
+                    }
+
+                    public class C
+                    {
+                        protected virtual int TestMethodProtectedReturnValue() { return 0; }
+
+                        protected virtual void TestMethodProtected() { }
+                   }
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);

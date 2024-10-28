@@ -195,79 +195,55 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsMockCreationStrictBehavior(ArgumentListSyntax? argumentList, CancellationToken cancellationToken, bool firstOrLast = true)
+        public bool IsMockCreationStrictBehavior(ObjectCreationExpressionSyntax mockCreation, CancellationToken cancellationToken)
         {
             // Check that the "new Mock<I>()" statement have at least one argument (else Strict is missing...).
+            if (mockCreation.ArgumentList is null)
+            {
+                return false;
+            }
+
+            var argument = mockCreation.ArgumentList.Arguments.FirstOrDefault();
+
+            if (argument is null)
+            {
+                return false;
+            }
+
+            // Check if the mock creation have factory parameter
+            var constructorSymbol = this.semanticModel.GetSymbolInfo(mockCreation, cancellationToken);
+
+            if (this.moqSymbols.IsMockConstructorWithFactory(constructorSymbol.Symbol))
+            {
+                // The first argument is a lambda expression "Mock<T>(Expression<Func<T>>)" to create
+                // instance of the mock, so check the second argument.
+                if (mockCreation.ArgumentList.Arguments.Count < 2)
+                {
+                    return false;
+                }
+
+                argument = mockCreation.ArgumentList.Arguments[1];
+            }
+
+            return this.IsStrictBehaviorArgument(argument, cancellationToken);
+        }
+
+        public bool IsMockOfStrictBehavior(ArgumentListSyntax? argumentList, CancellationToken cancellationToken)
+        {
+            // Check that the "Mock.Of<T>()" statement have at least one argument (else Strict is missing...).
             if (argumentList is null)
             {
                 return false;
             }
 
-            ArgumentSyntax? firstOrLastArgument;
+            var lastArgument = argumentList.Arguments.LastOrDefault();
 
-            if (firstOrLast)
-            {
-                firstOrLastArgument = argumentList.Arguments.FirstOrDefault();
-            }
-            else
-            {
-                firstOrLastArgument = argumentList.Arguments.LastOrDefault();
-            }
-
-            if (firstOrLastArgument is null)
+            if (lastArgument is null)
             {
                 return false;
             }
 
-            // Gets the first argument of "new Mock<I>(...)" and ensures it is a MemberAccessExpressionSyntax
-            // (because we searching for MockBehavior.Strict).
-            if (!this.IsStrictBehaviorArgument(firstOrLastArgument, out var memberAccessExpression, cancellationToken))
-            {
-                return false;
-            }
-
-            // Check that the memberAccessExpression.Name reference the Strict field
-            var firstOrLastArgumentField = this.semanticModel.GetSymbolInfo(memberAccessExpression!.Name, cancellationToken);
-
-            if (!this.moqSymbols.IsMockBehaviorStrictField(firstOrLastArgumentField.Symbol))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool IsMockOfStrictBehavior(InvocationExpressionSyntax mockOfExpression, CancellationToken cancellationToken)
-        {
-            // Check that the "new Mock<I>()" statement have at least one argument (else Strict is missing...).
-            if (mockOfExpression.ArgumentList is null)
-            {
-                return false;
-            }
-
-            var firstArgument = mockOfExpression.ArgumentList.Arguments.FirstOrDefault();
-
-            if (firstArgument is null)
-            {
-                return false;
-            }
-
-            // Gets the first argument of "new Mock<I>(...)" and ensures it is a MemberAccessExpressionSyntax
-            // (because we searching for MockBehavior.Strict).
-            if (!this.IsStrictBehaviorArgument(firstArgument, out var memberAccessExpression, cancellationToken))
-            {
-                return false;
-            }
-
-            // Check that the memberAccessExpression.Name reference the Strict field
-            var firstArgumentField = this.semanticModel.GetSymbolInfo(memberAccessExpression!.Name, cancellationToken);
-
-            if (!this.moqSymbols.IsMockBehaviorStrictField(firstArgumentField.Symbol))
-            {
-                return false;
-            }
-
-            return true;
+            return this.IsStrictBehaviorArgument(lastArgument, cancellationToken);
         }
 
         public bool IsStrictBehaviorArgument(ArgumentSyntax argument, out MemberAccessExpressionSyntax? memberAccessExpression, CancellationToken cancellationToken)
@@ -303,7 +279,7 @@ namespace PosInformatique.Moq.Analyzers
 
                 if (mockCreation is not null)
                 {
-                    if (this.IsMockCreationStrictBehavior(mockCreation.ArgumentList, cancellationToken))
+                    if (this.IsMockCreationStrictBehavior(mockCreation, cancellationToken))
                     {
                         return true;
                     }
@@ -391,6 +367,13 @@ namespace PosInformatique.Moq.Analyzers
                 }
 
                 bodyExpression = lambdaExpression.ExpressionBody;
+
+                // Special case for the SetupSet(), if the body expression is an assignment syntax
+                // "mock => mock.Property = xxx", so we get the left part of the assignment.
+                if (bodyExpression is AssignmentExpressionSyntax assignmentExpressionSyntax)
+                {
+                    bodyExpression = assignmentExpressionSyntax.Left;
+                }
             }
 
             var members = new List<ChainMember>();
@@ -554,6 +537,24 @@ namespace PosInformatique.Moq.Analyzers
             var methodSymbolInfo = this.semanticModel.GetSymbolInfo(invocationExpression.Expression, cancellationToken);
 
             if (!this.moqSymbols.IsSetupMethod(methodSymbolInfo.Symbol))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsStrictBehaviorArgument(ArgumentSyntax argument, CancellationToken cancellationToken)
+        {
+            if (!this.IsStrictBehaviorArgument(argument, out var memberAccessExpression, cancellationToken))
+            {
+                return false;
+            }
+
+            // Check that the memberAccessExpression.Name reference the Strict field
+            var lastArgumentField = this.semanticModel.GetSymbolInfo(memberAccessExpression!.Name, cancellationToken);
+
+            if (!this.moqSymbols.IsMockBehaviorStrictField(lastArgumentField.Symbol))
             {
                 return false;
             }

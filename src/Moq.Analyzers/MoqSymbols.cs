@@ -41,6 +41,12 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<INamedTypeSymbol> verifiesInterface;
 
+        private readonly Lazy<IMethodSymbol> mockConstructorWithFactory;
+
+        private readonly Lazy<IMethodSymbol> setupSetMethodWithoutGenericArgument;
+
+        private readonly Lazy<IReadOnlyList<IMethodSymbol>> setupSetMethods;
+
         private MoqSymbols(INamedTypeSymbol mockGenericClass, Compilation compilation)
         {
             this.mockGenericClass = mockGenericClass;
@@ -64,6 +70,11 @@ namespace PosInformatique.Moq.Analyzers
 
             this.verifiableMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => this.verifiesInterface.Value.GetMembers("Verifiable").OfType<IMethodSymbol>().ToArray());
             this.mockOfMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.BaseType!.GetMembers("Of").Where(m => m.IsStatic).OfType<IMethodSymbol>().ToArray());
+
+            this.mockConstructorWithFactory = new Lazy<IMethodSymbol>(() => mockGenericClass.Constructors.Single(c => c.Parameters.Length == 2 && c.Parameters[0].Type.Name == "Expression"));
+
+            this.setupSetMethodWithoutGenericArgument = new Lazy<IMethodSymbol>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().Single(c => c.TypeArguments.Length == 1));
+            this.setupSetMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().ToArray());
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
@@ -156,6 +167,41 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return false;
+        }
+
+        public bool IsSetupSetMethod(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            var originalDefinition = symbol.OriginalDefinition;
+
+            foreach (var setupSetMethod in this.setupSetMethods.Value)
+            {
+                if (SymbolEqualityComparer.Default.Equals(originalDefinition, setupSetMethod))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsSetupSetMethodWithoutGenericArgument(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.setupSetMethodWithoutGenericArgument.Value))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool IsVerifiableMethod(ISymbol? symbol)
@@ -394,6 +440,21 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return false;
+        }
+
+        public bool IsMockConstructorWithFactory(ISymbol? symbol)
+        {
+            if (symbol is null)
+            {
+                return false;
+            }
+
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.mockConstructorWithFactory.Value))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool IsAsMethod(IMethodSymbol method)

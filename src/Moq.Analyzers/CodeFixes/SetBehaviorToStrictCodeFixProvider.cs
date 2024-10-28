@@ -42,28 +42,15 @@ namespace PosInformatique.Moq.Analyzers
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            // Find the "ObjectCreationExpressionSyntax" or "InvocationExpression" in the parent of the location where is located the issue in the code.
-            var parent = root.FindToken(diagnosticSpan.Start).Parent;
+            // Gets the syntax node where is located the issue in the code.
+            var node = root.FindNode(diagnosticSpan, getInnermostNodeForTie: true);
 
-            if (parent is null)
+            if (node is null)
             {
                 return;
             }
 
-            var mockCreationExpression = parent.AncestorsAndSelf().OfType<ObjectCreationExpressionSyntax>().FirstOrDefault();
-
-            if (mockCreationExpression is null)
-            {
-                var invocationExpression = parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().First();
-
-                context.RegisterCodeFix(
-                    CodeAction.Create(
-                        title: "Defines the MockBehavior to Strict",
-                        createChangedDocument: cancellationToken => AddMockBehiavorStrictArgumentAsync(context.Document, invocationExpression, cancellationToken),
-                        equivalenceKey: "Defines the MockBehavior to Strict"),
-                    diagnostic);
-            }
-            else
+            if (node is ObjectCreationExpressionSyntax mockCreationExpression)
             {
                 // Register a code to fix the enumeration.
                 context.RegisterCodeFix(
@@ -72,6 +59,20 @@ namespace PosInformatique.Moq.Analyzers
                         createChangedDocument: cancellationToken => AddMockBehiavorStrictArgumentAsync(context.Document, mockCreationExpression, cancellationToken),
                         equivalenceKey: "Defines the MockBehavior to Strict"),
                     diagnostic);
+
+                return;
+            }
+
+            if (node is InvocationExpressionSyntax invocationExpression)
+            {
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: "Defines the MockBehavior to Strict",
+                        createChangedDocument: cancellationToken => AddMockBehiavorStrictArgumentAsync(context.Document, invocationExpression, cancellationToken),
+                        equivalenceKey: "Defines the MockBehavior to Strict"),
+                    diagnostic);
+
+                return;
             }
         }
 
@@ -86,16 +87,24 @@ namespace PosInformatique.Moq.Analyzers
             {
                 var firstArgument = oldMockCreationExpression.ArgumentList.Arguments.First();
 
-                if (IsMockBehaviorArgument(firstArgument))
+                if (IsLambdaExpressionArgument(firstArgument))
                 {
-                    // The old first argument is MockBehavior.xxxxx, so we take the following arguments
-                    // and ignore it.
-                    arguments.AddRange(oldMockCreationExpression.ArgumentList.Arguments.Skip(1));
+                    // The old first argument is lambda expression, so we insert it at the first argument position.
+                    arguments.Insert(0, firstArgument);
                 }
                 else
                 {
-                    // Retrieves all the arguments of the "new Mock<T>(...)" instantiation.
-                    arguments.AddRange(oldMockCreationExpression.ArgumentList.Arguments);
+                    if (IsMockBehaviorArgument(firstArgument))
+                    {
+                        // The old first argument is MockBehavior.xxxxx, so we take the following arguments
+                        // and ignore it.
+                        arguments.AddRange(oldMockCreationExpression.ArgumentList.Arguments.Skip(1));
+                    }
+                    else
+                    {
+                        // Retrieves all the arguments of the "new Mock<T>(...)" instantiation.
+                        arguments.AddRange(oldMockCreationExpression.ArgumentList.Arguments);
+                    }
                 }
             }
 
@@ -173,6 +182,21 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             if (targetExpression.Identifier.ValueText != "MockBehavior")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsLambdaExpressionArgument(ArgumentSyntax argument)
+        {
+            if (argument.Expression is not ParenthesizedLambdaExpressionSyntax lambdaExpression)
+            {
+                return false;
+            }
+
+            if (lambdaExpression.ParameterList.Parameters.Count > 0)
             {
                 return false;
             }

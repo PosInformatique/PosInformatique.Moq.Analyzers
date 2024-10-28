@@ -17,10 +17,22 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      1.11.0
+      - Add new rules:
+        - PosInfoMoq1005: Defines the generic argument of the SetupSet() method with the type of the mocked property.
+        - PosInfoMoq2014: The delegate in the argument of the Returns() method must return a value with same type of the mocked method.
+        - PosInfoMoq2015: The Protected().Setup() method must match the return type of the mocked method.
+        - PosInfoMoq2016: Mock&lt;T&gt; constructor with factory lambda expression can be used only with classes.
+      - Improvements of the rules:
+        - PosInfoMoq2001: Check that property setup with the SetupSet() method are overridable.
+      - Fix the PosInfoMoq1001 rule for the Mock&lt;T&gt; instantiation with the lambda expression to create mock instances.
+      - Fix the PosInfoMoq2004 rule for the Mock&lt;T&gt; instantiation with the lambda expression to create mock instances.
+      - Fix the PosInfoMoq1001 fixer when using the Mock.Of&lt;T&gt; as argument in the constructor call.
+
       1.10.0
       - Add new rules:
-        - PosInfoMoq2012: The delegate in the argument of the Returns() method must return a value with same type of the mocked method.
-        - PosInfoMoq2013: The delegate in the argument of the Returns()/ReturnsAsync() method must have the same parameter types of the mocked method/property.
+      - PosInfoMoq2012: The delegate in the argument of the Returns() method must return a value with same type of the mocked method.
+      - PosInfoMoq2013: The delegate in the argument of the Returns()/ReturnsAsync() method must have the same parameter types of the mocked method/property.
 
       1.9.3
       - Fix the PosInfoMoq2006 when Setup() a method/property in inherited class.
