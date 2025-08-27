@@ -233,7 +233,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public interface I
                     {
-                        " + returnType  + @" TestMethod(string a);
+                        " + returnType + @" TestMethod(string a);
                     }
                 }";
 
