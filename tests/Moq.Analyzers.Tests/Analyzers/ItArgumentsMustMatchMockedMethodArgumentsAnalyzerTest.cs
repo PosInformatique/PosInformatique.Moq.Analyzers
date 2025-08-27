@@ -19,14 +19,17 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 {
                     using Moq;
                     using System;
+                    using System.Collections.Generic;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
                             var mock1 = new Mock<I>();
-                            mock1.Setup(m => m.TestMethod(It.IsAny<int?>(), 1, ""Ignored"", C.OtherMethod()));
                             mock1.Setup(m => m.NoParametersMethod());
+                            mock1.Setup(m => m.TestMethod(It.IsAny<int?>(), 1, ""Ignored"", C.OtherMethod()));
+                            mock1.Setup(m => m.TestMethod(It.Is<int?>(p => p == 10), 1, ""Ignored"", C.OtherMethod()));
+                            mock1.Setup(m => m.TestMethod(It.Is<int?>(10, EqualityComparer<int?>.Default), 1, ""Ignored"", C.OtherMethod()));
                        }
                     }
 
@@ -54,6 +57,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 {
                     using Moq;
                     using System;
+                    using System.Collections.Generic;
 
                     public class TestClass
                     {
@@ -61,6 +65,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>();
                             mock1.Setup(m => m.TestMethod({|#0:It.IsAny<int>()|#0}, 1, ""Ignored""));
+                            mock1.Setup(m => m.TestMethod({|#1:It.Is<int>(p => p == 10)|#1}, 1, ""Ignored""));
+                            mock1.Setup(m => m.TestMethod({|#2:It.Is<int>(10, EqualityComparer<int>.Default)|#2}, 1, ""Ignored""));
                        }
                     }
 
@@ -74,7 +80,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 source,
                 [
                     new DiagnosticResult(ItArgumentsMustMatchMockedMethodArgumentsAnalyzer.Rule)
-                        .WithSpan(12, 59, 12, 74),
+                        .WithSpan(13, 59, 13, 74),
+                    new DiagnosticResult(ItArgumentsMustMatchMockedMethodArgumentsAnalyzer.Rule)
+                        .WithSpan(14, 59, 14, 83),
+                    new DiagnosticResult(ItArgumentsMustMatchMockedMethodArgumentsAnalyzer.Rule)
+                        .WithSpan(15, 59, 15, 104),
                 ]);
         }
 

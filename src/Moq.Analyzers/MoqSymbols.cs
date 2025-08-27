@@ -35,7 +35,9 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<INamedTypeSymbol> isAnyTypeClass;
 
-        private readonly Lazy<ISymbol> isAnyMethod;
+        private readonly Lazy<IReadOnlyList<ISymbol>> itIsMethods;
+
+        private readonly Lazy<ISymbol> itIsAnyMethod;
 
         private readonly Lazy<ISymbol> asMethod;
 
@@ -55,7 +57,8 @@ namespace PosInformatique.Moq.Analyzers
 
             this.mockBehaviorEnum = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.MockBehavior")!);
             this.isAnyTypeClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.It+IsAnyType")!);
-            this.isAnyMethod = new Lazy<ISymbol>(() => compilation.GetTypeByMetadataName("Moq.It")!.GetMembers("IsAny").Single());
+            this.itIsMethods = new Lazy<IReadOnlyList<ISymbol>>(() => compilation.GetTypeByMetadataName("Moq.It")!.GetMembers("Is").ToArray());
+            this.itIsAnyMethod = new Lazy<ISymbol>(() => compilation.GetTypeByMetadataName("Moq.It")!.GetMembers("IsAny").Single());
             this.verifiesInterface = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.Language.IVerifies")!);
 
             this.setupMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Setup").Concat(setupConditionResultInterface.Value.GetMembers("Setup")).OfType<IMethodSymbol>().ToArray());
@@ -99,6 +102,24 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
+        public ISymbol? GetItIsType(ISymbol? symbol)
+        {
+            if (symbol is not IMethodSymbol methodSymbol)
+            {
+                return null;
+            }
+
+            foreach (var itIsMethod in this.itIsMethods.Value)
+            {
+                if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, itIsMethod))
+                {
+                    return methodSymbol.TypeArguments[0];
+                }
+            }
+
+            return null;
+        }
+
         public bool IsItIsAny(ISymbol? symbol)
         {
             if (symbol is null)
@@ -106,7 +127,7 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.isAnyMethod.Value))
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.itIsAnyMethod.Value))
             {
                 return false;
             }
@@ -121,7 +142,7 @@ namespace PosInformatique.Moq.Analyzers
                 return null;
             }
 
-            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.isAnyMethod.Value))
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.itIsAnyMethod.Value))
             {
                 return null;
             }
