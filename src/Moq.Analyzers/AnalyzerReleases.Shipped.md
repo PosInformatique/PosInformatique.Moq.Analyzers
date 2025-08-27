@@ -1,4 +1,11 @@
-﻿## Release 1.11.0
+﻿## Release 1.12.0
+
+### New Rules
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+PosInfoMoq1006 | Design | Warning | ItArgumentsMustMatchMockedMethodArgumentsAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1006.html)
+
+## Release 1.11.0
 
 ### New Rules
 Rule ID | Category | Severity | Notes

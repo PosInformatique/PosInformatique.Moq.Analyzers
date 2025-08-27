@@ -114,6 +114,21 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
+        public ISymbol? GetItIsAnyType(ISymbol? symbol)
+        {
+            if (symbol is not IMethodSymbol methodSymbol)
+            {
+                return null;
+            }
+
+            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.isAnyMethod.Value))
+            {
+                return null;
+            }
+
+            return methodSymbol.TypeArguments[0];
+        }
+
         public bool IsMock(ISymbol? symbol)
         {
             if (symbol is null)
