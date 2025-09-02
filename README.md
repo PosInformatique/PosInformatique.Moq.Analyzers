@@ -1,4 +1,4 @@
-# PosInformatique.Moq.Analyzers
+﻿# PosInformatique.Moq.Analyzers
 <div align="center">
 
 [![Nuget](https://img.shields.io/nuget/v/PosInformatique.Moq.Analyzers)](https://www.nuget.org/packages/PosInformatique.Moq.Analyzers/)
@@ -13,7 +13,7 @@ PosInformatique.Moq.Analyzers is a set of analyzers to verify syntax and code de
 The analyzers are compiled against [.NET Standard 2.0](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0),
 providing support for analyzing projects that target .NET Core or .NET Framework.
 
-## Installing from NuGet
+## 📦 Installing from NuGet
 The [PosInformatique.Moq.Analyzers](https://www.nuget.org/packages/PosInformatique.FluentAssertions.Json/)
 library is available directly on the
 [![Nuget](https://img.shields.io/nuget/v/PosInformatique.Moq.Analyzers)](https://www.nuget.org/packages/PosInformatique.Moq.Analyzers/)
@@ -27,7 +27,7 @@ Install-Package PosInformatique.Moq.Analyzers
 
 The analyzer is automatically added and activated with their default severity levels.
 
-## Rules
+## 📋 Rules
 
 This section describes the list of the rules analyzed by the library to improve code quality of the unit tests using
 the [Moq](https://github.com/devlooped/moq) library.
