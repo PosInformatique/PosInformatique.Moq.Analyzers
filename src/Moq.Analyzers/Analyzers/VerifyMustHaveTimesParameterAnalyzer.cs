@@ -48,7 +48,7 @@ namespace PosInformatique.Moq.Analyzers
 
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
-            // Check is Setup() method.
+            // Check is Verify() method.
             var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
 
             if (!moqSymbols.IsVerifyMethod(methodSymbol.Symbol))
