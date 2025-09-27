@@ -17,6 +17,9 @@ jobs:
         with:
           dotnet-version: '8.x'
 
+      - name: Restore dependencies
+        run: dotnet restore PosInformatique.Moq.Analyzers.sln
+
       - name: Build solution
         run: |
           dotnet build PosInformatique.Moq.Analyzers.sln \
