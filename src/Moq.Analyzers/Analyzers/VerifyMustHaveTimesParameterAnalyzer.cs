@@ -46,8 +46,6 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
-
             // Check is Verify() method.
             var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
 
@@ -57,9 +55,12 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check if the Verify() method contains the Times parameter.
+            // NB: We don't check the arguments of the call to the Verify() method,
+            // but because we already have the symbol, we check that we use a Verify() method
+            // overload which contains at least the Times parameter.
             if (!moqSymbols.ContainsTimesParameters((IMethodSymbol)methodSymbol.Symbol))
             {
-                // The member is not overridable, raise the error.
+                // No 'Times' arguments has been specified.
                 var diagnostic = Diagnostic.Create(Rule, ((MemberAccessExpressionSyntax)invocationExpression.Expression).Name.GetLocation());
                 context.ReportDiagnostic(diagnostic);
 

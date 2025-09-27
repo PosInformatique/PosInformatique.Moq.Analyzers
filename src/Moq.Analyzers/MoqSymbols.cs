@@ -309,7 +309,7 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
-        public bool IsVerifyStaticMethod(ISymbol? symbol)
+        public bool IsVerifyStaticMethod([NotNullWhen(true)] ISymbol? symbol)
         {
             if (symbol is null)
             {

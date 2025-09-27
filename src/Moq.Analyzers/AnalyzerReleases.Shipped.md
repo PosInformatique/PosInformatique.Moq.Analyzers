@@ -4,6 +4,7 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 PosInfoMoq1007 | Design | Warning | VerifyMustHaveTimesParameterAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq1007.html)
+PosInfoMoq1008 | Design | Warning | VerifyStaticMethodsRequiresMockParametersAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq1008.html)
 
 ## Release 1.12.0
 
