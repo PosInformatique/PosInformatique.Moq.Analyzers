@@ -57,7 +57,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Check if the Verify() method contains the Times parameter.
-            if (!moqSymbols.ContainsTimesParameters((IMethodSymbol)methodSymbol.Symbol!))
+            if (!moqSymbols.ContainsTimesParameters((IMethodSymbol)methodSymbol.Symbol))
             {
                 // The member is not overridable, raise the error.
                 var diagnostic = Diagnostic.Create(Rule, ((MemberAccessExpressionSyntax)invocationExpression.Expression).Name.GetLocation());

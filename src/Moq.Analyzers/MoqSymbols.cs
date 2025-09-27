@@ -7,6 +7,7 @@
 namespace PosInformatique.Moq.Analyzers
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.CodeAnalysis;
 
     internal sealed class MoqSymbols
@@ -288,7 +289,7 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
-        public bool IsVerifyMethod(ISymbol? symbol)
+        public bool IsVerifyMethod([NotNullWhen(true)] ISymbol? symbol)
         {
             if (symbol is null)
             {
@@ -323,8 +324,13 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsVerifyAllMethod(ISymbol symbol)
+        public bool IsVerifyAllMethod(ISymbol? symbol)
         {
+            if (symbol is null)
+            {
+                return false;
+            }
+
             if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.verifyAllMethod.Value))
             {
                 return false;
@@ -333,8 +339,13 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsVerifyAllStaticMethod(ISymbol symbol)
+        public bool IsVerifyAllStaticMethod([NotNullWhen(true)] ISymbol? symbol)
         {
+            if (symbol is null)
+            {
+                return false;
+            }
+
             if (!SymbolEqualityComparer.Default.Equals(symbol, this.staticVerifyAllMethod.Value))
             {
                 return false;
