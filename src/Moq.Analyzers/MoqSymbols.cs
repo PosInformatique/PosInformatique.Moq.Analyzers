@@ -49,6 +49,10 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<IReadOnlyList<IMethodSymbol>> setupSetMethods;
 
+        private readonly Lazy<INamedTypeSymbol> timesClass;
+
+        private readonly Lazy<INamedTypeSymbol> funcClass;
+
         private MoqSymbols(INamedTypeSymbol mockGenericClass, Compilation compilation)
         {
             this.mockGenericClass = mockGenericClass;
@@ -78,6 +82,9 @@ namespace PosInformatique.Moq.Analyzers
 
             this.setupSetMethodWithoutGenericArgument = new Lazy<IMethodSymbol>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().Single(c => c.TypeArguments.Length == 1));
             this.setupSetMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().ToArray());
+
+            this.timesClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.Times")!);
+            this.funcClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("System.Func`1")!);
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
@@ -90,6 +97,27 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return new MoqSymbols(mockGenericClass, compilation);
+        }
+
+        public bool ContainsTimesParameters(IMethodSymbol method)
+        {
+            foreach (var parameter in method.Parameters)
+            {
+                if (SymbolEqualityComparer.Default.Equals(parameter.Type, this.timesClass.Value))
+                {
+                    return true;
+                }
+
+                // Try the Func<Times> alternative.
+                if (!SymbolEqualityComparer.Default.Equals(parameter.Type.OriginalDefinition, this.funcClass.Value))
+                {
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         public bool IsAnyType(ITypeSymbol symbol)

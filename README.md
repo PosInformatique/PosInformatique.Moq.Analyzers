@@ -45,6 +45,7 @@ Design rules used to make your unit tests more strongly strict.
 | [PosInfoMoq1004: The `Callback()` parameter should not be ignored if it has been setup as an `It.IsAny<T>()` argument](docs/Design/PosInfoMoq1004.md) | When a mocked method contains a `It.IsAny<T>()` argument, the related parameter should not be ignored in the `Callback()` method. |
 | [PosInfoMoq1005: Defines the generic argument of the `SetupSet()` method with the type of the mocked property](docs/Design/PosInfoMoq1005.md) | When mocking the setter of a property, use the `SetupSet<TProperty>()` method version. |
 | [PosInfoMoq1006: The `It.IsAny<T>()` or `It.Is<T>()` arguments must match the parameters of the mocked method.](docs/Design/PosInfoMoq1006.md) | When setting up a method using `It.IsAny<T>()` or `It.Is<T>()` as arguments, the type `T` must exactly match the parameters of the configured method. |
+| [PosInfoMoq1007: The `Verify()` method must specify the `Times` argument.](docs/Design/PosInfoMoq1007.md) | When calling the `Verify()` method, if the `Times` argument is not specified, Moq will assume `Times.AtLeastOnce()` by default. |
 
 ### Compilation
 
