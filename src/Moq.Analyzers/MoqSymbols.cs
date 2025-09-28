@@ -131,7 +131,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public ISymbol? GetItIsType(ISymbol? symbol)
+        public ITypeSymbol? GetItIsType(ISymbol? symbol)
         {
             if (symbol is not IMethodSymbol methodSymbol)
             {
@@ -164,7 +164,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public ISymbol? GetItIsAnyType(ISymbol? symbol)
+        public ITypeSymbol? GetItIsAnyType(ISymbol? symbol)
         {
             if (symbol is not IMethodSymbol methodSymbol)
             {

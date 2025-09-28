@@ -26,10 +26,17 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public void TestMethod()
                         {
                             var mock1 = new Mock<I>();
+
                             mock1.Setup(m => m.NoParametersMethod());
                             mock1.Setup(m => m.TestMethod(It.IsAny<int?>(), 1, ""Ignored"", C.OtherMethod()));
                             mock1.Setup(m => m.TestMethod(It.Is<int?>(p => p == 10), 1, ""Ignored"", C.OtherMethod()));
                             mock1.Setup(m => m.TestMethod(It.Is<int?>(10, EqualityComparer<int?>.Default), 1, ""Ignored"", C.OtherMethod()));
+
+                            mock1.Setup(m => m.TestMethodWithBaseClass(null));
+                            mock1.Setup(m => m.TestMethodWithBaseClass(It.IsAny<BaseClass>()));
+                            mock1.Setup(m => m.TestMethodWithBaseClass(It.IsAny<InheritedClass>()));
+                            mock1.Setup(m => m.TestMethodWithBaseClass(It.Is<BaseClass>(c => c.Property == 10)));
+                            mock1.Setup(m => m.TestMethodWithBaseClass(It.Is<InheritedClass>(c => c.Property == 10)));
                        }
                     }
 
@@ -38,11 +45,22 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         void NoParametersMethod();
 
                         void TestMethod(int? a, int b, string c, int d);
+
+                        void TestMethodWithBaseClass(BaseClass a);
                     }
 
                     public class C
                     {
                         public static int OtherMethod() => default;
+                    }
+
+                    public abstract class BaseClass
+                    {
+                        public int Property { get; set; }
+                    }
+
+                    public class InheritedClass : BaseClass
+                    {
                     }
                 }";
 
