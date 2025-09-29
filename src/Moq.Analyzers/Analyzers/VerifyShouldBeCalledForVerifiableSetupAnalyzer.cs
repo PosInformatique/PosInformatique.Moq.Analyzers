@@ -15,7 +15,7 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class VerifyShouldBeCalledForVerifiableSetupAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        private static readonly DiagnosticDescriptor VerifyShouldBeCalledRule = new DiagnosticDescriptor(
             "PosInfoMoq1002",
             "Verify() methods should be called when Verifiable() has been setup",
             "The Verify() methods should be called at the end of the unit tests when Verifiable() has been setup",
@@ -25,7 +25,19 @@ namespace PosInformatique.Moq.Analyzers
             description: "The Verify() methods should be called at the end of the unit tests when Verifiable() has been setup.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1002.html");
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        private static readonly DiagnosticDescriptor AvoidVerifiableMethodRule = new DiagnosticDescriptor(
+            "PosInfoMoq1009",
+            "Avoid using Verifiable() method",
+            "Use explicit VerifyAll() or Verify() calls at the end of unit tests instead of Verifiable()",
+            "Design",
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "Use explicit VerifyAll() or Verify() calls at the end of unit tests instead of Verifiable().",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1009.html");
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+            VerifyShouldBeCalledRule,
+            AvoidVerifiableMethodRule);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -53,6 +65,14 @@ namespace PosInformatique.Moq.Analyzers
             {
                 return;
             }
+
+            if (invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
+            {
+                return;
+            }
+
+            // Raise the PosInfoMoq1009 to avoid Verifiable() method by design.
+            context.ReportDiagnostic(AvoidVerifiableMethodRule, memberAccessExpression.Name.GetLocation());
 
             // Retrieve the setup method
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
@@ -88,13 +108,7 @@ namespace PosInformatique.Moq.Analyzers
 
             if (!verifyCalled)
             {
-                if (invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
-                {
-                    return;
-                }
-
-                var diagnostic = Diagnostic.Create(Rule, memberAccessExpression.Name.GetLocation());
-                context.ReportDiagnostic(diagnostic);
+                context.ReportDiagnostic(VerifyShouldBeCalledRule, memberAccessExpression.Name.GetLocation());
             }
         }
 

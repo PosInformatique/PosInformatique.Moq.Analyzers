@@ -9,8 +9,7 @@
 
 ## Cause
 
-A `Verify()` of an `Mock<T>` instance has not been called in the *Assert* phase
-of an unit test for `Verifiable()` setups.
+A `Verify()` of an `Mock<T>` instance has not been called in the *Assert* phase of an unit test for `Verifiable()` setups.
 
 ## Rule description
 
@@ -44,3 +43,7 @@ on the `Mock<T>` instances, if some mocked members has been marked as `Verifiabl
 ## When to suppress warnings
 
 Do not suppress a warning from this rule. Normally `Verifiable()` setup members must be call in the unit tests execution.
+
+## Related rules
+
+- [PosInfoMoq1009: Avoid using `Verifiable()` method](PosInfoMoq1009.md)

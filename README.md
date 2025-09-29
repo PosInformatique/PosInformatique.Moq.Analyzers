@@ -48,6 +48,7 @@ Design rules used to make your unit tests more strongly strict.
 | [PosInfoMoq1006: The `It.IsAny<T>()` or `It.Is<T>()` arguments must match the parameters of the mocked method.](docs/Design/PosInfoMoq1006.md) | When setting up a method using `It.IsAny<T>()` or `It.Is<T>()` as arguments, the type `T` must exactly match the parameters of the configured method. |
 | [PosInfoMoq1007: The `Verify()` method must specify the `Times` argument.](docs/Design/PosInfoMoq1007.md) | When calling the `Verify()` method, if the `Times` argument is not specified, Moq will assume `Times.AtLeastOnce()` by default. |
 | [PosInfoMoq1008: The `Mock.Verify()` and `Mock.VerifyAll()` methods must specify at least one mock.](docs/Design/PosInfoMoq1008.md) | When calling the static methods `Mock.Verify()` or `Mock.VerifyAll()` without providing any `Mock<T>` instances, no verification is performed. |
+| [PosInfoMoq1009: Avoid using `Verifiable()` method](docs/Design/PosInfoMoq1008.md) | A `Verify()` of an `Mock<T>` instance has not been called in the *Assert* phase of an unit test for `Verifiable()` setups. |
 
 ### Compilation
 

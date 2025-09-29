@@ -6,6 +6,7 @@
 
 namespace System.Diagnostics.CodeAnalysis
 {
+    [ExcludeFromCodeCoverage]
     [AttributeUsage(AttributeTargets.Parameter, Inherited = false)]
     internal sealed class NotNullWhenAttribute : Attribute
     {
