@@ -269,7 +269,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsVerifiableMethod(ISymbol? symbol)
+        public bool IsVerifiableMethod([NotNullWhen(true)] ISymbol? symbol)
         {
             if (symbol is null)
             {

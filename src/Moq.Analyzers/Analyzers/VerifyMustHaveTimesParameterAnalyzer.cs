@@ -15,14 +15,14 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class VerifyMustHaveTimesParameterAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             "PosInfoMoq1007",
-            "The Verify() method must specify the Times argument",
-            "The Verify() method must specify the Times argument",
+            "The Verify()/Verifiable() methods must specify the Times argument",
+            "The '{0}()' method must specify the Times argument",
             "Design",
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "Using the Verify() method with an explicit Times argument makes the test intention clear and avoids ambiguity.",
+            description: "Using the Verify()/Verifiable() method with an explicit Times argument makes the test intention clear and avoids ambiguity.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq1007.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
@@ -46,10 +46,10 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
-            // Check is Verify() method.
+            // Check is Verify() method or Verifiable() method.
             var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
 
-            if (!moqSymbols.IsVerifyMethod(methodSymbol.Symbol))
+            if (!moqSymbols.IsVerifyMethod(methodSymbol.Symbol) && !moqSymbols.IsVerifiableMethod(methodSymbol.Symbol))
             {
                 return;
             }
@@ -61,7 +61,9 @@ namespace PosInformatique.Moq.Analyzers
             if (!moqSymbols.ContainsTimesParameters((IMethodSymbol)methodSymbol.Symbol))
             {
                 // No 'Times' arguments has been specified.
-                var diagnostic = Diagnostic.Create(Rule, ((MemberAccessExpressionSyntax)invocationExpression.Expression).Name.GetLocation());
+                var methodInvocation = ((MemberAccessExpressionSyntax)invocationExpression.Expression).Name;
+
+                var diagnostic = Diagnostic.Create(Rule, ((MemberAccessExpressionSyntax)invocationExpression.Expression).Name.GetLocation(), methodInvocation.Identifier.Text);
                 context.ReportDiagnostic(diagnostic);
 
                 return;
