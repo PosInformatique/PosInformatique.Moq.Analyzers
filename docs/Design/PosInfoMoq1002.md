@@ -46,4 +46,5 @@ Do not suppress a warning from this rule. Normally `Verifiable()` setup members 
 
 ## Related rules
 
-- [PosInfoMoq1009: Avoid using `Verifiable()` method](PosInfoMoq1009.md)
+- [PosInfoMoq1007: The `Verify()` method must specify the `Times` argument](./PosInfoMoq1007.md)
+- [PosInfoMoq1009: Avoid using `Verifiable()` method](./PosInfoMoq1009.md)

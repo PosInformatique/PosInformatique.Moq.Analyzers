@@ -46,4 +46,4 @@ Proper unit testing practices require verification in the *Assert* phase, not in
 
 ## Related rules
 
-- [PosInfoMoq1002: `Verify()` methods should be called when `Verifiable()` has been setup](PosInfoMoq1002.md)
+- [PosInfoMoq1002: `Verify()` methods should be called when `Verifiable()` has been setup](./PosInfoMoq1002.md)

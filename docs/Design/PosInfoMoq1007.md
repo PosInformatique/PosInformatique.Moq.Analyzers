@@ -70,3 +70,7 @@ Examples:
 
 You may suppress warnings from this rule if you are fine with the implicit default of `Times.AtLeastOnce()`.  
 However, for readability and maintainability, it is strongly recommended to always be explicit with the `Times` argument.
+
+## Related rules
+
+- [PosInfoMoq1002: `Verify()` methods should be called when `Verifiable()` has been setup](./PosInfoMoq1002.md)
