@@ -15,7 +15,7 @@ When calling the static methods `Mock.Verify()` or `Mock.VerifyAll()` without pr
 
 The static methods `Mock.Verify()` and `Mock.VerifyAll()` are designed to verify multiple `Mock<T>` instances at once.  
 However, calling these methods without specifying any `Mock<T>` instances results in no verification being performed,
-which makes the test ineffective and potentially misleading.
+which makes the test ineffective.
 
 For example, the following code calls `Mock.Verify()` without any arguments:
 
@@ -34,7 +34,7 @@ public void ProcessData_ShouldVerifyMocks()
 }
 ```
 
-This code is misleading because it appears to verify something, but actually performs no verification at all.
+This code is ineffective because it appears to verify something, but actually performs no verification at all.
 
 Instead, you should specify the `Mock<T>` instances you want to verify:
 
