@@ -26,6 +26,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock = new Mock<I>();
 
+                            mock.Verify();
+
                             mock.Verify(i => i.TestMethod(), Times.AtLeast(15));
                             mock.Verify(i => i.TestMethod(), Times.Exactly(1));
                             mock.Verify(i => i.TestMethod(), Times.Never);
@@ -106,9 +108,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock = new Mock<I>();
 
-                            mock.{|#0:Verify|#0}();
-                            mock.{|#1:Verify|#1}(i => i.TestMethod());
-                            mock.{|#2:Verify|#2}(i => i.TestMethod(), ""Failed message ignored"");
+                            mock.{|#0:Verify|#0}(i => i.TestMethod());
+                            mock.{|#1:Verify|#1}(i => i.TestMethod(), ""Failed message ignored"");
                         }
                     }
 
@@ -125,8 +126,6 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         .WithSpan(13, 34, 13, 40).WithArguments("Verify"),
                     new DiagnosticResult(VerifyMustHaveTimesParameterAnalyzer.Rule)
                         .WithSpan(14, 34, 14, 40).WithArguments("Verify"),
-                    new DiagnosticResult(VerifyMustHaveTimesParameterAnalyzer.Rule)
-                        .WithSpan(15, 34, 15, 40).WithArguments("Verify"),
                 ]);
         }
 

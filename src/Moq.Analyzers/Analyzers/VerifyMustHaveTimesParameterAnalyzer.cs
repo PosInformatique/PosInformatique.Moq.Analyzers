@@ -49,9 +49,24 @@ namespace PosInformatique.Moq.Analyzers
             // Check is Verify() method or Verifiable() method.
             var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
 
-            if (!moqSymbols.IsVerifyMethod(methodSymbol.Symbol) && !moqSymbols.IsVerifiableMethod(methodSymbol.Symbol))
+            if (!moqSymbols.IsVerifyMethod(methodSymbol.Symbol))
             {
-                return;
+                if (!moqSymbols.IsVerifiableMethod(methodSymbol.Symbol))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                // If Verify() method with no parameter, we don't check, because
+                // this overload is to check that ALL Verifiable() method
+                // has been called (and normaly the Times parameter should be in the Verifiable() arguments method).
+                var verifyMethod = (IMethodSymbol)methodSymbol.Symbol;
+
+                if (verifyMethod.Parameters.Length == 0)
+                {
+                    return;
+                }
             }
 
             // Check if the Verify() method contains the Times parameter.
