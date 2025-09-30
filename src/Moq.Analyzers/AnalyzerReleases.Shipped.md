@@ -1,4 +1,13 @@
-﻿## Release 1.12.0
+﻿## Release 1.13.0
+
+### New Rules
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+PosInfoMoq1007 | Design | Warning | VerifyMustHaveTimesParameterAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq1007.html)
+PosInfoMoq1008 | Design | Warning | VerifyStaticMethodsRequiresMockParametersAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq1008.html)
+PosInfoMoq1009 | Design | Warning | VerifyShouldBeCalledForVerifiableSetupAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1009.html)
+
+## Release 1.12.0
 
 ### New Rules
 Rule ID | Category | Severity | Notes

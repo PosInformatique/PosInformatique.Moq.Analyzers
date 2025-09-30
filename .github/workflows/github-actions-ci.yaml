@@ -16,9 +16,27 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
-      
-      - name: Build
-        run: dotnet build --property:Configuration=Debug "PosInformatique.Moq.Analyzers.sln"
 
-      - name: Test with the dotnet CLI
-        run: dotnet test --property:Configuration=Debug "PosInformatique.Moq.Analyzers.sln"
+      - name: Restore dependencies
+        run: dotnet restore PosInformatique.Moq.Analyzers.sln
+
+      - name: Build solution
+        run: |
+          dotnet build PosInformatique.Moq.Analyzers.sln \
+          --configuration Release \
+          --no-restore
+
+      - name: Run tests
+        run: |
+          dotnet test PosInformatique.Moq.Analyzers.sln \
+          --configuration Release \
+          --no-build \
+          --logger "trx;LogFileName=test_results.trx" \
+          --results-directory ./TestResults
+  
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: (!cancelled())
+        with:
+          files: |
+            TestResults/**/*.trx

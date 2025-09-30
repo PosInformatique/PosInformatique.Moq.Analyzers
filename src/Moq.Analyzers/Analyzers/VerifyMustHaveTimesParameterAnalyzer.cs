@@ -1,0 +1,88 @@
+﻿//-----------------------------------------------------------------------
+// <copyright file="VerifyMustHaveTimesParameterAnalyzer.cs" company="P.O.S Informatique">
+//     Copyright (c) P.O.S Informatique. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+
+namespace PosInformatique.Moq.Analyzers
+{
+    using System.Collections.Immutable;
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
+    using Microsoft.CodeAnalysis.Diagnostics;
+
+    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    public class VerifyMustHaveTimesParameterAnalyzer : DiagnosticAnalyzer
+    {
+        internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+            "PosInfoMoq1007",
+            "The Verify()/Verifiable() methods must specify the Times argument",
+            "The '{0}()' method must specify the Times argument",
+            "Design",
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "Using the Verify()/Verifiable() method with an explicit Times argument makes the test intention clear and avoids ambiguity.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq1007.html");
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+
+        public override void Initialize(AnalysisContext context)
+        {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+            context.EnableConcurrentExecution();
+
+            context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
+        }
+
+        private static void Analyze(SyntaxNodeAnalysisContext context)
+        {
+            var invocationExpression = (InvocationExpressionSyntax)context.Node;
+
+            var moqSymbols = MoqSymbols.FromCompilation(context.Compilation);
+
+            if (moqSymbols is null)
+            {
+                return;
+            }
+
+            // Check is Verify() method or Verifiable() method.
+            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
+
+            if (!moqSymbols.IsVerifyMethod(methodSymbol.Symbol))
+            {
+                if (!moqSymbols.IsVerifiableMethod(methodSymbol.Symbol))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                // If Verify() method with no parameter, we don't check, because
+                // this overload is to check that ALL Verifiable() method
+                // has been called (and normaly the Times parameter should be in the Verifiable() arguments method).
+                var verifyMethod = (IMethodSymbol)methodSymbol.Symbol;
+
+                if (verifyMethod.Parameters.Length == 0)
+                {
+                    return;
+                }
+            }
+
+            // Check if the Verify() method contains the Times parameter.
+            // NB: We don't check the arguments of the call to the Verify() method,
+            // but because we already have the symbol, we check that we use a Verify() method
+            // overload which contains at least the Times parameter.
+            if (!moqSymbols.ContainsTimesParameters((IMethodSymbol)methodSymbol.Symbol))
+            {
+                // No 'Times' arguments has been specified.
+                var methodInvocation = ((MemberAccessExpressionSyntax)invocationExpression.Expression).Name;
+
+                var diagnostic = Diagnostic.Create(Rule, ((MemberAccessExpressionSyntax)invocationExpression.Expression).Name.GetLocation(), methodInvocation.Identifier.Text);
+                context.ReportDiagnostic(diagnostic);
+
+                return;
+            }
+        }
+    }
+}

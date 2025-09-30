@@ -7,6 +7,7 @@
 namespace PosInformatique.Moq.Analyzers
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.CodeAnalysis;
 
     internal sealed class MoqSymbols
@@ -49,6 +50,10 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<IReadOnlyList<IMethodSymbol>> setupSetMethods;
 
+        private readonly Lazy<INamedTypeSymbol> timesClass;
+
+        private readonly Lazy<INamedTypeSymbol> funcClass;
+
         private MoqSymbols(INamedTypeSymbol mockGenericClass, Compilation compilation)
         {
             this.mockGenericClass = mockGenericClass;
@@ -78,6 +83,9 @@ namespace PosInformatique.Moq.Analyzers
 
             this.setupSetMethodWithoutGenericArgument = new Lazy<IMethodSymbol>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().Single(c => c.TypeArguments.Length == 1));
             this.setupSetMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().ToArray());
+
+            this.timesClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.Times")!);
+            this.funcClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("System.Func`1")!);
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
@@ -92,6 +100,27 @@ namespace PosInformatique.Moq.Analyzers
             return new MoqSymbols(mockGenericClass, compilation);
         }
 
+        public bool ContainsTimesParameters(IMethodSymbol method)
+        {
+            foreach (var parameter in method.Parameters)
+            {
+                if (SymbolEqualityComparer.Default.Equals(parameter.Type, this.timesClass.Value))
+                {
+                    return true;
+                }
+
+                // Try the Func<Times> alternative.
+                if (!SymbolEqualityComparer.Default.Equals(parameter.Type.OriginalDefinition, this.funcClass.Value))
+                {
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
         public bool IsAnyType(ITypeSymbol symbol)
         {
             if (!SymbolEqualityComparer.Default.Equals(symbol, this.isAnyTypeClass.Value))
@@ -102,7 +131,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public ISymbol? GetItIsType(ISymbol? symbol)
+        public ITypeSymbol? GetItIsType(ISymbol? symbol)
         {
             if (symbol is not IMethodSymbol methodSymbol)
             {
@@ -135,7 +164,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public ISymbol? GetItIsAnyType(ISymbol? symbol)
+        public ITypeSymbol? GetItIsAnyType(ISymbol? symbol)
         {
             if (symbol is not IMethodSymbol methodSymbol)
             {
@@ -240,7 +269,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsVerifiableMethod(ISymbol? symbol)
+        public bool IsVerifiableMethod([NotNullWhen(true)] ISymbol? symbol)
         {
             if (symbol is null)
             {
@@ -260,7 +289,7 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
-        public bool IsVerifyMethod(ISymbol? symbol)
+        public bool IsVerifyMethod([NotNullWhen(true)] ISymbol? symbol)
         {
             if (symbol is null)
             {
@@ -280,7 +309,7 @@ namespace PosInformatique.Moq.Analyzers
             return false;
         }
 
-        public bool IsVerifyStaticMethod(ISymbol? symbol)
+        public bool IsVerifyStaticMethod([NotNullWhen(true)] ISymbol? symbol)
         {
             if (symbol is null)
             {
@@ -295,8 +324,13 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsVerifyAllMethod(ISymbol symbol)
+        public bool IsVerifyAllMethod(ISymbol? symbol)
         {
+            if (symbol is null)
+            {
+                return false;
+            }
+
             if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.verifyAllMethod.Value))
             {
                 return false;
@@ -305,8 +339,13 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        public bool IsVerifyAllStaticMethod(ISymbol symbol)
+        public bool IsVerifyAllStaticMethod([NotNullWhen(true)] ISymbol? symbol)
         {
+            if (symbol is null)
+            {
+                return false;
+            }
+
             if (!SymbolEqualityComparer.Default.Equals(symbol, this.staticVerifyAllMethod.Value))
             {
                 return false;

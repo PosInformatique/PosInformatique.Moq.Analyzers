@@ -64,22 +64,24 @@ namespace PosInformatique.Moq.Analyzers
                 var itIsAnyType = moqSymbols.GetItIsAnyType(invocationArgument.Symbol);
                 if (itIsAnyType is not null)
                 {
-                    if (!SymbolEqualityComparer.Default.Equals(itIsAnyType, invocationArgument.ParameterSymbol.Type))
+                    if (!itIsAnyType.IsOrInheritFrom(invocationArgument.ParameterSymbol.Type))
                     {
                         context.ReportDiagnostic(Rule, invocationArgument.Syntax.GetLocation());
-                        continue;
                     }
+
+                    continue;
                 }
 
                 // Check if the parameter is "It.Is<xxx>()"
                 var itIsType = moqSymbols.GetItIsType(invocationArgument.Symbol);
                 if (itIsType is not null)
                 {
-                    if (!SymbolEqualityComparer.Default.Equals(itIsType, invocationArgument.ParameterSymbol.Type))
+                    if (!itIsType.IsOrInheritFrom(invocationArgument.ParameterSymbol.Type))
                     {
                         context.ReportDiagnostic(Rule, invocationArgument.Syntax.GetLocation());
-                        continue;
                     }
+
+                    continue;
                 }
             }
         }

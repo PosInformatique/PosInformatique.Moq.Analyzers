@@ -100,11 +100,6 @@ namespace PosInformatique.Moq.Analyzers
             // Check if the invocation expression is a Verify() / VerifyAll() methods.
             var verifyMethod = semanticModel.GetSymbolInfo(memberAccess, cancellationToken);
 
-            if (verifyMethod.Symbol is null)
-            {
-                return false;
-            }
-
             if (!moqSymbols.IsVerifyAllMethod(verifyMethod.Symbol))
             {
                 if (!moqSymbols.IsVerifyAllStaticMethod(verifyMethod.Symbol))

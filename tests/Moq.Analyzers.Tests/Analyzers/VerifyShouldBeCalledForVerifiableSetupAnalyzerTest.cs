@@ -11,6 +11,32 @@ namespace PosInformatique.Moq.Analyzers.Tests
     public class VerifyShouldBeCalledForVerifiableSetupAnalyzerTest
     {
         [Fact]
+        public async Task Verifiable_NotUsed()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>();
+                            mock1.Setup(m => m.Method());
+                       }
+                    }
+
+                    public interface I
+                    {
+                        void Method();
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
         public async Task Verify_Called()
         {
             var source = @"
@@ -24,25 +50,25 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>();
                             mock1.Setup(m => m.Method())
-                                .Verifiable();
+                                .{|PosInfoMoq1009:Verifiable|}();
                             
                             var mock2 = new Mock<I>();
                             mock2.Setup(m => m.Method())
-                                .Verifiable();
+                                .{|PosInfoMoq1009:Verifiable|}();
                                  
                             var mock3 = new Mock<I>();
                             mock3.Setup(m => m.Method())
-                                .Verifiable();
+                                .{|PosInfoMoq1009:Verifiable|}();
 
                             var mock4 = new Mock<I>();
                             mock4.Setup(m => m.Method())
-                                .Verifiable();
+                                .{|PosInfoMoq1009:Verifiable|}();
                             mock4.Setup(m => m.OtherMethod())
-                                .Verifiable();
+                                .{|PosInfoMoq1009:Verifiable|}();
 
                             var mock5 = new Mock<I>();
                             mock5.Setup(m => m.Method(1, 2))
-                                .Verifiable();
+                                .{|PosInfoMoq1009:Verifiable|}();
                       
                             var mock9 = new Mock<I>();
                             mock9.Setup(m => m.Method());   // No Verifiable()
@@ -92,17 +118,17 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>();
                             mock1.Setup(m => m.Method())
-                                .[|Verifiable|]();
+                                .{|PosInfoMoq1002:{|PosInfoMoq1009:Verifiable|}|}();
 
                             var mock4 = new Mock<I>();
                             mock4.Setup(m => m.Method())
-                                .Verifiable();
+                                .{|PosInfoMoq1009:Verifiable|}();
                             mock4.Setup(m => m.OtherMethod())
-                                .[|Verifiable|]();
+                                .{|PosInfoMoq1002:{|PosInfoMoq1009:Verifiable|}|}();
 
                             var mock5 = new Mock<I>();
                             mock5.Setup(m => m.Method(1, 2))
-                                .[|Verifiable|]();
+                                .{|PosInfoMoq1002:{|PosInfoMoq1009:Verifiable|}|}();
                             
                             var o = new object();
                             o.ToString();       // Ignored
@@ -145,7 +171,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>();
                             mock1.Setup(m => m.Method())
-                                .[|Verifiable|]();
+                                .{|PosInfoMoq1002:{|PosInfoMoq1009:Verifiable|}|}();
 
                             mock1.Verify(null);
                        }
@@ -174,7 +200,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var mock1 = new Mock<I>();
                             mock1.Setup(null)
-                                .Verifiable();
+                                .{|PosInfoMoq1009:Verifiable|}();
                        }
                     }
 
@@ -184,7 +210,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
                 }";
 
-            await Verifier.VerifyAnalyzerAsync(source);
+            await Verifier.VerifyAnalyzerAsync(
+                source);
         }
 
         [Fact]

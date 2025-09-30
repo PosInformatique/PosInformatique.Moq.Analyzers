@@ -1,7 +1,20 @@
-# PosInformatique.Moq.Analyzers
-PosInformatique.Moq.Analyzers is a library to verify syntax and code design when writing the unit tests using the [Moq](https://github.com/devlooped/moq) library.
+﻿# PosInformatique.Moq.Analyzers
+<div align="center">
 
-## Installing from NuGet
+[![Nuget](https://img.shields.io/nuget/v/PosInformatique.Moq.Analyzers)](https://www.nuget.org/packages/PosInformatique.Moq.Analyzers/)
+[![NuGet downloads](https://img.shields.io/nuget/dt/PosInformatique.Moq.Analyzers)](https://www.nuget.org/packages/PosInformatique.Moq.Analyzers/)
+[![License](https://img.shields.io/github/license/Nonanti/MathFlow?style=flat-square)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/PosInformatique/PosInformatique.Moq.Analyzers/github-actions-ci.yaml?style=flat-square)](https://github.com/PosInformatique/PosInformatique.Moq.Analyzers/actions)
+[![.NET Standard 2.0](https://img.shields.io/badge/.NET%20Standard-2.0-512BD4?style=flat-square)](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0)
+
+</div>
+
+PosInformatique.Moq.Analyzers is a set of analyzers to verify syntax and code design when writing the unit tests using the [Moq](https://github.com/devlooped/moq) library.
+
+The analyzers are compiled against [.NET Standard 2.0](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0),
+providing support for analyzing projects that target .NET Core or .NET Framework.
+
+## 📦 Installing from NuGet
 The [PosInformatique.Moq.Analyzers](https://www.nuget.org/packages/PosInformatique.FluentAssertions.Json/)
 library is available directly on the
 [![Nuget](https://img.shields.io/nuget/v/PosInformatique.Moq.Analyzers)](https://www.nuget.org/packages/PosInformatique.Moq.Analyzers/)
@@ -15,7 +28,7 @@ Install-Package PosInformatique.Moq.Analyzers
 
 The analyzer is automatically added and activated with their default severity levels.
 
-## Rules
+## 📋 Rules
 
 This section describes the list of the rules analyzed by the library to improve code quality of the unit tests using
 the [Moq](https://github.com/devlooped/moq) library.
@@ -33,6 +46,9 @@ Design rules used to make your unit tests more strongly strict.
 | [PosInfoMoq1004: The `Callback()` parameter should not be ignored if it has been setup as an `It.IsAny<T>()` argument](docs/Design/PosInfoMoq1004.md) | When a mocked method contains a `It.IsAny<T>()` argument, the related parameter should not be ignored in the `Callback()` method. |
 | [PosInfoMoq1005: Defines the generic argument of the `SetupSet()` method with the type of the mocked property](docs/Design/PosInfoMoq1005.md) | When mocking the setter of a property, use the `SetupSet<TProperty>()` method version. |
 | [PosInfoMoq1006: The `It.IsAny<T>()` or `It.Is<T>()` arguments must match the parameters of the mocked method.](docs/Design/PosInfoMoq1006.md) | When setting up a method using `It.IsAny<T>()` or `It.Is<T>()` as arguments, the type `T` must exactly match the parameters of the configured method. |
+| [PosInfoMoq1007: The `Verify()` method must specify the `Times` argument.](docs/Design/PosInfoMoq1007.md) | When calling the `Verify()` method, if the `Times` argument is not specified, Moq will assume `Times.AtLeastOnce()` by default. |
+| [PosInfoMoq1008: The `Mock.Verify()` and `Mock.VerifyAll()` methods must specify at least one mock.](docs/Design/PosInfoMoq1008.md) | When calling the static methods `Mock.Verify()` or `Mock.VerifyAll()` without providing any `Mock<T>` instances, no verification is performed. |
+| [PosInfoMoq1009: Avoid using `Verifiable()` method](docs/Design/PosInfoMoq1008.md) | A `Verify()` of an `Mock<T>` instance has not been called in the *Assert* phase of an unit test for `Verifiable()` setups. |
 
 ### Compilation
 
