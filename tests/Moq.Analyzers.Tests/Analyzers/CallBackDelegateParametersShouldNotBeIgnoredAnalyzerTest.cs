@@ -46,13 +46,17 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 source,
                 [
                     new DiagnosticResult(CallBackDelegateParametersShouldNotBeIgnoredAnalyzer.Rule)
-                        .WithSpan(13, 44, 13, 52).WithArguments("a"),
+                        .WithLocation(0)
+                        .WithArguments("a"),
                     new DiagnosticResult(CallBackDelegateParametersShouldNotBeIgnoredAnalyzer.Rule)
-                        .WithSpan(13, 54, 13, 59).WithArguments("b"),
+                        .WithLocation(1)
+                        .WithArguments("b"),
                     new DiagnosticResult(CallBackDelegateParametersShouldNotBeIgnoredAnalyzer.Rule)
-                        .WithSpan(15, 54, 15, 59).WithArguments("b"),
+                        .WithLocation(2)
+                        .WithArguments("b"),
                     new DiagnosticResult(CallBackDelegateParametersShouldNotBeIgnoredAnalyzer.Rule)
-                        .WithSpan(17, 44, 17, 52).WithArguments("a"),
+                        .WithLocation(3)
+                        .WithArguments("a"),
                 ]);
         }
 

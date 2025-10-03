@@ -98,11 +98,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 source,
                 [
                     new DiagnosticResult(ItArgumentsMustMatchMockedMethodArgumentsAnalyzer.Rule)
-                        .WithSpan(13, 59, 13, 74),
+                        .WithLocation(0),
                     new DiagnosticResult(ItArgumentsMustMatchMockedMethodArgumentsAnalyzer.Rule)
-                        .WithSpan(14, 59, 14, 83),
+                        .WithLocation(1),
                     new DiagnosticResult(ItArgumentsMustMatchMockedMethodArgumentsAnalyzer.Rule)
-                        .WithSpan(15, 59, 15, 104),
+                        .WithLocation(2),
                 ]);
         }
 

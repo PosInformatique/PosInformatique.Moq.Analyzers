@@ -123,9 +123,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 source,
                 [
                     new DiagnosticResult(VerifyMustHaveTimesParameterAnalyzer.Rule)
-                        .WithSpan(13, 34, 13, 40).WithArguments("Verify"),
+                        .WithLocation(0)
+                        .WithArguments("Verify"),
                     new DiagnosticResult(VerifyMustHaveTimesParameterAnalyzer.Rule)
-                        .WithSpan(14, 34, 14, 40).WithArguments("Verify"),
+                        .WithLocation(1)
+                        .WithArguments("Verify"),
                 ]);
         }
 
@@ -159,9 +161,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 source,
                 [
                     new DiagnosticResult(VerifyMustHaveTimesParameterAnalyzer.Rule)
-                        .WithSpan(13, 61, 13, 71).WithArguments("Verifiable"),
+                        .WithLocation(0)
+                        .WithArguments("Verifiable"),
                     new DiagnosticResult(VerifyMustHaveTimesParameterAnalyzer.Rule)
-                        .WithSpan(14, 61, 14, 71).WithArguments("Verifiable"),
+                        .WithLocation(1)
+                        .WithArguments("Verifiable"),
                 ]);
         }
 
