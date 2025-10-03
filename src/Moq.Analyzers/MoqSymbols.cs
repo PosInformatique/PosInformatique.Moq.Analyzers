@@ -132,14 +132,7 @@ namespace PosInformatique.Moq.Analyzers
         }
 
         public bool IsAnyType(ITypeSymbol symbol)
-        {
-            if (!SymbolEqualityComparer.Default.Equals(symbol, this.isAnyTypeClass.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => AreEqual(symbol, this.isAnyTypeClass);
 
         public ITypeSymbol? GetItIsType(ISymbol? symbol)
         {
@@ -163,19 +156,7 @@ namespace PosInformatique.Moq.Analyzers
             => AreEqual(symbol, this.eventArgsClass);
 
         public bool IsItIsAny(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.itIsAnyMethod.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => AreEqual(symbol, this.itIsAnyMethod);
 
         public ITypeSymbol? GetItIsAnyType(ISymbol? symbol)
         {
@@ -214,164 +195,31 @@ namespace PosInformatique.Moq.Analyzers
             => AreEqual(symbol, this.raiseAsyncMethods);
 
         public bool IsSetupMethod(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            var originalDefinition = symbol.OriginalDefinition;
-
-            foreach (var setupMethod in this.setupMethods.Value)
-            {
-                if (SymbolEqualityComparer.Default.Equals(originalDefinition, setupMethod))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+            => AreEqual(symbol, this.setupMethods);
 
         public bool IsSetupProtectedMethod(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            var originalDefinition = symbol.OriginalDefinition;
-
-            foreach (var setupProtectedMethod in this.setupProtectedMethods.Value)
-            {
-                if (SymbolEqualityComparer.Default.Equals(originalDefinition, setupProtectedMethod))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+            => AreEqual(symbol, this.setupProtectedMethods);
 
         public bool IsSetupSetMethod(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            var originalDefinition = symbol.OriginalDefinition;
-
-            foreach (var setupSetMethod in this.setupSetMethods.Value)
-            {
-                if (SymbolEqualityComparer.Default.Equals(originalDefinition, setupSetMethod))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+            => AreEqual(symbol, this.setupSetMethods);
 
         public bool IsSetupSetMethodWithoutGenericArgument(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.setupSetMethodWithoutGenericArgument.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => AreEqual(symbol, this.setupSetMethodWithoutGenericArgument);
 
         public bool IsVerifiableMethod([NotNullWhen(true)] ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            var originalDefinition = symbol.OriginalDefinition;
-
-            foreach (var verifiableMethod in this.verifiableMethods.Value)
-            {
-                if (SymbolEqualityComparer.Default.Equals(originalDefinition, verifiableMethod))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+            => AreEqual(symbol, this.verifiableMethods);
 
         public bool IsVerifyMethod([NotNullWhen(true)] ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            var originalDefinition = symbol.OriginalDefinition;
-
-            foreach (var verifyMethod in this.verifyMethods.Value)
-            {
-                if (SymbolEqualityComparer.Default.Equals(originalDefinition, verifyMethod))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+            => AreEqual(symbol, this.verifyMethods);
 
         public bool IsVerifyStaticMethod([NotNullWhen(true)] ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            if (!SymbolEqualityComparer.Default.Equals(symbol, this.staticVerifyMethod.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => AreEqual(symbol, this.staticVerifyMethod);
 
         public bool IsVerifyAllMethod(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.verifyAllMethod.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => AreEqual(symbol, this.verifyAllMethod);
 
         public bool IsVerifyAllStaticMethod([NotNullWhen(true)] ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            if (!SymbolEqualityComparer.Default.Equals(symbol, this.staticVerifyAllMethod.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => AreEqual(symbol, this.staticVerifyAllMethod);
 
         public bool IsCallback(ISymbol? symbol)
         {
@@ -444,34 +292,10 @@ namespace PosInformatique.Moq.Analyzers
         }
 
         public bool IsMockBehaviorEnum(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            if (!SymbolEqualityComparer.Default.Equals(symbol, this.mockBehaviorEnum.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => AreEqual(symbol, this.mockBehaviorEnum);
 
         public bool IsMockBehaviorStrictField(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            if (!SymbolEqualityComparer.Default.Equals(symbol, this.mockBehaviorStrictField.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => AreEqual(symbol, this.mockBehaviorStrictField);
 
         public bool IsOverridable(ISymbol method)
         {
@@ -519,47 +343,13 @@ namespace PosInformatique.Moq.Analyzers
         }
 
         public bool IsMockOfMethod(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
-
-            foreach (var mockOfMethod in this.mockOfMethods.Value)
-            {
-                if (SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, mockOfMethod))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+            => AreEqual(symbol, this.mockOfMethods);
 
         public bool IsMockConstructorWithFactory(ISymbol? symbol)
-        {
-            if (symbol is null)
-            {
-                return false;
-            }
+            => AreEqual(symbol, this.mockConstructorWithFactory);
 
-            if (!SymbolEqualityComparer.Default.Equals(symbol.OriginalDefinition, this.mockConstructorWithFactory.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool IsAsMethod(IMethodSymbol method)
-        {
-            if (!SymbolEqualityComparer.Default.Equals(method.OriginalDefinition, this.asMethod.Value))
-            {
-                return false;
-            }
-
-            return true;
-        }
+        public bool IsAsMethod(IMethodSymbol symbol)
+            => AreEqual(symbol, this.asMethod);
 
         private static bool AreEqual<TSymbol>([NotNullWhen(true)] ISymbol? symbol1, Lazy<TSymbol> symbol2)
             where TSymbol : ISymbol
