@@ -3,7 +3,8 @@
 ### New Rules
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-PosInfoMoq2017 | Compilation | Error | RaiseParametersMustMatchEventSignatureAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2017.html)
+PosInfoMoq2017 | Compilation | Error | RaiseMethodsAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2017.html)
+PosInfoMoq2018 | Compilation | Error | RaiseMethodsAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2018.html)
 
 ## Release 1.13.0
 

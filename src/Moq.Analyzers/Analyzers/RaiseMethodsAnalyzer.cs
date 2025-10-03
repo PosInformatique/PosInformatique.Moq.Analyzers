@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="RaiseParametersMustMatchEventSignatureAnalyzer.cs" company="P.O.S Informatique">
+// <copyright file="RaiseMethodsAnalyzer.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,9 +13,9 @@ namespace PosInformatique.Moq.Analyzers
     using Microsoft.CodeAnalysis.Diagnostics;
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class RaiseParametersMustMatchEventSignatureAnalyzer : DiagnosticAnalyzer
+    public class RaiseMethodsAnalyzer : DiagnosticAnalyzer
     {
-        internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        internal static readonly DiagnosticDescriptor ParametersMustMatchSignature = new DiagnosticDescriptor(
             "PosInfoMoq2017",
             "The Raise() parameters must match the signature of the mocked event",
             "The Raise() parameters must match the signature of the mocked event. {0}.",
@@ -25,7 +25,19 @@ namespace PosInformatique.Moq.Analyzers
             description: "The Raise() parameters must match the signature of the mocked event.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2017.html");
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        internal static readonly DiagnosticDescriptor FirstParameterMustBeEvent = new DiagnosticDescriptor(
+            "PosInfoMoq2018",
+            "The first parameter of Raise()/RaiseAsync() must be an event",
+            "The first parameter of Raise()/RaiseAsync() must be an event",
+            "Compilation",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "The first parameter of Raise()/RaiseAsync() must be an event.",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2018.html");
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+            ParametersMustMatchSignature,
+            FirstParameterMustBeEvent);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -49,10 +61,16 @@ namespace PosInformatique.Moq.Analyzers
 
             var moqExpressionAnalyzer = new MoqExpressionAnalyzer(moqSymbols, context.SemanticModel);
 
-            var raiseMethod = moqExpressionAnalyzer.ExtractRaiseMethodCall(invocationExpression, context.CancellationToken);
+            var raiseMethod = moqExpressionAnalyzer.ExtractRaiseMethodCall(invocationExpression, out var invalidEventExpression, context.CancellationToken);
 
             if (raiseMethod is null)
             {
+                if (invalidEventExpression is not null)
+                {
+                    // Raise the rule that the first argument of Raise()/RaiseAsync() method must be an event.
+                    context.ReportDiagnostic(FirstParameterMustBeEvent, invalidEventExpression.GetLocation());
+                }
+
                 return;
             }
 
@@ -78,7 +96,7 @@ namespace PosInformatique.Moq.Analyzers
                     return;
                 }
 
-                context.ReportDiagnostic(Rule, raiseMethodSyntax.GetLocation(), $"The event '{raiseMethod.Event.Name}' expects {raiseMethod.EventParameters.Count} argument(s) but {raiseMethod.MethodParameters.Count} were provided.");
+                context.ReportDiagnostic(ParametersMustMatchSignature, raiseMethodSyntax.GetLocation(), $"The event '{raiseMethod.Event.Name}' expects {raiseMethod.EventParameters.Count} argument(s) but {raiseMethod.MethodParameters.Count} were provided.");
                 return;
             }
 
@@ -93,7 +111,7 @@ namespace PosInformatique.Moq.Analyzers
                     // Check the event parameter is nullable.
                     if (!eventParameter.Type.IsReferenceType)
                     {
-                        context.ReportDiagnostic(Rule, raiseMethod.MethodArguments[i].GetLocation(), $"The parameter '{eventParameter.Name}' of the event '{raiseMethod.Event.Name}' expects a value of type '{eventParameter.Type.Name}' but a value 'null' was provided.");
+                        context.ReportDiagnostic(ParametersMustMatchSignature, raiseMethod.MethodArguments[i].GetLocation(), $"The parameter '{eventParameter.Name}' of the event '{raiseMethod.Event.Name}' expects a value of type '{eventParameter.Type.Name}' but a value 'null' was provided.");
                     }
 
                     continue;
@@ -101,7 +119,7 @@ namespace PosInformatique.Moq.Analyzers
 
                 if (!methodParameter.IsOrInheritFrom(eventParameter.Type))
                 {
-                    context.ReportDiagnostic(Rule, raiseMethod.MethodArguments[i].GetLocation(), $"The parameter '{eventParameter.Name}' of the event '{raiseMethod.Event.Name}' expects a value of type '{eventParameter.Type.Name}' but a value of type '{methodParameter.Name}' was provided.");
+                    context.ReportDiagnostic(ParametersMustMatchSignature, raiseMethod.MethodArguments[i].GetLocation(), $"The parameter '{eventParameter.Name}' of the event '{raiseMethod.Event.Name}' expects a value of type '{eventParameter.Type.Name}' but a value of type '{methodParameter.Name}' was provided.");
                     continue;
                 }
             }

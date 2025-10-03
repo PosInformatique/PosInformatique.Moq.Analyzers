@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="RaiseParametersMustMatchEventSignatureAnalyzerTest.cs" company="P.O.S Informatique">
+// <copyright file="RaiseMethodsAnalyzerTest.cs" company="P.O.S Informatique">
 //     Copyright (c) P.O.S Informatique. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -7,9 +7,9 @@
 namespace PosInformatique.Moq.Analyzers.Tests
 {
     using Microsoft.CodeAnalysis.Testing;
-    using Verifier = MoqCSharpAnalyzerVerifier<RaiseParametersMustMatchEventSignatureAnalyzer>;
+    using Verifier = MoqCSharpAnalyzerVerifier<RaiseMethodsAnalyzer>;
 
-    public class RaiseParametersMustMatchEventSignatureAnalyzerTest
+    public class RaiseMethodsAnalyzerTest
     {
         [Theory]
         [InlineData("Raise", "void")]
@@ -125,13 +125,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(
                 source,
                 [
-                    new DiagnosticResult(RaiseParametersMustMatchEventSignatureAnalyzer.Rule)
+                    new DiagnosticResult(RaiseMethodsAnalyzer.ParametersMustMatchSignature)
                         .WithLocation(0)
                         .WithArguments("The event 'TheEvent' expects 3 argument(s) but 0 were provided."),
-                    new DiagnosticResult(RaiseParametersMustMatchEventSignatureAnalyzer.Rule)
+                    new DiagnosticResult(RaiseMethodsAnalyzer.ParametersMustMatchSignature)
                         .WithLocation(1)
                         .WithArguments("The event 'TheEvent' expects 3 argument(s) but 1 were provided."),
-                    new DiagnosticResult(RaiseParametersMustMatchEventSignatureAnalyzer.Rule)
+                    new DiagnosticResult(RaiseMethodsAnalyzer.ParametersMustMatchSignature)
                         .WithLocation(2)
                         .WithArguments("The event 'TheEvent' expects 3 argument(s) but 6 were provided."),
                 ]);
@@ -170,13 +170,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(
                 source,
                 [
-                    new DiagnosticResult(RaiseParametersMustMatchEventSignatureAnalyzer.Rule)
+                    new DiagnosticResult(RaiseMethodsAnalyzer.ParametersMustMatchSignature)
                         .WithLocation(0)
                         .WithArguments("The parameter 'a' of the event 'TheEvent' expects a value of type 'String' but a value of type 'Int32' was provided."),
-                    new DiagnosticResult(RaiseParametersMustMatchEventSignatureAnalyzer.Rule)
+                    new DiagnosticResult(RaiseMethodsAnalyzer.ParametersMustMatchSignature)
                         .WithLocation(1)
                         .WithArguments("The parameter 'd' of the event 'TheEvent' expects a value of type 'Int32' but a value of type 'String' was provided."),
-                    new DiagnosticResult(RaiseParametersMustMatchEventSignatureAnalyzer.Rule)
+                    new DiagnosticResult(RaiseMethodsAnalyzer.ParametersMustMatchSignature)
                         .WithLocation(2)
                         .WithArguments("The parameter 'f' of the event 'TheEvent' expects a value of type 'Int32' but a value 'null' was provided."),
                 ]);
@@ -214,7 +214,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(
                 source,
                 [
-                    new DiagnosticResult(RaiseParametersMustMatchEventSignatureAnalyzer.Rule)
+                    new DiagnosticResult(RaiseMethodsAnalyzer.ParametersMustMatchSignature)
                         .WithLocation(0)
                         .WithArguments("The parameter 'e' of the event 'TheEvent' expects a value of type 'CustomEventArgs' but a value of type 'EventArgs' was provided."),
                 ]);
@@ -227,7 +227,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [InlineData("RaiseAsync", "Task", "\"OK\", 1, null")]
         [InlineData("RaiseAsync", "Task", "\"OK\", 1, 10")]
         [InlineData("RaiseAsync", "Task", "\"OK\", 1, new object()")]
-        public async Task Raise_WrongLambdaExpression_NoDiagnosticReported(string method, string eventReturnType, string parameters)
+        public async Task Raise_WrongLambdaExpression_DiagnosticReported(string method, string eventReturnType, string parameters)
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -245,12 +245,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                             var mock1 = new Mock<I>(MockBehavior.Strict);
 
-                            mock1." + method + @"(null);
-                            mock1." + method + @"(null, " + parameters + @");
-                            mock1." + method + @"(m => m.ToString(), "" + parameters + @"");
-                            mock1." + method + @"(act, "" + parameters + @"");
-                            mock1." + method + @"(m => new object(), "" + parameters + @"");
-                            mock1." + method + @"(m => tmp = 10, "" + parameters + @"");
+                            mock1." + method + @"({|PosInfoMoq2018:null|});
+                            mock1." + method + @"({|PosInfoMoq2018:null|}, " + parameters + @");
+                            mock1." + method + @"({|PosInfoMoq2018:m => m.ToString()|}, "" + parameters + @"");
+                            mock1." + method + @"({|PosInfoMoq2018:act|}, "" + parameters + @"");
+                            mock1." + method + @"({|PosInfoMoq2018:m => new object()|}, "" + parameters + @"");
+                            mock1." + method + @"({|PosInfoMoq2018:m => tmp = 10|}, "" + parameters + @"");
+                            mock1." + method + @"({|PosInfoMoq2018:m => m.Property = 10|}, "" + parameters + @"");
                        }
                     }
 

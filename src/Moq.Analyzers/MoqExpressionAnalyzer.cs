@@ -488,40 +488,47 @@ namespace PosInformatique.Moq.Analyzers
             return methodSymbol.TypeArguments[0];
         }
 
-        public RaiseMethodCall? ExtractRaiseMethodCall(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
+        public RaiseMethodCall? ExtractRaiseMethodCall(InvocationExpressionSyntax invocationExpression, out ExpressionSyntax? invalidEventExpression, CancellationToken cancellationToken)
         {
             // Check if the method analyzed is a Raise() method.
             var methodSymbol = this.semanticModel.GetSymbolInfo(invocationExpression, cancellationToken);
 
             if (!this.moqSymbols.IsRaiseMethod(methodSymbol.Symbol) && !this.moqSymbols.IsRaiseAsyncMethod(methodSymbol.Symbol))
             {
+                invalidEventExpression = null;
                 return null;
             }
 
             // Gets the event
             // 1 - Check the first argument is a lambda expression (Raise(x => ...))
-            if (invocationExpression.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambdaExpressionSyntax)
+            var eventExpression = invocationExpression.ArgumentList.Arguments[0].Expression;
+
+            if (eventExpression is not LambdaExpressionSyntax lambdaExpressionSyntax)
             {
+                invalidEventExpression = eventExpression;
                 return null;
             }
 
             // 2 - If the body of the lambda expression is an assignment to an event (Raise(x => x.Event += null))
             if (lambdaExpressionSyntax.Body is not AssignmentExpressionSyntax assignmentExpressionSyntax)
             {
+                invalidEventExpression = eventExpression;
                 return null;
             }
 
             // 3 - Check the left of assignment is a member access.
             if (assignmentExpressionSyntax.Left is not MemberAccessExpressionSyntax memberAccessExpressionSyntax)
             {
+                invalidEventExpression = eventExpression;
                 return null;
             }
 
             // 4 - Gets the event symbol
-            var eventSymbol = this.semanticModel.GetSymbolInfo(memberAccessExpressionSyntax.Name, cancellationToken);
+            var memberSymbol = this.semanticModel.GetSymbolInfo(memberAccessExpressionSyntax.Name, cancellationToken);
 
-            if (eventSymbol.Symbol is null)
+            if (memberSymbol.Symbol is not IEventSymbol eventSymbol)
             {
+                invalidEventExpression = eventExpression;
                 return null;
             }
 
@@ -537,7 +544,9 @@ namespace PosInformatique.Moq.Analyzers
                 parameterSymbols.Add(parameterSymbol.Type);
             }
 
-            return new RaiseMethodCall((IMethodSymbol)methodSymbol.Symbol, parameterSymbols, arguments, (IEventSymbol)eventSymbol.Symbol);
+            invalidEventExpression = null;
+
+            return new RaiseMethodCall((IMethodSymbol)methodSymbol.Symbol, parameterSymbols, arguments, eventSymbol);
         }
 
         private static ObjectCreationExpressionSyntax? FindMockCreation(BlockSyntax block, string variableName)

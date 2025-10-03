@@ -20,6 +20,7 @@
       2.0.0
       - Add new rules:
         - PosInfoMoq2017: Mock&lt;T&gt;.Raise()/RaiseAsync() must use parameters matching the event signature.
+        - PosInfoMoq2018: The first parameter of `Raise()`/`RaiseAsync()` must be an event.
       
       1.13.0
       - Add new rules:
