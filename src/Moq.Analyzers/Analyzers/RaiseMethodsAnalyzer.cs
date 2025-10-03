@@ -35,9 +35,20 @@ namespace PosInformatique.Moq.Analyzers
             description: "The first parameter of Raise()/RaiseAsync() must be an event.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2018.html");
 
+        internal static readonly DiagnosticDescriptor EventExpressionMustBeEventAddWithNull = new DiagnosticDescriptor(
+            "PosInfoMoq1010",
+            "Use '+= null' syntax when raising events with Raise()/RaiseAsync()",
+            "Use '+= null' syntax when raising events with Raise()/RaiseAsync()",
+            "Design",
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "Use '+= null' syntax when raising events with Raise()/RaiseAsync().",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1010.html");
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             ParametersMustMatchSignature,
-            FirstParameterMustBeEvent);
+            FirstParameterMustBeEvent,
+            EventExpressionMustBeEventAddWithNull);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -72,6 +83,12 @@ namespace PosInformatique.Moq.Analyzers
                 }
 
                 return;
+            }
+
+            if (invalidEventExpression is not null)
+            {
+                // Raise a warning to indicate that the expression after the "+=" is not "null".
+                context.ReportDiagnostic(EventExpressionMustBeEventAddWithNull, invalidEventExpression.GetLocation());
             }
 
             var eventParameters = raiseMethod.EventParameters.ToList();

@@ -268,6 +268,47 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
+        [Theory]
+        [InlineData("Raise", "void")]
+        [InlineData("RaiseAsync", "Task")]
+        public async Task Raise_WithNotNullDelegate_NoDiagnosticReported(string method, string eventReturnType)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+                    using System;
+                    using System.Threading.Tasks;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>(MockBehavior.Strict);
+
+                            mock1." + method + @"(m => m.TheEvent += {|PosInfoMoq1010:MethodMatchEventSignature|}, ""OK"", 1, null);
+                            mock1." + method + @"(m => m.TheEvent += {|PosInfoMoq1010:MethodMatchEventSignature|}, ""OK"", 1, 10);
+                            mock1." + method + @"(m => m.TheEvent += {|PosInfoMoq1010:MethodMatchEventSignature|}, ""OK"", 1, new object());
+
+                            mock1." + method + @"(m => m.TheEvent += {|PosInfoMoq1010:(a, b, c) => throw new NotSupportedException()|}, ""OK"", 1, null);
+                            mock1." + method + @"(m => m.TheEvent += {|PosInfoMoq1010:(a, b, c) => throw new NotSupportedException()|}, ""OK"", 1, 10);
+                            mock1." + method + @"(m => m.TheEvent += {|PosInfoMoq1010:(a, b, c) => throw new NotSupportedException()|}, ""OK"", 1, new object());
+                        }
+
+                        public static " + eventReturnType + @" MethodMatchEventSignature(string a, int b, object c) { throw new NotSupportedException(); }
+                    }
+
+                    public interface I
+                    {
+                        event CustomEventHandler TheEvent;
+                    }
+
+                    public delegate " + eventReturnType + @" CustomEventHandler(string a, int b, object c);
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
         [Fact]
         public async Task NoMoqLibrary()
         {

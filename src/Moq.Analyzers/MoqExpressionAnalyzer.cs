@@ -7,6 +7,7 @@
 namespace PosInformatique.Moq.Analyzers
 {
     using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
     internal class MoqExpressionAnalyzer
@@ -544,7 +545,22 @@ namespace PosInformatique.Moq.Analyzers
                 parameterSymbols.Add(parameterSymbol.Type);
             }
 
-            invalidEventExpression = null;
+            // Check the right assignement expression is "null".
+            if (assignmentExpressionSyntax.Right is not LiteralExpressionSyntax literalExpressionSyntax)
+            {
+                invalidEventExpression = assignmentExpressionSyntax.Right;
+            }
+            else
+            {
+                if (literalExpressionSyntax.Kind() != SyntaxKind.NullLiteralExpression)
+                {
+                    invalidEventExpression = assignmentExpressionSyntax.Right;
+                }
+                else
+                {
+                    invalidEventExpression = null;
+                }
+            }
 
             return new RaiseMethodCall((IMethodSymbol)methodSymbol.Symbol, parameterSymbols, arguments, eventSymbol);
         }
