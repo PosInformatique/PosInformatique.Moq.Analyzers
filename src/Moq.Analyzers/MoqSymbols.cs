@@ -16,6 +16,10 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly INamedTypeSymbol mockGenericClass;
 
+        private readonly Lazy<IReadOnlyList<IMethodSymbol>> raiseMethods;
+
+        private readonly Lazy<IReadOnlyList<IMethodSymbol>> raiseAsyncMethods;
+
         private readonly Lazy<IReadOnlyList<IMethodSymbol>> setupMethods;
 
         private readonly Lazy<IReadOnlyList<IMethodSymbol>> setupProtectedMethods;
@@ -52,6 +56,8 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<INamedTypeSymbol> timesClass;
 
+        private readonly Lazy<INamedTypeSymbol> eventArgsClass;
+
         private readonly Lazy<INamedTypeSymbol> funcClass;
 
         private MoqSymbols(INamedTypeSymbol mockGenericClass, Compilation compilation)
@@ -66,6 +72,8 @@ namespace PosInformatique.Moq.Analyzers
             this.itIsAnyMethod = new Lazy<ISymbol>(() => compilation.GetTypeByMetadataName("Moq.It")!.GetMembers("IsAny").Single());
             this.verifiesInterface = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.Language.IVerifies")!);
 
+            this.raiseMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Raise").OfType<IMethodSymbol>().ToArray());
+            this.raiseAsyncMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("RaiseAsync").OfType<IMethodSymbol>().ToArray());
             this.setupMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("Setup").Concat(setupConditionResultInterface.Value.GetMembers("Setup")).OfType<IMethodSymbol>().ToArray());
             this.mockBehaviorStrictField = new Lazy<ISymbol>(() => this.mockBehaviorEnum.Value.GetMembers("Strict").First());
             this.setupProtectedMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => compilation.GetTypeByMetadataName("Moq.Protected.IProtectedMock`1")!.GetMembers("Setup").OfType<IMethodSymbol>().ToArray());
@@ -85,6 +93,8 @@ namespace PosInformatique.Moq.Analyzers
             this.setupSetMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().ToArray());
 
             this.timesClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("Moq.Times")!);
+
+            this.eventArgsClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("System.EventArgs")!);
             this.funcClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("System.Func`1")!);
         }
 
@@ -149,6 +159,9 @@ namespace PosInformatique.Moq.Analyzers
             return null;
         }
 
+        public bool IsEventArgs(ISymbol? symbol)
+            => AreEqual(symbol, this.eventArgsClass);
+
         public bool IsItIsAny(ISymbol? symbol)
         {
             if (symbol is null)
@@ -193,6 +206,12 @@ namespace PosInformatique.Moq.Analyzers
 
             return true;
         }
+
+        public bool IsRaiseMethod([NotNullWhen(true)] ISymbol? symbol)
+            => AreEqual(symbol, this.raiseMethods);
+
+        public bool IsRaiseAsyncMethod([NotNullWhen(true)] ISymbol? symbol)
+            => AreEqual(symbol, this.raiseAsyncMethods);
 
         public bool IsSetupMethod(ISymbol? symbol)
         {
@@ -540,6 +559,43 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return true;
+        }
+
+        private static bool AreEqual<TSymbol>([NotNullWhen(true)] ISymbol? symbol1, Lazy<TSymbol> symbol2)
+            where TSymbol : ISymbol
+        {
+            if (symbol1 is null)
+            {
+                return false;
+            }
+
+            if (!SymbolEqualityComparer.Default.Equals(symbol1.OriginalDefinition, symbol2.Value))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool AreEqual<TSymbol>([NotNullWhen(true)] ISymbol? symbol1, Lazy<IReadOnlyList<TSymbol>> symbols2)
+            where TSymbol : ISymbol
+        {
+            if (symbol1 is null)
+            {
+                return false;
+            }
+
+            var originalDefinition = symbol1.OriginalDefinition;
+
+            foreach (var symbol in symbols2.Value)
+            {
+                if (SymbolEqualityComparer.Default.Equals(originalDefinition, symbol))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

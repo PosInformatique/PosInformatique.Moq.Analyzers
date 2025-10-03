@@ -488,6 +488,58 @@ namespace PosInformatique.Moq.Analyzers
             return methodSymbol.TypeArguments[0];
         }
 
+        public RaiseMethodCall? ExtractRaiseMethodCall(InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
+        {
+            // Check if the method analyzed is a Raise() method.
+            var methodSymbol = this.semanticModel.GetSymbolInfo(invocationExpression, cancellationToken);
+
+            if (!this.moqSymbols.IsRaiseMethod(methodSymbol.Symbol) && !this.moqSymbols.IsRaiseAsyncMethod(methodSymbol.Symbol))
+            {
+                return null;
+            }
+
+            // Gets the event
+            // 1 - Check the first argument is a lambda expression (Raise(x => ...))
+            if (invocationExpression.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambdaExpressionSyntax)
+            {
+                return null;
+            }
+
+            // 2 - If the body of the lambda expression is an assignment to an event (Raise(x => x.Event += null))
+            if (lambdaExpressionSyntax.Body is not AssignmentExpressionSyntax assignmentExpressionSyntax)
+            {
+                return null;
+            }
+
+            // 3 - Check the left of assignment is a member access.
+            if (assignmentExpressionSyntax.Left is not MemberAccessExpressionSyntax memberAccessExpressionSyntax)
+            {
+                return null;
+            }
+
+            // 4 - Gets the event symbol
+            var eventSymbol = this.semanticModel.GetSymbolInfo(memberAccessExpressionSyntax.Name, cancellationToken);
+
+            if (eventSymbol.Symbol is null)
+            {
+                return null;
+            }
+
+            // 5 - Gets the parameters of the Raise() method after the "x => x.Event += null".
+            var arguments = invocationExpression.ArgumentList.Arguments.Skip(1).ToArray();
+
+            var parameterSymbols = new List<ITypeSymbol?>(arguments.Length);
+
+            foreach (var argument in arguments)
+            {
+                var parameterSymbol = this.semanticModel.GetTypeInfo(argument.Expression, cancellationToken);
+
+                parameterSymbols.Add(parameterSymbol.Type);
+            }
+
+            return new RaiseMethodCall((IMethodSymbol)methodSymbol.Symbol, parameterSymbols, arguments, (IEventSymbol)eventSymbol.Symbol);
+        }
+
         private static ObjectCreationExpressionSyntax? FindMockCreation(BlockSyntax block, string variableName)
         {
             foreach (var statement in block.Statements.OfType<LocalDeclarationStatementSyntax>())

@@ -17,6 +17,22 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      2.0.0
+      - Add new rules:
+        - PosInfoMoq2017: Mock&lt;T&gt;.Raise()/RaiseAsync() must use parameters matching the event signature.
+      
+      1.13.0
+      - Add new rules:
+        - PosInfoMoq1007: The Verify() method must specify the Times argument.
+        - PosInfoMoq1008: The Mock.Verify() and Mock.VerifyAll() methods must specify at least one mock.
+        - PosInfoMoq1009: Avoid using Verifiable() method.
+      - Improvements/Fixes
+        - When using It.IsAny&lt;T&gt;() or It.Is&lt;T&gt;() with inherited class, the PosInfoMoq1006 was raised.
+
+      1.12.0
+      - Add new rules:
+        - PosInfoMoq1006: The It.IsAny&lt;T&gt;() or It.Is&lt;T&gt;() arguments must match the parameters of the mocked method.
+        
       1.11.0
       - Add new rules:
         - PosInfoMoq1005: Defines the generic argument of the SetupSet() method with the type of the mocked property.

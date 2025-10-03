@@ -74,6 +74,7 @@ All the rules of this category should not be disabled (or changed their severity
 | [PosInfoMoq2014: The `Callback()` delegate expression must not return a value.](docs/Compilation/PosInfoMoq2014.md) | The `Callback()` delegate expression must not return a value. |
 | [PosInfoMoq2015: The `Protected().Setup()` method must match the return type of the mocked method](docs/Compilation/PosInfoMoq2015.md) | The method setup with `Protected().Setup()` must match the return type of the mocked method. |
 | [PosInfoMoq2016: `Mock<T>` constructor with factory lambda expression can be used only with classes.](docs/Compilation/PosInfoMoq2016.md) | The factory lambda expression used in `Mock<T>` instantiation must used only for the classes. |
+| [PosInfoMoq2017: `Mock<T>.Raise()`/`RaiseAsync()` must use parameters matching the event signature.](docs/Compilation/PosInfoMoq2017.md) | The parameters passed to `Raise()` or `RaiseAsync()` must exactly match the parameters of the corresponding event delegate. |
 
 
 

@@ -1,4 +1,11 @@
-﻿## Release 1.13.0
+﻿## Release 2.0.0
+
+### New Rules
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+PosInfoMoq2017 | Compilation | Error | RaiseParametersMustMatchEventSignatureAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2017.html)
+
+## Release 1.13.0
 
 ### New Rules
 Rule ID | Category | Severity | Notes
