@@ -52,6 +52,8 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<IMethodSymbol> setupSetMethodWithoutGenericArgument;
 
+        private readonly Lazy<IReadOnlyList<IMethodSymbol>> setupSequenceMethods;
+
         private readonly Lazy<IReadOnlyList<IMethodSymbol>> setupSetMethods;
 
         private readonly Lazy<INamedTypeSymbol> timesClass;
@@ -93,6 +95,7 @@ namespace PosInformatique.Moq.Analyzers
 
             this.mockConstructorWithFactory = new Lazy<IMethodSymbol>(() => mockGenericClass.Constructors.Single(c => c.Parameters.Length == 2 && c.Parameters[0].Type.Name == "Expression"));
 
+            this.setupSequenceMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("SetupSequence").OfType<IMethodSymbol>().ToArray());
             this.setupSetMethodWithoutGenericArgument = new Lazy<IMethodSymbol>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().Single(c => c.TypeArguments.Length == 1));
             this.setupSetMethods = new Lazy<IReadOnlyList<IMethodSymbol>>(() => mockGenericClass.GetMembers("SetupSet").OfType<IMethodSymbol>().ToArray());
 
@@ -205,6 +208,9 @@ namespace PosInformatique.Moq.Analyzers
 
         public bool IsSetupProtectedMethod(ISymbol? symbol)
             => AreEqual(symbol, this.setupProtectedMethods);
+
+        public bool IsSetupSequenceMethod(ISymbol? symbol)
+            => AreEqual(symbol, this.setupSequenceMethods);
 
         public bool IsSetupSetMethod(ISymbol? symbol)
             => AreEqual(symbol, this.setupSetMethods);
