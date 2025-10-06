@@ -61,7 +61,7 @@ namespace PosInformatique.Moq.Analyzers
 
         private static async Task<Document> AddMockBehiavorStrictArgumentAsync(Document document, IdentifierNameSyntax oldIdentifierNameSyntax, CancellationToken cancellationToken)
         {
-            var semanticModel = await document.GetSemanticModelAsync();
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 
             if (semanticModel is null)
             {

@@ -23,6 +23,8 @@
         - PosInfoMoq2017: Mock&lt;T&gt;.Raise()/RaiseAsync() must use parameters matching the event signature.
         - PosInfoMoq2018: The first parameter of Raise()/RaiseAsync() must be an event.
         - PosInfoMoq2019: RaiseAsync() must be used only for events with async handlers (returning Task).
+      - Add new fixers:
+        - PosInfoMoq1000: Add a call of missing VerifyAll() at the end of the unit tests.
       
       1.13.0
       - Add new rules:
@@ -50,8 +52,8 @@
 
       1.10.0
       - Add new rules:
-      - PosInfoMoq2012: The delegate in the argument of the Returns() method must return a value with same type of the mocked method.
-      - PosInfoMoq2013: The delegate in the argument of the Returns()/ReturnsAsync() method must have the same parameter types of the mocked method/property.
+        - PosInfoMoq2012: The delegate in the argument of the Returns() method must return a value with same type of the mocked method.
+        - PosInfoMoq2013: The delegate in the argument of the Returns()/ReturnsAsync() method must have the same parameter types of the mocked method/property.
 
       1.9.3
       - Fix the PosInfoMoq2006 when Setup() a method/property in inherited class.

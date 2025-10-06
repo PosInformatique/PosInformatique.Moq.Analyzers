@@ -15,7 +15,7 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class VerifyAllShouldBeCalledAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
+        internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             "PosInfoMoq1000",
             "VerifyAll() method should be called when instantiate a Mock<T> instances",
             "The VerifyAll() method should be called at the end of the unit test",
@@ -54,7 +54,7 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Retrieve the variable name
-            var variableName = objectCreation.Ancestors().OfType<VariableDeclaratorSyntax>().FirstOrDefault();
+            var variableName = SyntaxNodeHelper.GetVariableNameSyntax(objectCreation);
 
             if (variableName is null)
             {
