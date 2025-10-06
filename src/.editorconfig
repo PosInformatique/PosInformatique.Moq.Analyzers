@@ -1,0 +1,6 @@
+
+[*.{cs,vb}]
+#### Naming styles ####
+
+#### Visual Studio Threading Analyzer ####
+dotnet_diagnostic.VSTHRD111.severity = warning

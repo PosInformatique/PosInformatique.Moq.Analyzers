@@ -76,7 +76,7 @@ namespace PosInformatique.Moq.Analyzers
                 return document;
             }
 
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 
             if (semanticModel is null)
             {
@@ -129,7 +129,7 @@ namespace PosInformatique.Moq.Analyzers
 
             var newUnitTestMethod = oldUnitTestMethod.WithBody(oldUnitTestMethod.Body.WithStatements(newStatements));
 
-            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken);
+            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
             if (oldRoot is null)
             {

@@ -111,7 +111,7 @@ namespace PosInformatique.Moq.Analyzers
             var newMockCreationExpression = oldMockCreationExpression.WithArgumentList(
                 SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments)));
 
-            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken);
+            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
             if (oldRoot is null)
             {
@@ -148,7 +148,7 @@ namespace PosInformatique.Moq.Analyzers
             var newInvocationExpression = oldInvocationExpression.WithArgumentList(
                 SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments)));
 
-            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken);
+            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
             if (oldRoot is null)
             {
