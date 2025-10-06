@@ -77,4 +77,5 @@ All the rules of this category should not be disabled (or changed their severity
 | [PosInfoMoq2016: `Mock<T>` constructor with factory lambda expression can be used only with classes.](docs/Compilation/PosInfoMoq2016.md) | The factory lambda expression used in `Mock<T>` instantiation must used only for the classes. |
 | [PosInfoMoq2017: `Mock<T>.Raise()`/`RaiseAsync()` must use parameters matching the event signature.](docs/Compilation/PosInfoMoq2017.md) | The parameters passed to `Raise()` or `RaiseAsync()` must exactly match the parameters of the corresponding event delegate. |
 | [PosInfoMoq2018: The first parameter of `Raise()`/`RaiseAsync()` must be an event.](docs/Compilation/PosInfoMoq2018.md) | The first parameter passed to `Raise()` or `RaiseAsync()` must reference an **event** member of the mocked type. |
+| [PosInfoMoq2019: `RaiseAsync()` must be used only for events with async handlers (returning `Task`).](docs/Compilation/PosInfoMoq2019.md) | `Mock<T>.RaiseAsync()` must only be used with events whose delegate type returns `Task` (i.e., async events). |
 

@@ -14,6 +14,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [Theory]
         [InlineData("Raise", "void")]
         [InlineData("RaiseAsync", "Task")]
+        [InlineData("RaiseAsync", "Task<int>")]
         public async Task Raise_WithParams_NoDiagnosticReported(string method, string eventReturnType)
         {
             var source = @"
@@ -93,6 +94,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [Theory]
         [InlineData("Raise", "void")]
         [InlineData("RaiseAsync", "Task")]
+        [InlineData("RaiseAsync", "Task<int>")]
         public async Task Raise_WithParams_MissingArgument_DiagnosticReported(string method, string eventReturnType)
         {
             var source = @"
@@ -140,6 +142,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [Theory]
         [InlineData("Raise", "void")]
         [InlineData("RaiseAsync", "Task")]
+        [InlineData("RaiseAsync", "Task<int>")]
         public async Task Raise_WithParams_WrongType_DiagnosticReported(string method, string eventReturnType)
         {
             var source = @"
@@ -227,6 +230,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [InlineData("RaiseAsync", "Task", "\"OK\", 1, null")]
         [InlineData("RaiseAsync", "Task", "\"OK\", 1, 10")]
         [InlineData("RaiseAsync", "Task", "\"OK\", 1, new object()")]
+        [InlineData("RaiseAsync", "Task<int>", "\"OK\", 1, null")]
+        [InlineData("RaiseAsync", "Task<int>", "\"OK\", 1, 10")]
+        [InlineData("RaiseAsync", "Task<int>", "\"OK\", 1, new object()")]
         public async Task Raise_WrongLambdaExpression_DiagnosticReported(string method, string eventReturnType, string parameters)
         {
             var source = @"
@@ -271,6 +277,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [Theory]
         [InlineData("Raise", "void")]
         [InlineData("RaiseAsync", "Task")]
+        [InlineData("RaiseAsync", "Task<int>")]
         public async Task Raise_WithNotNullDelegate_NoDiagnosticReported(string method, string eventReturnType)
         {
             var source = @"
@@ -304,6 +311,37 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     }
 
                     public delegate " + eventReturnType + @" CustomEventHandler(string a, int b, object c);
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task RaiseAsync_WithNoAsynchronousEvent_NoDiagnosticReported()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+                    using System;
+                    using System.Threading.Tasks;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>(MockBehavior.Strict);
+
+                            mock1.{|PosInfoMoq2019:RaiseAsync|}(m => m.TheEvent += null, ""OK"", 1, new object());
+                       }
+                    }
+
+                    public interface I
+                    {
+                        event CustomEventHandler TheEvent;
+                    }
+
+                    public delegate void CustomEventHandler(string a, int b, object c);
                 }";
 
             await Verifier.VerifyAnalyzerAsync(source);

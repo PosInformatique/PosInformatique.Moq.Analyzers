@@ -60,6 +60,10 @@ namespace PosInformatique.Moq.Analyzers
 
         private readonly Lazy<INamedTypeSymbol> funcClass;
 
+        private readonly Lazy<INamedTypeSymbol> taskClass;
+
+        private readonly Lazy<INamedTypeSymbol> taskGenericClass;
+
         private MoqSymbols(INamedTypeSymbol mockGenericClass, Compilation compilation)
         {
             this.mockGenericClass = mockGenericClass;
@@ -96,6 +100,8 @@ namespace PosInformatique.Moq.Analyzers
 
             this.eventArgsClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("System.EventArgs")!);
             this.funcClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("System.Func`1")!);
+            this.taskClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("System.Threading.Tasks.Task")!);
+            this.taskGenericClass = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1")!);
         }
 
         public static MoqSymbols? FromCompilation(Compilation compilation)
@@ -205,6 +211,12 @@ namespace PosInformatique.Moq.Analyzers
 
         public bool IsSetupSetMethodWithoutGenericArgument(ISymbol? symbol)
             => AreEqual(symbol, this.setupSetMethodWithoutGenericArgument);
+
+        public bool IsTask(ISymbol? symbol)
+            => AreEqual(symbol, this.taskClass);
+
+        public bool IsTaskGeneric(ISymbol? symbol)
+            => AreEqual(symbol, this.taskGenericClass);
 
         public bool IsVerifiableMethod([NotNullWhen(true)] ISymbol? symbol)
             => AreEqual(symbol, this.verifiableMethods);

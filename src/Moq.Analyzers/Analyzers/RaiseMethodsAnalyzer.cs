@@ -15,6 +15,16 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class RaiseMethodsAnalyzer : DiagnosticAnalyzer
     {
+        internal static readonly DiagnosticDescriptor EventExpressionMustBeEventAddWithNull = new DiagnosticDescriptor(
+            "PosInfoMoq1010",
+            "Use '+= null' syntax when raising events with Raise()/RaiseAsync()",
+            "Use '+= null' syntax when raising events with Raise()/RaiseAsync()",
+            "Design",
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "Use '+= null' syntax when raising events with Raise()/RaiseAsync().",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1010.html");
+
         internal static readonly DiagnosticDescriptor ParametersMustMatchSignature = new DiagnosticDescriptor(
             "PosInfoMoq2017",
             "The Raise() parameters must match the signature of the mocked event",
@@ -35,20 +45,21 @@ namespace PosInformatique.Moq.Analyzers
             description: "The first parameter of Raise()/RaiseAsync() must be an event.",
             helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2018.html");
 
-        internal static readonly DiagnosticDescriptor EventExpressionMustBeEventAddWithNull = new DiagnosticDescriptor(
-            "PosInfoMoq1010",
-            "Use '+= null' syntax when raising events with Raise()/RaiseAsync()",
-            "Use '+= null' syntax when raising events with Raise()/RaiseAsync()",
-            "Design",
-            DiagnosticSeverity.Warning,
+        internal static readonly DiagnosticDescriptor RaiseAsyncMustBeUsedOnlyForAsyncEvents = new DiagnosticDescriptor(
+            "PosInfoMoq2019",
+            "RaiseAsync() must be used only for events with async handlers (returning Task)",
+            "RaiseAsync() must be used only for events with async handlers (returning Task)",
+            "Compilation",
+            DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: "Use '+= null' syntax when raising events with Raise()/RaiseAsync().",
-            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1010.html");
+            description: "RaiseAsync() must be used only for events with async handlers (returning Task).",
+            helpLinkUri: "https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2019.html");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+            EventExpressionMustBeEventAddWithNull,
             ParametersMustMatchSignature,
             FirstParameterMustBeEvent,
-            EventExpressionMustBeEventAddWithNull);
+            RaiseAsyncMustBeUsedOnlyForAsyncEvents);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -85,12 +96,31 @@ namespace PosInformatique.Moq.Analyzers
                 return;
             }
 
+            var raiseMethodSyntax = GetRaiseMethodSyntax(invocationExpression);
+
+            if (raiseMethodSyntax is null)
+            {
+                return;
+            }
+
             if (invalidEventExpression is not null)
             {
                 // Raise a warning to indicate that the expression after the "+=" is not "null".
                 context.ReportDiagnostic(EventExpressionMustBeEventAddWithNull, invalidEventExpression.GetLocation());
             }
 
+            // -- Check if RaiseAsync() is called for asynchronous event --
+            if (moqSymbols.IsRaiseAsyncMethod(raiseMethod.Method))
+            {
+                var eventReturnType = raiseMethod.EventReturnType;
+
+                if (!moqSymbols.IsTask(eventReturnType) && !moqSymbols.IsTaskGeneric(eventReturnType))
+                {
+                    context.ReportDiagnostic(RaiseAsyncMustBeUsedOnlyForAsyncEvents, raiseMethodSyntax.GetLocation());
+                }
+            }
+
+            // -- Check the signature of the event called --
             var eventParameters = raiseMethod.EventParameters.ToList();
 
             // Check the overload of the Raise() method called.
@@ -106,13 +136,6 @@ namespace PosInformatique.Moq.Analyzers
             // Check the parameters count match
             if (raiseMethod.MethodParameters.Count != eventParameters.Count)
             {
-                var raiseMethodSyntax = GetRaiseMethodSyntax(invocationExpression);
-
-                if (raiseMethodSyntax is null)
-                {
-                    return;
-                }
-
                 context.ReportDiagnostic(ParametersMustMatchSignature, raiseMethodSyntax.GetLocation(), $"The event '{raiseMethod.Event.Name}' expects {raiseMethod.EventParameters.Count} argument(s) but {raiseMethod.MethodParameters.Count} were provided.");
                 return;
             }

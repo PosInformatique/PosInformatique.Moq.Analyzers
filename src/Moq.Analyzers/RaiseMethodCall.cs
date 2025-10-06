@@ -11,6 +11,8 @@ namespace PosInformatique.Moq.Analyzers
 
     internal sealed class RaiseMethodCall
     {
+        private readonly IMethodSymbol eventMethod;
+
         public RaiseMethodCall(IMethodSymbol method, IReadOnlyList<ITypeSymbol?> methodParameters, IReadOnlyList<ArgumentSyntax> methodArguments, IEventSymbol @event)
         {
             this.Method = method;
@@ -18,7 +20,7 @@ namespace PosInformatique.Moq.Analyzers
             this.MethodArguments = methodArguments;
             this.MethodParameters = methodParameters;
 
-            this.EventParameters = ((INamedTypeSymbol)@event.Type).DelegateInvokeMethod!.Parameters;
+            this.eventMethod = ((INamedTypeSymbol)@event.Type).DelegateInvokeMethod!;
         }
 
         public IMethodSymbol Method { get; }
@@ -29,6 +31,8 @@ namespace PosInformatique.Moq.Analyzers
 
         public IEventSymbol Event { get; }
 
-        public IReadOnlyList<IParameterSymbol> EventParameters { get; }
+        public IReadOnlyList<IParameterSymbol> EventParameters => this.eventMethod.Parameters;
+
+        public ITypeSymbol EventReturnType => this.eventMethod.ReturnType;
     }
 }

@@ -22,6 +22,7 @@
         - PosInfoMoq1010: Use '+= null' syntax when raising events with Raise()/RaiseAsync()
         - PosInfoMoq2017: Mock&lt;T&gt;.Raise()/RaiseAsync() must use parameters matching the event signature.
         - PosInfoMoq2018: The first parameter of Raise()/RaiseAsync() must be an event.
+        - PosInfoMoq2019: RaiseAsync() must be used only for events with async handlers (returning Task).
       
       1.13.0
       - Add new rules:
