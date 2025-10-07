@@ -92,6 +92,7 @@ namespace PosInformatique.Moq.Analyzers
 
             // Find the location where we can insert the mock.
             var index = oldUnitTestMethod.Body.Statements.Count;
+            bool insertNewLine = true;
 
             foreach (var statement in oldUnitTestMethod.Body.Statements.Reverse())
             {
@@ -104,6 +105,8 @@ namespace PosInformatique.Moq.Analyzers
                 {
                     break;
                 }
+
+                insertNewLine = false;
 
                 if (variableName.CompareTo(otherVariableName) >= 0)
                 {
@@ -123,11 +126,7 @@ namespace PosInformatique.Moq.Analyzers
                         SyntaxFactory.IdentifierName(variableName),
                         SyntaxFactory.IdentifierName("VerifyAll"))));
 
-            var oldBodyStatements = oldUnitTestMethod.Body.Statements;
-
-            var newStatements = InsertStatement(oldBodyStatements, index, verifyAllCallStatement);
-
-            var newUnitTestMethod = oldUnitTestMethod.WithBody(oldUnitTestMethod.Body.WithStatements(newStatements));
+            var newUnitTestMethodBody = InsertStatement(oldUnitTestMethod.Body, index, verifyAllCallStatement, insertNewLine);
 
             var oldRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
@@ -136,28 +135,39 @@ namespace PosInformatique.Moq.Analyzers
                 return document;
             }
 
-            var newRoot = oldRoot.ReplaceNode(oldUnitTestMethod, newUnitTestMethod);
+            var newRoot = oldRoot.ReplaceNode(oldUnitTestMethod, oldUnitTestMethod.WithBody(newUnitTestMethodBody));
 
             return document.WithSyntaxRoot(newRoot);
         }
 
-        private static SyntaxList<StatementSyntax> InsertStatement(SyntaxList<StatementSyntax> list, int index, StatementSyntax statement)
+        private static BlockSyntax InsertStatement(BlockSyntax unitTestMethodBody, int index, StatementSyntax statement, bool insertNewLine)
         {
-            var newStatements = new List<StatementSyntax>(list);
+            var newStatements = new List<StatementSyntax>(unitTestMethodBody.Statements);
 
             if (index < newStatements.Count)
             {
                 var leadingTrivia = newStatements[index].GetLeadingTrivia();
 
-                // Remove the leading trivia of the current node.
+                // Remove the leading trivia of the current node and transfert it to the new statement to insert.
                 newStatements[index] = newStatements[index].ReplaceNode(newStatements[index], newStatements[index].WithoutLeadingTrivia());
 
                 statement = statement.WithLeadingTrivia(leadingTrivia);
             }
 
+            if (insertNewLine)
+            {
+                // Special case, we insert a new line at the end of the unit test (we also retrieve the comment at the end if need).
+                // Because we want that the VerifyAll() blocks are detached with a new line.
+                // It is useful if developers want to call the fixer for all the solution.
+                statement = statement.WithLeadingTrivia(
+                    unitTestMethodBody.CloseBraceToken.LeadingTrivia.Add(SyntaxFactory.CarriageReturnLineFeed));
+
+                unitTestMethodBody = unitTestMethodBody.WithCloseBraceToken(unitTestMethodBody.CloseBraceToken.WithLeadingTrivia());
+            }
+
             newStatements.Insert(index, statement);
 
-            return SyntaxFactory.List(newStatements);
+            return unitTestMethodBody.WithStatements(SyntaxFactory.List(newStatements));
         }
 
         private static bool IsVerifyAll(SemanticModel semanticModel, MoqSymbols moqSymbols, ExpressionStatementSyntax statement, out string? variableName, CancellationToken cancellationToken)
