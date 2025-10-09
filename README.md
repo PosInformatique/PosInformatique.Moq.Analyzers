@@ -48,7 +48,8 @@ Design rules used to make your unit tests more strongly strict.
 | [PosInfoMoq1006: The `It.IsAny<T>()` or `It.Is<T>()` arguments must match the parameters of the mocked method.](docs/Design/PosInfoMoq1006.md) | When setting up a method using `It.IsAny<T>()` or `It.Is<T>()` as arguments, the type `T` must exactly match the parameters of the configured method. |
 | [PosInfoMoq1007: The `Verify()` method must specify the `Times` argument.](docs/Design/PosInfoMoq1007.md) | When calling the `Verify()` method, if the `Times` argument is not specified, Moq will assume `Times.AtLeastOnce()` by default. |
 | [PosInfoMoq1008: The `Mock.Verify()` and `Mock.VerifyAll()` methods must specify at least one mock.](docs/Design/PosInfoMoq1008.md) | When calling the static methods `Mock.Verify()` or `Mock.VerifyAll()` without providing any `Mock<T>` instances, no verification is performed. |
-| [PosInfoMoq1009: Avoid using `Verifiable()` method](docs/Design/PosInfoMoq1008.md) | A `Verify()` of an `Mock<T>` instance has not been called in the *Assert* phase of an unit test for `Verifiable()` setups. |
+| [PosInfoMoq1009: Avoid using `Verifiable()` method](docs/Design/PosInfoMoq1009.md) | A `Verify()` of an `Mock<T>` instance has not been called in the *Assert* phase of an unit test for `Verifiable()` setups. |
+| [PosInfoMoq1010: Use `+= null` syntax when raising events with `Raise()`/`RaiseAsync()`](docs/Design/PosInfoMoq1010.md) | When using `Mock<T>.Raise()` or `Mock<T>.RaiseAsync()`, the lambda expression used to identify the event should consistently use the `+= null` syntax. |
 
 ### Compilation
 
@@ -58,7 +59,7 @@ All the rules of this category should not be disabled (or changed their severity
 | Rule | Description |
 | - | - |
 | [PosInfoMoq2000: The `Returns()` or `ReturnsAsync()` methods must be call for Strict mocks](docs/Compilation/PosInfoMoq2000.md) | When a `Mock<T>` has been defined with the `Strict` behavior, the `Returns()` or `ReturnsAsync()` method must be called when setup a method to mock which returns a value. |
-| [PosInfoMoq2001: The `Setup()`/`SetupSet()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2001.md)) | The `Setup()` method must be applied only for overridable members. |
+| [PosInfoMoq2001: The `Setup()`/`SetupSequence()`/`SetupSet()` method must be used only on overridable members](docs/Compilation/PosInfoMoq2001.md)) | The `Setup()`/`SetupSequence()`/`SetupSet()` method must be applied only for overridable members. |
 | [PosInfoMoq2002: `Mock<T>` class can be used only to mock non-sealed class](docs/Compilation/PosInfoMoq2002.md) | The `Mock<T>` class can mock only interfaces or non-`sealed` classes. |
 | [PosInfoMoq2003: The `Callback()` delegate expression must match the signature of the mocked method](docs/Compilation/PosInfoMoq2003.md) | The delegate in the argument of the `Callback()` method must match the signature of the mocked method. |
 | [PosInfoMoq2004: Constructor arguments cannot be passed for interface mocks](docs/Compilation/PosInfoMoq2004.md) | No arguments can be passed to a mocked interface. |
@@ -74,6 +75,7 @@ All the rules of this category should not be disabled (or changed their severity
 | [PosInfoMoq2014: The `Callback()` delegate expression must not return a value.](docs/Compilation/PosInfoMoq2014.md) | The `Callback()` delegate expression must not return a value. |
 | [PosInfoMoq2015: The `Protected().Setup()` method must match the return type of the mocked method](docs/Compilation/PosInfoMoq2015.md) | The method setup with `Protected().Setup()` must match the return type of the mocked method. |
 | [PosInfoMoq2016: `Mock<T>` constructor with factory lambda expression can be used only with classes.](docs/Compilation/PosInfoMoq2016.md) | The factory lambda expression used in `Mock<T>` instantiation must used only for the classes. |
-
-
+| [PosInfoMoq2017: `Mock<T>.Raise()`/`RaiseAsync()` must use parameters matching the event signature.](docs/Compilation/PosInfoMoq2017.md) | The parameters passed to `Raise()` or `RaiseAsync()` must exactly match the parameters of the corresponding event delegate. |
+| [PosInfoMoq2018: The first parameter of `Raise()`/`RaiseAsync()` must be an event.](docs/Compilation/PosInfoMoq2018.md) | The first parameter passed to `Raise()` or `RaiseAsync()` must reference an **event** member of the mocked type. |
+| [PosInfoMoq2019: `RaiseAsync()` must be used only for events with async handlers (returning `Task`).](docs/Compilation/PosInfoMoq2019.md) | `Mock<T>.RaiseAsync()` must only be used with events whose delegate type returns `Task` (i.e., async events). |
 

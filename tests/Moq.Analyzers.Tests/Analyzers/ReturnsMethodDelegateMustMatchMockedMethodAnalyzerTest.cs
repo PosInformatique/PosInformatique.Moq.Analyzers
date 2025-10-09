@@ -95,7 +95,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock1 = new Mock<I>();
                             mock1.Setup(i => i.TestMethod())
                                 .Callback(() => { })
-                                .Returns(() => { return ""Foobar""; });
+                                .Returns({|#0:() => { return ""Foobar""; }|#0});
                         }
                     }
 
@@ -108,7 +108,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(
                 source,
                 new DiagnosticResult(ReturnsMethodDelegateMustMatchMockedMethodAnalyzer.ReturnValueMustMatchRule)
-                    .WithSpan(13, 42, 13, 68).WithArguments("Int32"));
+                    .WithLocation(0)
+                    .WithArguments("Int32"));
         }
 
         [Fact]
@@ -126,7 +127,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock1 = new Mock<I>();
                             mock1.Setup(i => i.TestProperty)
                                 .Callback(() => { })
-                                .Returns(() => { return ""Foobar""; });
+                                .Returns({|#0:() => { return ""Foobar""; }|#0});
                         }
                     }
 
@@ -139,7 +140,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(
                 source,
                 new DiagnosticResult(ReturnsMethodDelegateMustMatchMockedMethodAnalyzer.ReturnValueMustMatchRule)
-                    .WithSpan(13, 42, 13, 68).WithArguments("Int32"));
+                    .WithLocation(0)
+                    .WithArguments("Int32"));
         }
 
         [Theory]

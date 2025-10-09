@@ -17,8 +17,8 @@ namespace PosInformatique.Moq.Analyzers
     {
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             "PosInfoMoq2001",
-            "The Setup()/SetupSet() method must be used only on overridable members",
-            "The Setup()/SetupSet() method must be used only on overridable members",
+            "The Setup()/SetupSequence()/SetupSet() method must be used only on overridable members",
+            "The Setup()/SetupSequence()/SetupSet() method must be used only on overridable members",
             "Compilation",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
@@ -51,7 +51,7 @@ namespace PosInformatique.Moq.Analyzers
             // Check is Setup() method.
             var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken);
 
-            if (!moqSymbols.IsSetupMethod(methodSymbol.Symbol) && !moqSymbols.IsSetupSetMethod(methodSymbol.Symbol))
+            if (!moqSymbols.IsSetupMethod(methodSymbol.Symbol) && !moqSymbols.IsSetupSetMethod(methodSymbol.Symbol) && !moqSymbols.IsSetupSequenceMethod(methodSymbol.Symbol))
             {
                 return;
             }

@@ -44,15 +44,20 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 source,
                 [
                     new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(12, 59, 12, 77).WithArguments("a"),
+                        .WithLocation(0)
+                        .WithArguments("a"),
                     new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(12, 79, 12, 94).WithArguments("b"),
+                        .WithLocation(1)
+                        .WithArguments("b"),
                     new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(13, 70, 13, 85).WithArguments("b"),
+                        .WithLocation(2)
+                        .WithArguments("b"),
                     new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(14, 59, 14, 77).WithArguments("a"),
+                        .WithLocation(3)
+                        .WithArguments("a"),
                     new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(15, 59, 15, 77).WithArguments("a"),
+                        .WithLocation(4)
+                        .WithArguments("a"),
                 ]);
         }
 
@@ -91,15 +96,20 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 source,
                 [
                     new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(14, 80, 14, 98).WithArguments("a"),
+                        .WithLocation(0)
+                        .WithArguments("a"),
                     new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(14, 100, 14, 115).WithArguments("b"),
+                        .WithLocation(1)
+                        .WithArguments("b"),
                     new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(15, 91, 15, 106).WithArguments("b"),
+                        .WithLocation(2)
+                        .WithArguments("b"),
                     new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(16, 80, 16, 98).WithArguments("a"),
+                        .WithLocation(3)
+                        .WithArguments("a"),
                     new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithSpan(17, 80, 17, 98).WithArguments("a"),
+                        .WithLocation(4)
+                        .WithArguments("a"),
                 ]);
         }
 

@@ -40,6 +40,10 @@ public void SendMail_ShouldCallSmtpService()
 To fix a violation of this rule, call the `VerifyAll()` in the *Assert* phase
 on the `Mock<T>` instances created during the *Arrange* phase.
 
+### Visual Studio fixer
+A Visual Studio fixer exists to add the call to the `VerifyAll()` method at the end of the unit test in the current document, project or solution.
+![Visual Studio rule fixer](PosInfoMoq1000-Fixer.png)
+
 ## When to suppress warnings
 
 Do not suppress a warning from this rule. Normally all setup methods must be call.

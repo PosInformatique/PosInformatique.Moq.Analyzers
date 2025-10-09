@@ -61,7 +61,7 @@ namespace PosInformatique.Moq.Analyzers
 
         private static async Task<Document> AddMockBehiavorStrictArgumentAsync(Document document, IdentifierNameSyntax oldIdentifierNameSyntax, CancellationToken cancellationToken)
         {
-            var semanticModel = await document.GetSemanticModelAsync();
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 
             if (semanticModel is null)
             {
@@ -104,7 +104,7 @@ namespace PosInformatique.Moq.Analyzers
                 SyntaxFactory.TypeArgumentList(
                     SyntaxFactory.SingletonSeparatedList(propertyType)));
 
-            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken);
+            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
             if (oldRoot is null)
             {

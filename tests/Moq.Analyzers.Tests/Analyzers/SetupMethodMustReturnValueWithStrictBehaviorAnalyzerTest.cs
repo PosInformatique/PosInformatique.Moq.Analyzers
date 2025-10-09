@@ -101,10 +101,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             var mock1 = new Mock<I>(MockBehavior.Strict);
                             mock1.Setup(i => i.TestMethod())
                                 .Callback(() => { })
-                                .Returns(""Foobar"");
+                                .Returns({|#0:""Foobar""|#0});
                             mock1.Setup(i => i.TestProperty)
                                 .Callback(() => { })
-                                .Returns(""Foobar"");
+                                .Returns({|#1:""Foobar""|#1});
                         }
                     }
 
@@ -118,8 +118,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
             await Verifier.VerifyAnalyzerAsync(
                 source,
-                DiagnosticResult.CompilerError("CS1503").WithSpan(13, 42, 13, 50).WithArguments("1", "string", "int"),
-                DiagnosticResult.CompilerError("CS1503").WithSpan(16, 42, 16, 50).WithArguments("1", "string", "int"));
+                DiagnosticResult.CompilerError("CS1503").WithLocation(0).WithArguments("1", "string", "int"),
+                DiagnosticResult.CompilerError("CS1503").WithLocation(1).WithArguments("1", "string", "int"));
         }
 
         [Fact]

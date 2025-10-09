@@ -38,6 +38,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design", "Design", "{815BE8
 		docs\Design\PosInfoMoq1007.md = docs\Design\PosInfoMoq1007.md
 		docs\Design\PosInfoMoq1008.md = docs\Design\PosInfoMoq1008.md
 		docs\Design\PosInfoMoq1009.md = docs\Design\PosInfoMoq1009.md
+		docs\Design\PosInfoMoq1010.md = docs\Design\PosInfoMoq1010.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Compilation", "Compilation", "{D9C84D36-7F9C-4EFB-BE6F-9F7A05FE957D}"
@@ -59,6 +60,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Compilation", "Compilation"
 		docs\Compilation\PosInfoMoq2014.md = docs\Compilation\PosInfoMoq2014.md
 		docs\Compilation\PosInfoMoq2015.md = docs\Compilation\PosInfoMoq2015.md
 		docs\Compilation\PosInfoMoq2016.md = docs\Compilation\PosInfoMoq2016.md
+		docs\Compilation\PosInfoMoq2017.md = docs\Compilation\PosInfoMoq2017.md
+		docs\Compilation\PosInfoMoq2018.md = docs\Compilation\PosInfoMoq2018.md
+		docs\Compilation\PosInfoMoq2019.md = docs\Compilation\PosInfoMoq2019.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moq.Analyzers.Sandbox", "tests\Moq.Analyzers.Sandbox\Moq.Analyzers.Sandbox.csproj", "{07F970A1-1477-4D4C-B233-C9B4DA6E3AD6}"
@@ -69,6 +73,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\github-actions-ci.yaml = .github\workflows\github-actions-ci.yaml
 		.github\workflows\github-actions-release.yml = .github\workflows\github-actions-release.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		src\.editorconfig = src\.editorconfig
 	EndProjectSection
 EndProject
 Global

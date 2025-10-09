@@ -182,7 +182,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 source,
                 [
                     new DiagnosticResult(CallBackDelegateMustMatchMockedMethodAnalyzer.CallbackMustNotReturnValue)
-                        .WithSpan(59, 57, 59, 70).WithSpan(62, 41, 62, 54).WithSpan(65, 37, 65, 49),
+                        .WithLocation(0)
+                        .WithLocation(1)
+                        .WithLocation(2),
                 ]);
         }
 

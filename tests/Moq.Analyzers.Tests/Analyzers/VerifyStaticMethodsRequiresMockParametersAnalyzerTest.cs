@@ -71,10 +71,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 source,
                 [
                     new DiagnosticResult(VerifyStaticMethodsRequiresMockParametersAnalyzer.Rule)
-                        .WithSpan(11, 34, 11, 42)
+                        .WithLocation(0)
                         .WithArguments("Verify"),
                     new DiagnosticResult(VerifyStaticMethodsRequiresMockParametersAnalyzer.Rule)
-                        .WithSpan(12, 34, 12, 45)
+                        .WithLocation(1)
                         .WithArguments("VerifyAll"),
                 ]);
         }
