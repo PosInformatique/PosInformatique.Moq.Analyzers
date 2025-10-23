@@ -187,10 +187,30 @@ namespace PosInformatique.Moq.Analyzers
 
                     var constructorArgumentSymbol = context.SemanticModel.GetTypeInfo(constructorArguments[i].Expression, context.CancellationToken);
 
+                    if (constructorArgumentSymbol.Type is null)
+                    {
+                        // Try to test if there is not an implicit conversion
+                        var conversion = context.Compilation.ClassifyConversion(constructor.Parameters[i].Type, constructorArgumentSymbol.ConvertedType!);
+
+                        if (!conversion.IsImplicit)
+                        {
+                            matchedConstructor.Cancel();
+                            break;
+                        }
+
+                        continue;
+                    }
+
                     if (!constructorArgumentSymbol.Type.IsOrInheritFrom(constructor.Parameters[i].Type))
                     {
-                        matchedConstructor.Cancel();
-                        break;
+                        // Try to test if there is not an implicit conversion
+                        var conversion = context.Compilation.ClassifyConversion(constructor.Parameters[i].Type, constructorArgumentSymbol.Type);
+
+                        if (!conversion.IsImplicit)
+                        {
+                            matchedConstructor.Cancel();
+                            break;
+                        }
                     }
                 }
 
