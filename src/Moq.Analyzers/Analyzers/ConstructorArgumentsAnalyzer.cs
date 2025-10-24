@@ -118,11 +118,11 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             // Gets the list of the constructor arguments
-            var constructorArguments = new List<ArgumentSyntax>();
+            var constructorArguments = new List<ExpressionSyntax>();
 
             if (objectCreation.ArgumentList is not null)
             {
-                constructorArguments.AddRange(objectCreation.ArgumentList.Arguments);
+                constructorArguments.AddRange(objectCreation.ArgumentList.Arguments.Select(a => a.Expression));
             }
 
             // Gets the first argument, check if it is MockBehavior argument and skip it.
@@ -158,6 +158,18 @@ namespace PosInformatique.Moq.Analyzers
             {
                 matchedConstructor.Try(constructor);
 
+                // Special case, if we have only one argument and it is an array of object.
+                // Use the array of object as the arguments
+                if (constructorArguments.Count == 1)
+                {
+                    var objectArrayElements = ExpandObjectArrayElements(constructorArguments[0], context);
+
+                    if (objectArrayElements is not null)
+                    {
+                        constructorArguments = objectArrayElements;
+                    }
+                }
+
                 // If the number of arguments is different, check the next constructor definition.
                 if (constructor.Parameters.Length != constructorArguments.Count)
                 {
@@ -167,7 +179,7 @@ namespace PosInformatique.Moq.Analyzers
 
                 for (var i = 0; i < constructorArguments.Count; i++)
                 {
-                    if (constructorArguments[i].Expression.IsKind(SyntaxKind.NullLiteralExpression))
+                    if (constructorArguments[i].IsKind(SyntaxKind.NullLiteralExpression))
                     {
                         // Null parameter, just check the parameter type is a reference type.
                         if (!constructor.Parameters[i].Type.IsReferenceType)
@@ -179,38 +191,18 @@ namespace PosInformatique.Moq.Analyzers
                         continue;
                     }
 
-                    if (constructorArguments[i].Expression.IsKind(SyntaxKind.DefaultLiteralExpression))
+                    if (constructorArguments[i].IsKind(SyntaxKind.DefaultLiteralExpression))
                     {
                         // Default parameter, skip the parameter.
                         continue;
                     }
 
-                    var constructorArgumentSymbol = context.SemanticModel.GetTypeInfo(constructorArguments[i].Expression, context.CancellationToken);
-
-                    if (constructorArgumentSymbol.Type is null)
-                    {
-                        // Try to test if there is not an implicit conversion
-                        var conversion = context.Compilation.ClassifyConversion(constructor.Parameters[i].Type, constructorArgumentSymbol.ConvertedType!);
-
-                        if (!conversion.IsImplicit)
-                        {
-                            matchedConstructor.Cancel();
-                            break;
-                        }
-
-                        continue;
-                    }
+                    var constructorArgumentSymbol = context.SemanticModel.GetTypeInfo(constructorArguments[i], context.CancellationToken);
 
                     if (!constructorArgumentSymbol.Type.IsOrInheritFrom(constructor.Parameters[i].Type))
                     {
-                        // Try to test if there is not an implicit conversion
-                        var conversion = context.Compilation.ClassifyConversion(constructor.Parameters[i].Type, constructorArgumentSymbol.Type);
-
-                        if (!conversion.IsImplicit)
-                        {
-                            matchedConstructor.Cancel();
-                            break;
-                        }
+                        matchedConstructor.Cancel();
+                        break;
                     }
                 }
 
@@ -244,6 +236,55 @@ namespace PosInformatique.Moq.Analyzers
             {
                 context.ReportDiagnostic(ConstructorMockedClassMustBeAccessibleRule, location);
             }
+        }
+
+        private static List<ExpressionSyntax>? ExpandObjectArrayElements(ExpressionSyntax argument, SyntaxNodeAnalysisContext context)
+        {
+            var argumentType = context.SemanticModel.GetTypeInfo(argument, context.CancellationToken);
+
+            var type = argumentType.Type;
+
+            if (argumentType.Type is null)
+            {
+                type = argumentType.ConvertedType;
+            }
+
+            if (type is not IArrayTypeSymbol arrayTypeSymbol)
+            {
+                return null;
+            }
+
+            if (arrayTypeSymbol.ElementType.SpecialType != SpecialType.System_Object)
+            {
+                return null;
+            }
+
+            // It is an object[] array, try to extract the arguments of the array creation
+            if (argument is ArrayCreationExpressionSyntax arrayCreationExpressionSyntax)
+            {
+                if (arrayCreationExpressionSyntax.Initializer is not null)
+                {
+                    return arrayCreationExpressionSyntax.Initializer.Expressions.ToList();
+                }
+            }
+            else if (argument is CollectionExpressionSyntax collectionExpressionSyntax)
+            {
+                var expressions = new List<ExpressionSyntax>(collectionExpressionSyntax.Elements.Count);
+
+                foreach (var element in collectionExpressionSyntax.Elements)
+                {
+                    if (element is not ExpressionElementSyntax elementExpression)
+                    {
+                        return null;
+                    }
+
+                    expressions.Add(elementExpression.Expression);
+                }
+
+                return expressions;
+            }
+
+            return null;
         }
 
         private struct MatchedConstructor

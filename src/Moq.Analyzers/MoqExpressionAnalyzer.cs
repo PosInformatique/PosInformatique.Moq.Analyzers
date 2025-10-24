@@ -226,7 +226,7 @@ namespace PosInformatique.Moq.Analyzers
                 argument = mockCreation.ArgumentList.Arguments[1];
             }
 
-            return this.IsStrictBehaviorArgument(argument, cancellationToken);
+            return this.IsStrictBehaviorArgument(argument.Expression, cancellationToken);
         }
 
         public bool IsMockOfStrictBehavior(ArgumentListSyntax? argumentList, CancellationToken cancellationToken)
@@ -244,15 +244,15 @@ namespace PosInformatique.Moq.Analyzers
                 return false;
             }
 
-            return this.IsStrictBehaviorArgument(lastArgument, cancellationToken);
+            return this.IsStrictBehaviorArgument(lastArgument.Expression, cancellationToken);
         }
 
-        public bool IsStrictBehaviorArgument(ArgumentSyntax argument, out MemberAccessExpressionSyntax? memberAccessExpression, CancellationToken cancellationToken)
+        public bool IsStrictBehaviorArgument(ExpressionSyntax argument, out MemberAccessExpressionSyntax? memberAccessExpression, CancellationToken cancellationToken)
         {
             memberAccessExpression = null;
 
             // Check it is a MemberAccessExpressionSyntax (because we searching for MockBehavior.XXXXX).
-            if (argument.Expression is not MemberAccessExpressionSyntax expression)
+            if (argument is not MemberAccessExpressionSyntax expression)
             {
                 return false;
             }
@@ -621,7 +621,7 @@ namespace PosInformatique.Moq.Analyzers
             return true;
         }
 
-        private bool IsStrictBehaviorArgument(ArgumentSyntax argument, CancellationToken cancellationToken)
+        private bool IsStrictBehaviorArgument(ExpressionSyntax argument, CancellationToken cancellationToken)
         {
             if (!this.IsStrictBehaviorArgument(argument, out var memberAccessExpression, cancellationToken))
             {
