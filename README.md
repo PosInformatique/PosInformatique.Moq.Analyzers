@@ -1,13 +1,10 @@
 ﻿# PosInformatique.Moq.Analyzers
-<div align="center">
 
 [![Nuget](https://img.shields.io/nuget/v/PosInformatique.Moq.Analyzers)](https://www.nuget.org/packages/PosInformatique.Moq.Analyzers/)
 [![NuGet downloads](https://img.shields.io/nuget/dt/PosInformatique.Moq.Analyzers)](https://www.nuget.org/packages/PosInformatique.Moq.Analyzers/)
 [![License](https://img.shields.io/github/license/Nonanti/MathFlow?style=flat-square)](LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/PosInformatique/PosInformatique.Moq.Analyzers/github-actions-ci.yaml?style=flat-square)](https://github.com/PosInformatique/PosInformatique.Moq.Analyzers/actions)
 [![.NET Standard 2.0](https://img.shields.io/badge/.NET%20Standard-2.0-512BD4?style=flat-square)](https://learn.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0)
-
-</div>
 
 PosInformatique.Moq.Analyzers is a set of analyzers to verify syntax and code design when writing the unit tests using the [Moq](https://github.com/devlooped/moq) library.
 
