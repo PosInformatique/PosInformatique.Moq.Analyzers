@@ -212,6 +212,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         }
 
         [Theory]
+        [InlineData("1")]
         [InlineData("1, \"B\"")]
         [InlineData("1, null")]
         [InlineData("default, \"B\"")]
@@ -219,6 +220,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [InlineData("default, null, 1234")]
         [InlineData("1, \"An object\", 3, null")]
         [InlineData("1, \"An object\", 3, new System.IO.MemoryStream()")]
+        [InlineData("[new string[] { \"A\", \"B\" }]")]
+        [InlineData("new object[] { new string[] { \"A\", \"B\" } }")]
+        [InlineData("[1]")]
+        [InlineData("[1, \"A\"]")]
         public async Task Arguments_Match(string parameters)
         {
             var source = @"
@@ -253,6 +258,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         }
 
                         public C(int a, object b, int c, System.IDisposable d)
+                        {
+                        }
+
+                        public C(string[] array)
                         {
                         }
                     }
@@ -340,6 +349,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [InlineData("1, \"B\"")]
         [InlineData("1, \"An object\", 3, null")]
         [InlineData("1, \"An object\", 3, new System.IO.MemoryStream()")]
+        [InlineData("[1]")]
+        [InlineData("[1, \"A\"]")]
         public async Task Arguments_Match_WithMockBehavior(string parameters)
         {
             var source = @"
@@ -370,6 +381,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         }
 
                         public C(int a, object b, int c, System.IDisposable d)
+                        {
+                        }
+
+                        public C(string[] array)
                         {
                         }
                     }
@@ -408,6 +423,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [InlineData("null")]
         [InlineData("\"The string\", 2")]
         [InlineData("1, 2, 3, \"The string\"")]
+        [InlineData("new int[] { 1, 2 }, 1000")]
+        [InlineData("new object[] { \"A\", \"B\" }, 1000")]
         public async Task Arguments_NotMatch(string parameters)
         {
             var source = @"
@@ -440,8 +457,52 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         public C(int a, object b, int c, System.IDisposable d)
                         {
                         }
+
+                        public C(string[] array, int b)
+                        {
+                        }
                     }
                 }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("[]")]
+        public async Task Arguments_NotMatch_EmptyArray(string parameters)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<C>{|PosInfoMoq2005:(" + parameters + @")|};
+                        }
+                    }
+
+                    public class C
+                    {
+                        public C(int a)
+                        {
+                        }
+
+                        public C(int a, string b)
+                        {
+                        }
+
+                        public C(int a, object c)
+                        {
+                        }
+
+                        public C(string[] array, int b)
+                        {
+                        }
+                    }
+               }";
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
@@ -474,7 +535,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         }
 
         [Fact]
-        public async Task Arguments_NotMatch_WithNoContructor()
+        public async Task Arguments_NotMatch_WithNoConstructor()
         {
             var source = @"
                 namespace ConsoleApplication1
@@ -500,6 +561,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         [InlineData("null")]
         [InlineData("\"The string\", 2")]
         [InlineData("1, 2, 3, \"The string\"")]
+        [InlineData("new int[] { 1, 2 }, 1000")]
         public async Task Arguments_NotMatch_WithMockBehavior(string parameters)
         {
             var source = @"
@@ -526,6 +588,50 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         }
 
                         public C(int a, object c)
+                        {
+                        }
+
+                        public C(string[] array, int b)
+                        {
+                        }
+                    }
+               }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [InlineData("[]")]
+        public async Task Arguments_NotMatch_WithMockBehavior_EmptyArray(string parameters)
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock = new Mock<C>{|PosInfoMoq2005:(MockBehavior.Strict, " + parameters + @")|};
+                        }
+                    }
+
+                    public class C
+                    {
+                        public C(int a)
+                        {
+                        }
+
+                        public C(int a, string b)
+                        {
+                        }
+
+                        public C(int a, object c)
+                        {
+                        }
+
+                        public C(string[] array, int b)
                         {
                         }
                     }
