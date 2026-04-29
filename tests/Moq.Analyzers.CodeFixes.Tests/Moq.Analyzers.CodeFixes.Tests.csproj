@@ -2,11 +2,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" />
   </ItemGroup>
-
+  
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Moq.Analyzers.CodeFixes\Moq.Analyzers.CodeFixes.csproj" />
     <ProjectReference Include="..\..\src\Moq.Analyzers\Moq.Analyzers.csproj" />
   </ItemGroup>
-
+  
 </Project>

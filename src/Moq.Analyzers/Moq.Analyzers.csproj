@@ -1,16 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-
-    <LangVersion>latest</LangVersion>
-	  <Nullable>enable</Nullable>
-
-    <DevelopmentDependency>true</DevelopmentDependency>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
 
     <Description>PosInformatique.Moq.Analyzers is a library to verify syntax and code design when writing the unit tests using the Moq library.</Description>
     <PackageIcon>Icon.png</PackageIcon>
@@ -128,12 +118,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
+
+  <Import Project="..\Moq.Analyzers.Shared\Moq.Analyzers.Shared.projitems" Label="Shared" />
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />

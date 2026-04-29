@@ -16,7 +16,7 @@ namespace PosInformatique.Moq.Analyzers
     public class VerifyAllShouldBeCalledAnalyzer : DiagnosticAnalyzer
     {
         internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
-            "PosInfoMoq1000",
+            AnalyzerRules.VerifyAllShouldBeCalledAnalyzerRuleId,
             "VerifyAll() method should be called when instantiate a Mock<T> instances",
             "The VerifyAll() method should be called at the end of the unit test",
             "Design",
