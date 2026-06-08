@@ -26,12 +26,16 @@ jobs:
           --configuration Release \
           --no-restore
 
-      - name: Run tests
+      - name: Run tests (.NET 10.0)
         run: |
-          dotnet test PosInformatique.Moq.Analyzers.slnx \
+          dotnet test \
+          --solution PosInformatique.Moq.Analyzers.slnx \
           --configuration Release \
           --no-build \
-          --logger "trx;LogFileName=test_results.trx" \
+          --coverage \
+          --coverage-output-format cobertura \
+          --coverage-settings CodeCoverage.runsettings \
+          --report-trx \
           --results-directory ./TestResults
   
       - name: Publish Test Results
