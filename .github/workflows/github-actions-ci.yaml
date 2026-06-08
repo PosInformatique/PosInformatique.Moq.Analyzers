@@ -26,10 +26,11 @@ jobs:
           --configuration Release \
           --no-restore
 
-      - name: Run tests (.NET 10.0)
+      - name: Run tests
         run: |
           dotnet test \
-          --solution PosInformatique.Moq.Analyzers.slnx \
+          --test-modules "tests/Moq.Analyzers.Tests/bin/Release/net8.0/*" \
+          --test-modules "tests/Moq.Analyzers.CodeFixes.Tests/bin/Release/net8.0/*" \
           --configuration Release \
           --no-build \
           --coverage \
