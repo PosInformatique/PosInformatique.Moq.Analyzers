@@ -14,24 +14,28 @@ namespace PosInformatique.Moq.Analyzers
         {
             this.Members = members;
             this.InvocationArguments = invocationArguments;
+
+            if (this.Members[0].Symbol is IMethodSymbol methodSymbol)
+            {
+                this.Parameters = methodSymbol.Parameters;
+                this.ReturnType = methodSymbol.ReturnType;
+            }
+            else
+            {
+                var propertySymbol = (IPropertySymbol)this.Members[0].Symbol;
+
+                this.Parameters = propertySymbol.Parameters;
+                this.ReturnType = propertySymbol.Type;
+            }
         }
 
         public IReadOnlyList<ChainMember> Members { get; }
 
         public IReadOnlyList<ChainInvocationArgument> InvocationArguments { get; }
 
-        public ITypeSymbol ReturnType
-        {
-            get
-            {
-                if (this.Members[0].Symbol is IMethodSymbol methodSymbol)
-                {
-                    return methodSymbol.ReturnType;
-                }
+        public IReadOnlyList<IParameterSymbol> Parameters { get; }
 
-                return ((IPropertySymbol)this.Members[0].Symbol).Type;
-            }
-        }
+        public ITypeSymbol ReturnType { get; }
 
         public bool IsProperty
         {

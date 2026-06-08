@@ -45,6 +45,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock1" + sequence + @".Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
                                 .Callback((object x) => { })
                                 .Throws(new Exception());
+                            mock1" + sequence + @".Setup(m => m.TestMethodWithDefaultParameters(""A"", 10))
+                                .Callback((string x, int y, int z, string w) => { })
+                                .Throws(new Exception());
 
                             mock1" + sequence + @".Setup(m => m.TestMethodReturn())
                                 .Callback(() => { })
@@ -74,11 +77,44 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                         void TestGenericMethod<T>(T value);
 
+                        void TestMethodWithDefaultParameters(string a, int b, int c = 42, string d = ""default"");
+
                         int TestMethodReturn();
 
                         int TestMethodReturn(string a);
 
                         int TestMethodReturn(string a, int b);
+                    }
+                }";
+
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Fact]
+        public async Task CallBackSignatureNotMatch_DiagnosticReported_SpecialCase()
+        {
+            var source = @"
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+                    using System;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var sequence = new MockSequence();
+
+                            var mock1 = new Mock<I>();
+
+                            mock1.Setup(m => m.TestMethod(""The value"", 1234))
+                                .Callback({|PosInfoMoq2003:(string a, int b)|} => { });
+                        }
+                    }
+
+                    public interface I
+                    {
+                        void TestMethod(string s, int a, int defaultValue = 42);
                     }
                 }";
 
