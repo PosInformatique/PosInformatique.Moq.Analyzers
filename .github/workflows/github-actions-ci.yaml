@@ -18,17 +18,17 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Restore dependencies
-        run: dotnet restore PosInformatique.Moq.Analyzers.sln
+        run: dotnet restore PosInformatique.Moq.Analyzers.slnx
 
       - name: Build solution
         run: |
-          dotnet build PosInformatique.Moq.Analyzers.sln \
+          dotnet build PosInformatique.Moq.Analyzers.slnx \
           --configuration Release \
           --no-restore
 
       - name: Run tests
         run: |
-          dotnet test PosInformatique.Moq.Analyzers.sln \
+          dotnet test PosInformatique.Moq.Analyzers.slnx \
           --configuration Release \
           --no-build \
           --logger "trx;LogFileName=test_results.trx" \
