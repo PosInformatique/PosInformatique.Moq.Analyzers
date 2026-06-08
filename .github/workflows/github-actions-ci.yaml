@@ -29,7 +29,8 @@ jobs:
       - name: Run tests
         run: |
           dotnet test \
-          --test-modules "tests/Moq.Analyzers.Tests/bin/Release/net8.0/*;tests/Moq.Analyzers.CodeFixes.Tests/bin/Release/net8.0/*" \
+          --solution PosInformatique.Moq.Analyzers.slnx \
+          --configuration Release \
           --no-build \
           --coverage \
           --coverage-output-format cobertura \
