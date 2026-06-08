@@ -158,6 +158,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
                             mock1" + sequence + @".Setup(m => m.TestGenericMethod(It.IsAny<It.IsAnyType>()))
                                 .Callback(({|PosInfoMoq2003:string x|}) => { })
                                 .Throws(new Exception());
+                            mock1" + sequence + @".Setup(m => m.TestMethodWithDefaultParameters(""A"", 10))
+                                .Callback({|PosInfoMoq2003:(string x, int y)|} => { })
+                                .Throws(new Exception());
+                            mock1" + sequence + @".Setup(m => m.TestMethodWithDefaultParameters(""A"", 10))
+                                .Callback({|PosInfoMoq2003:(string x, int y, string z)|} => { })
+                                .Throws(new Exception());
 
                             mock1" + sequence + @".Setup(m => m.TestMethodReturn())
                                 .Callback({|PosInfoMoq2003:(int too, int much, int parameters)|} => { })
@@ -205,6 +211,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         void TestMethod(string a, int b);
 
                         void TestGenericMethod<T>(T value);
+
+                        void TestMethodWithDefaultParameters(string a, int b, int c = 42, string d = ""default"");
 
                         int TestMethodReturn();
 
