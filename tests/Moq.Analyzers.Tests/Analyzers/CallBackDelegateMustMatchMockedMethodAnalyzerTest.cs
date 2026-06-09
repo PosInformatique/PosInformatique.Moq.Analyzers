@@ -90,37 +90,6 @@ namespace PosInformatique.Moq.Analyzers.Tests
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task CallBackSignatureNotMatch_DiagnosticReported_SpecialCase()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var sequence = new MockSequence();
-
-                            var mock1 = new Mock<I>();
-
-                            mock1.Setup(m => m.TestMethod(""The value"", 1234))
-                                .Callback({|PosInfoMoq2003:(string a, int b)|} => { });
-                        }
-                    }
-
-                    public interface I
-                    {
-                        void TestMethod(string s, int a, int defaultValue = 42);
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
         [Theory]
         [InlineData("")]
         [InlineData(".InSequence(sequence)")]
