@@ -144,6 +144,7 @@
   <Target Name="_AddAnalyzersToOutput">
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(OutputPath)\$(AssemblyName).dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="..\Moq.Analyzers.CodeFixes\$(OutputPath)\$(AssemblyName).CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
     </ItemGroup>
   </Target>
 
@@ -152,5 +153,10 @@
       <_Parameter1>PosInformatique.Moq.Analyzers.Tests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
+
+  <Target Name="BuildCodeFixes" BeforeTargets="Build">
+    <MSBuild Projects="..\Moq.Analyzers.CodeFixes\Moq.Analyzers.CodeFixes.csproj"
+             Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+  </Target>
 
 </Project>
