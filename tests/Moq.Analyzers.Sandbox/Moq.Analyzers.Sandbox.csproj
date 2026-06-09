@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Moq.Analyzers.CodeFixes\Moq.Analyzers.CodeFixes.csproj" />
+    <ProjectReference Include="..\..\src\Moq.Analyzers.CodeFixes\Moq.Analyzers.CodeFixes.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" OutputItemType="Analyzer" Condition="'$(Configuration)' == 'Debug'" />
     <ProjectReference Include="..\..\src\Moq.Analyzers\Moq.Analyzers.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" OutputItemType="Analyzer" Condition="'$(Configuration)' == 'Debug'" />
   </ItemGroup>
 
