@@ -1,4 +1,11 @@
-﻿## Release 2.0.0
+﻿## Release 2.1.0
+
+### New Rules
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+PosInfoMoq1011 | Design | Warning | SetupMethodShouldSpecifyOptionalArgumentsAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Design/PosInfoMoq1011.html)
+
+## Release 2.0.0
 
 ### New Rules
 Rule ID | Category | Severity | Notes

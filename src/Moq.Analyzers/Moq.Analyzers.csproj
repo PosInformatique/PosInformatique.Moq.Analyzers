@@ -8,6 +8,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
       2.1.0
+      - Add new rules:
+        - PosInfoMoq1011: The Setup() expression must explicitly specify optional argument values.
       - Fix the PosInfoMoq2003 rule to check the signature of the Callback() method when using the default parameters in the interfaces.
 
       2.0.1
@@ -15,9 +17,9 @@
 
       2.0.0
       - Add new rules:
-      - PosInfoMoq1010: Use '+= null' syntax when raising events with Raise()/RaiseAsync()
-      - PosInfoMoq2001: Add the support of the SetupSequence() methods.
-      - PosInfoMoq2017: Mock&lt;T&gt;.Raise()/RaiseAsync() must use parameters matching the event signature.
+        - PosInfoMoq1010: Use '+= null' syntax when raising events with Raise()/RaiseAsync()
+        - PosInfoMoq2001: Add the support of the SetupSequence() methods.
+        - PosInfoMoq2017: Mock&lt;T&gt;.Raise()/RaiseAsync() must use parameters matching the event signature.
         - PosInfoMoq2018: The first parameter of Raise()/RaiseAsync() must be an event.
         - PosInfoMoq2019: RaiseAsync() must be used only for events with async handlers (returning Task).
       - Add new fixers:

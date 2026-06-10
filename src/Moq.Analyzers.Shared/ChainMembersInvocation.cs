@@ -7,6 +7,7 @@
 namespace PosInformatique.Moq.Analyzers
 {
     using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
 
     internal sealed class ChainMembersInvocation
     {
@@ -30,6 +31,8 @@ namespace PosInformatique.Moq.Analyzers
         }
 
         public IReadOnlyList<ChainMember> Members { get; }
+
+        public NameSyntax InvocationExpression => this.Members[0].Syntax;
 
         public IReadOnlyList<ChainInvocationArgument> InvocationArguments { get; }
 
@@ -66,6 +69,19 @@ namespace PosInformatique.Moq.Analyzers
             }
 
             return true;
+        }
+
+        public IParameterSymbol? GetInvocationArgument(IParameterSymbol parameter)
+        {
+            foreach (var invocationArgument in this.InvocationArguments)
+            {
+                if (SymbolEqualityComparer.Default.Equals(invocationArgument.ParameterSymbol, parameter))
+                {
+                    return invocationArgument.ParameterSymbol;
+                }
+            }
+
+            return null;
         }
     }
 }

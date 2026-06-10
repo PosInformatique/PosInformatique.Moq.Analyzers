@@ -50,6 +50,7 @@
     <File Path="docs/Design/PosInfoMoq1008.md" />
     <File Path="docs/Design/PosInfoMoq1009.md" />
     <File Path="docs/Design/PosInfoMoq1010.md" />
+    <File Path="docs/Design/PosInfoMoq1011.md" />
   </Folder>
   <Folder Name="/Solution Items/src/">
     <File Path="src/Directory.Build.props" />
