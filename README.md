@@ -47,6 +47,7 @@ Design rules used to make your unit tests more strongly strict.
 | [PosInfoMoq1008: The `Mock.Verify()` and `Mock.VerifyAll()` methods must specify at least one mock.](docs/Design/PosInfoMoq1008.md) | When calling the static methods `Mock.Verify()` or `Mock.VerifyAll()` without providing any `Mock<T>` instances, no verification is performed. |
 | [PosInfoMoq1009: Avoid using `Verifiable()` method](docs/Design/PosInfoMoq1009.md) | A `Verify()` of an `Mock<T>` instance has not been called in the *Assert* phase of an unit test for `Verifiable()` setups. |
 | [PosInfoMoq1010: Use `+= null` syntax when raising events with `Raise()`/`RaiseAsync()`](docs/Design/PosInfoMoq1010.md) | When using `Mock<T>.Raise()` or `Mock<T>.RaiseAsync()`, the lambda expression used to identify the event should consistently use the `+= null` syntax. |
+| [PosInfoMoq1011: The `Setup()` expression must explicitly specify optional argument values](docs/Design/PosInfoMoq1011.md) | When setting up a method with optional arguments, the default values must be written explicitly in the `Setup()` expression. |
 
 ### Compilation
 

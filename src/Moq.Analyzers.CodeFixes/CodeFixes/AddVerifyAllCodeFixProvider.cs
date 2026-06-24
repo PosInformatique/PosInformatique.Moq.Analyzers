@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace PosInformatique.Moq.Analyzers
+namespace PosInformatique.Moq.Analyzers.CodeFixes
 {
     using System.Collections.Immutable;
     using System.Composition;
@@ -20,7 +20,7 @@ namespace PosInformatique.Moq.Analyzers
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
-            get { return ImmutableArray.Create(VerifyAllShouldBeCalledAnalyzer.Rule.Id); }
+            get { return ImmutableArray.Create(AnalyzerRules.VerifyAllShouldBeCalledAnalyzerRuleId); }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()

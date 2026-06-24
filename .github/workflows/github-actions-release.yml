@@ -7,7 +7,7 @@ on:
         type: string
         description: The version of the library
         required: true
-        default: 2.0.1
+        default: 2.1.0
       VersionSuffix:
         type: string
         description: The version suffix of the library (for example rc.1)
@@ -18,12 +18,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup .NET 8.x
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
       
       - name: Build
         run: dotnet pack 

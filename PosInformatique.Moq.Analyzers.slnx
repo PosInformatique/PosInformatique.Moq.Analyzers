@@ -1,0 +1,71 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="CodeCoverage.runsettings" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="stylecop.json" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/" />
+  <Folder Name="/Solution Items/.github/workflows/">
+    <File Path=".github/workflows/github-actions-ci.yaml" />
+    <File Path=".github/workflows/github-actions-release.yml" />
+  </Folder>
+  <Folder Name="/Solution Items/docs/" />
+  <Folder Name="/Solution Items/docs/Compilation/">
+    <File Path="docs/Compilation/PosInfoMoq2000.md" />
+    <File Path="docs/Compilation/PosInfoMoq2001.md" />
+    <File Path="docs/Compilation/PosInfoMoq2002.md" />
+    <File Path="docs/Compilation/PosInfoMoq2003.md" />
+    <File Path="docs/Compilation/PosInfoMoq2004.md" />
+    <File Path="docs/Compilation/PosInfoMoq2005.md" />
+    <File Path="docs/Compilation/PosInfoMoq2006.md" />
+    <File Path="docs/Compilation/PosInfoMoq2007.md" />
+    <File Path="docs/Compilation/PosInfoMoq2008.md" />
+    <File Path="docs/Compilation/PosInfoMoq2009.md" />
+    <File Path="docs/Compilation/PosInfoMoq2010.md" />
+    <File Path="docs/Compilation/PosInfoMoq2011.md" />
+    <File Path="docs/Compilation/PosInfoMoq2012.md" />
+    <File Path="docs/Compilation/PosInfoMoq2013.md" />
+    <File Path="docs/Compilation/PosInfoMoq2014.md" />
+    <File Path="docs/Compilation/PosInfoMoq2015.md" />
+    <File Path="docs/Compilation/PosInfoMoq2016.md" />
+    <File Path="docs/Compilation/PosInfoMoq2017.md" />
+    <File Path="docs/Compilation/PosInfoMoq2018.md" />
+    <File Path="docs/Compilation/PosInfoMoq2019.md" />
+  </Folder>
+  <Folder Name="/Solution Items/docs/Design/">
+    <File Path="docs/design/PosInfoMoq1000.md" />
+    <File Path="docs/design/PosInfoMoq1001.md" />
+    <File Path="docs/Design/PosInfoMoq1002.md" />
+    <File Path="docs/Design/PosInfoMoq1003.md" />
+    <File Path="docs/Design/PosInfoMoq1004.md" />
+    <File Path="docs/Design/PosInfoMoq1005.md" />
+    <File Path="docs/Design/PosInfoMoq1006.md" />
+    <File Path="docs/Design/PosInfoMoq1007.md" />
+    <File Path="docs/Design/PosInfoMoq1008.md" />
+    <File Path="docs/Design/PosInfoMoq1009.md" />
+    <File Path="docs/Design/PosInfoMoq1010.md" />
+    <File Path="docs/Design/PosInfoMoq1011.md" />
+  </Folder>
+  <Folder Name="/Solution Items/src/">
+    <File Path="src/Directory.Build.props" />
+  </Folder>
+  <Folder Name="/Solution Items/tests/">
+    <File Path="tests/.editorconfig" />
+    <File Path="tests/Directory.Build.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <File Path="src/.editorconfig" />
+  </Folder>
+  <Project Path="src/Moq.Analyzers.CodeFixes/Moq.Analyzers.CodeFixes.csproj" />
+  <Project Path="src/Moq.Analyzers.Shared/Moq.Analyzers.Shared.shproj" />
+  <Project Path="src/Moq.Analyzers/Moq.Analyzers.csproj" />
+  <Project Path="tests/Moq.Analyzers.CodeFixes.Tests/Moq.Analyzers.CodeFixes.Tests.csproj" />
+  <Project Path="tests/Moq.Analyzers.Sandbox/Moq.Analyzers.Sandbox.csproj" />
+  <Project Path="tests/Moq.Analyzers.Tests/Moq.Analyzers.Tests.csproj" />
+</Solution>

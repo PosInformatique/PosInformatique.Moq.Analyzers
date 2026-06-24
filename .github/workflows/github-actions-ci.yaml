@@ -10,28 +10,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup .NET 8.x
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.x'
 
       - name: Restore dependencies
-        run: dotnet restore PosInformatique.Moq.Analyzers.sln
+        run: dotnet restore PosInformatique.Moq.Analyzers.slnx
 
       - name: Build solution
         run: |
-          dotnet build PosInformatique.Moq.Analyzers.sln \
+          dotnet build PosInformatique.Moq.Analyzers.slnx \
           --configuration Release \
           --no-restore
 
       - name: Run tests
         run: |
-          dotnet test PosInformatique.Moq.Analyzers.sln \
+          dotnet test \
+          --solution PosInformatique.Moq.Analyzers.slnx \
           --configuration Release \
           --no-build \
-          --logger "trx;LogFileName=test_results.trx" \
+          --coverage \
+          --coverage-output-format cobertura \
+          --coverage-settings CodeCoverage.runsettings \
+          --report-trx \
           --results-directory ./TestResults
   
       - name: Publish Test Results

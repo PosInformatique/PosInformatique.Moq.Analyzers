@@ -15,10 +15,8 @@ namespace PosInformatique.Moq.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class MockInstanceShouldBeStrictBehaviorAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "PosInfoMoq1001";
-
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
-            DiagnosticId,
+            AnalyzerRules.MockInstanceShouldBeStrictBehaviorAnalyzerRuleId,
             "The mocked instances behavior should be defined to Strict mode",
             "The mocked instances behavior should be defined to Strict mode",
             "Design",

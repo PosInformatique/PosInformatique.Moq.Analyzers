@@ -4,7 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace PosInformatique.Moq.Analyzers.Tests
+namespace PosInformatique.Moq.Analyzers.CodeFixes.Tests
 {
     using Microsoft.CodeAnalysis.CodeFixes;
     using Microsoft.CodeAnalysis.CSharp.Testing;

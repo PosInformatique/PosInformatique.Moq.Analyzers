@@ -85,7 +85,7 @@ namespace PosInformatique.Moq.Analyzers
 
             // Compare the parameters between the mocked method and lambda expression in the CallBack() method.
             // 1- Compare the number of the parameters
-            if (callBackLambdaExpressionSymbol.Parameters.Length != setupMethod.InvocationArguments.Count)
+            if (callBackLambdaExpressionSymbol.Parameters.Length != setupMethod.Parameters.Count)
             {
                 var diagnostic = Diagnostic.Create(CallbackMustMatchSignature, lambdaExpression!.ParameterList.GetLocation());
                 context.ReportDiagnostic(diagnostic);
@@ -97,7 +97,7 @@ namespace PosInformatique.Moq.Analyzers
             for (var i = 0; i < callBackLambdaExpressionSymbol.Parameters.Length; i++)
             {
                 // Special case, if the argument is IsAnyType
-                if (moqSymbols.IsAnyType(setupMethod.InvocationArguments[i].ParameterSymbol.Type))
+                if (moqSymbols.IsAnyType(setupMethod.Parameters[i].Type))
                 {
                     // The callback parameter associated must be an object.
                     if (callBackLambdaExpressionSymbol.Parameters[i].Type.SpecialType != SpecialType.System_Object)
@@ -108,7 +108,7 @@ namespace PosInformatique.Moq.Analyzers
                         continue;
                     }
                 }
-                else if (!SymbolEqualityComparer.Default.Equals(callBackLambdaExpressionSymbol.Parameters[i].Type, setupMethod.InvocationArguments[i].ParameterSymbol.Type))
+                else if (!SymbolEqualityComparer.Default.Equals(callBackLambdaExpressionSymbol.Parameters[i].Type, setupMethod.Parameters[i].Type))
                 {
                     var diagnostic = Diagnostic.Create(CallbackMustMatchSignature, lambdaExpression!.ParameterList.Parameters[i].GetLocation());
                     context.ReportDiagnostic(diagnostic);

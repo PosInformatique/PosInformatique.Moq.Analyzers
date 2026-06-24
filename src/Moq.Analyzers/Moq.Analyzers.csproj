@@ -1,22 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-
-    <LangVersion>latest</LangVersion>
-	  <Nullable>enable</Nullable>
-
-    <DevelopmentDependency>true</DevelopmentDependency>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
 
     <Description>PosInformatique.Moq.Analyzers is a library to verify syntax and code design when writing the unit tests using the Moq library.</Description>
     <PackageIcon>Icon.png</PackageIcon>
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      2.1.0
+      - Add new rules:
+        - PosInfoMoq1011: The Setup() expression must explicitly specify optional argument values.
+      - Fix the PosInfoMoq2003 rule to check the signature of the Callback() method when using the default parameters in the interfaces.
+
+      2.0.1
+      - Fix the PosInfoMoq2005 which raised an error with constructor that contains array parameters
+
       2.0.0
       - Add new rules:
         - PosInfoMoq1010: Use '+= null' syntax when raising events with Raise()/RaiseAsync()
@@ -127,13 +125,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.7.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
   </ItemGroup>
+
+  <Import Project="..\Moq.Analyzers.Shared\Moq.Analyzers.Shared.projitems" Label="Shared" />
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
@@ -151,6 +146,7 @@
   <Target Name="_AddAnalyzersToOutput">
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(OutputPath)\$(AssemblyName).dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="..\Moq.Analyzers.CodeFixes\$(OutputPath)\$(AssemblyName).CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
     </ItemGroup>
   </Target>
 
@@ -159,5 +155,10 @@
       <_Parameter1>PosInformatique.Moq.Analyzers.Tests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
+
+  <Target Name="BuildCodeFixes" BeforeTargets="Build">
+    <MSBuild Projects="..\Moq.Analyzers.CodeFixes\Moq.Analyzers.CodeFixes.csproj"
+             Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+  </Target>
 
 </Project>
