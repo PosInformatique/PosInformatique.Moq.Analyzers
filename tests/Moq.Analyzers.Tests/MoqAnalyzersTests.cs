@@ -15,6 +15,22 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 using System;
                 using System.Linq.Expressions;
 
+                public enum MockBehavior
+                {
+                    Strict,
+                }
+
+                public static class Mock
+                {
+                    public static T Of<T>() { return default; }
+
+                    public static T Of<T>(MockBehavior behavior) { return default; }
+
+                    public static T Of<T>(Expression<Func<T, bool>> predicate) { return default; }
+
+                    public static T Of<T>(Expression<Func<T, bool>> predicate, MockBehavior behavior) { return default; }
+                }
+
                 public class Mock<T>
                 {
                     public void As<TInterface>() { }

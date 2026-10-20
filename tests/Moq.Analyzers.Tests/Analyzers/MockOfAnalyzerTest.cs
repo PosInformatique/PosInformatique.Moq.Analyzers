@@ -10,596 +10,252 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
     public class MockOfAnalyzerTest
     {
-        [Fact]
-        public async Task NoSealedClass_NoDiagnosticReported()
+        private const string TestTypes =
+            """
+            public class StandardClass
+            {
+                public int Property { get; }
+            }
+
+            public class StandardClassWithMultipleConstructors
+            {
+                public StandardClassWithMultipleConstructors() { }
+
+                public StandardClassWithMultipleConstructors(int a) { }
+
+                public StandardClassWithMultipleConstructors(string b) { }
+
+                public int Property { get; }
+            }
+
+            public interface I
+            {
+                int Property { get; }
+            }
+
+            public abstract class AbstractClass
+            {
+                public int Property { get; }
+            }
+
+            public abstract class AbstractClassWithMultipleConstructors
+            {
+                public AbstractClassWithMultipleConstructors() { }
+
+                public AbstractClassWithMultipleConstructors(int a) { }
+
+                public AbstractClassWithMultipleConstructors(string b) { }
+
+                public int Property { get; }
+            }
+
+            public sealed class SealedClass
+            {
+                public int Property { get; }
+            }
+
+            public class NoParameterlessConstructorClass
+            {
+                public NoParameterlessConstructorClass(int a) { }
+            }
+
+            public abstract class AbstractNoParameterlessConstructorClass
+            {
+                public AbstractNoParameterlessConstructorClass(int a) { }
+            }
+
+            public class PrivateParameterlessConstructorClass
+            {
+                private PrivateParameterlessConstructorClass() { }
+            }
+
+            public abstract class AbstractPrivateParameterlessConstructorClass
+            {
+                private AbstractPrivateParameterlessConstructorClass() { }
+            }
+            """;
+
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """
+            var mock = Mock.Of<StandardClass>();
+            """,
+
+            """
+            var mock = Mock.Of<StandardClassWithMultipleConstructors>();
+            """,
+
+            """
+            var mock = Mock.Of<StandardClass>(sc => sc.Property == 1234);
+            """,
+
+            """
+            var mock = Mock.Of<StandardClassWithMultipleConstructors>(sc => sc.Property == 1234);
+            """,
+
+            """
+            var mock = Mock.Of<I>();
+            """,
+
+            """
+            var mock = Mock.Of<I>(sc => sc.Property == 1234);
+            """,
+
+            """
+            var mock = Mock.Of<AbstractClass>();
+            """,
+
+            """
+            var mock = Mock.Of<AbstractClass>(MockBehavior.Strict);
+            """,
+
+            """
+            var mock = Mock.Of<AbstractClassWithMultipleConstructors>();
+            """,
+
+            """
+            var mock = Mock.Of<AbstractClassWithMultipleConstructors>(MockBehavior.Strict);
+            """,
+
+            """
+            var mock = Mock.Of<AbstractClass>(sc => sc.Property == 1234);
+            """,
+
+            """
+            var mock = Mock.Of<AbstractClass>(sc => sc.Property == 1234, MockBehavior.Strict);
+            """,
+
+            """
+            var mock = Mock.Of<AbstractClassWithMultipleConstructors>(sc => sc.Property == 1234);
+            """,
+
+            """
+            var mock = Mock.Of<AbstractClassWithMultipleConstructors>(sc => sc.Property == 1234, MockBehavior.Strict);
+            """,
+
+            // Ignored by the analysis because it is not a Mock.Of() call.
+            """
+            string.Format("Ignored");
+            """,
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """
+            var mock = Mock.Of<{|PosInfoMoq2009:SealedClass|}>();
+            """,
+
+            """
+            var mock = Mock.Of<{|PosInfoMoq2009:SealedClass|}>(sc => sc.Property == 1234);
+            """,
+
+            """
+            var mock = Mock.Of<{|PosInfoMoq2009:string|}>();
+            """,
+
+            """
+            var mock = Mock.Of<{|PosInfoMoq2009:string|}>(MockBehavior.Strict);
+            """,
+
+            """
+            var mock = Mock.Of<{|PosInfoMoq2009:string|}>(sc => sc.Length == 1234);
+            """,
+
+            """
+            var mock = Mock.Of<{|PosInfoMoq2009:string|}>(sc => sc.Length == 1234, MockBehavior.Strict);
+            """,
+
+            """
+            var mock = Mock.Of(({|PosInfoMoq2009:string|} sc) => sc.Length == 1234);
+            """,
+
+            """
+            var mock = Mock.Of(({|PosInfoMoq2009:string|} sc) => sc.Length == 1234, MockBehavior.Strict);
+            """,
+
+            """
+            var mock = Mock.Of<{|PosInfoMoq2010:NoParameterlessConstructorClass|}>();
+            """,
+
+            """
+            var mock = Mock.Of<{|PosInfoMoq2010:AbstractNoParameterlessConstructorClass|}>();
+            """,
+
+            """
+            var mock = Mock.Of(({|PosInfoMoq2010:NoParameterlessConstructorClass|} m) => true);
+            """,
+
+            """
+            var mock = Mock.Of(({|PosInfoMoq2010:AbstractNoParameterlessConstructorClass|} m) => true);
+            """,
+
+            """
+            var mock = Mock.Of<{|PosInfoMoq2010:PrivateParameterlessConstructorClass|}>();
+            """,
+
+            """
+            var mock = Mock.Of<{|PosInfoMoq2010:AbstractPrivateParameterlessConstructorClass|}>();
+            """,
+
+            """
+            var mock = Mock.Of(({|PosInfoMoq2010:PrivateParameterlessConstructorClass|} m) => true);
+            """,
+
+            """
+            var mock = Mock.Of(({|PosInfoMoq2010:AbstractPrivateParameterlessConstructorClass|} m) => true);
+            """,
+        ];
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
-                    using System;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock = Mock.Of<StandardClass>();
+                            {{code}}
                         }
                     }
 
-                    public class StandardClass
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoSealedClass_WithMultipleConstructors_NoDiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<StandardClass>();
-                        }
-                    }
-
-                    public class StandardClass
-                    {
-                        public StandardClass()
-                        {
-                        }
-
-                        public StandardClass(int a)
-                        {
-                        }
-
-                        public StandardClass(string b)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoSealedClass_WithExpression_NoDiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<StandardClass>(sc => sc.Property == 1234);
-                        }
-                    }
-
-                    public class StandardClass
-                    {
-                        public int Property { get; }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoSealedClass_WithExpression_WithMultipleConstructors_NoDiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<StandardClass>(sc => sc.Property == 1234);
-                        }
-                    }
-
-                    public class StandardClass
-                    {
-                        public StandardClass()
-                        {
-                        }
-
-                        public StandardClass(int a)
-                        {
-                        }
-
-                        public StandardClass(string b)
-                        {
-                        }
-
-                        public int Property { get; }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Interface_NoDiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<I>();
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Interface_WithExpression_NoDiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<I>(sc => sc.Property == 1234);
-                        }
-                    }
-
-                    public interface I
-                    {
-                        int Property { get; }
-                    }
-                }";
+                    {{TestTypes}}
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData("MockBehavior.Strict")]
-        public async Task AbstractClass_NoDiagnosticReported(string mockBehavior)
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using Moq;
-                    using System;
+                    using FakeMoqLibrary;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock = Mock.Of<AbstractClass>(" + mockBehavior + @");
+                            {{code}}
                         }
                     }
 
-                    public abstract class AbstractClass
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("MockBehavior.Strict")]
-        public async Task AbstractClass_WithMultipleConstructors_NoDiagnosticReported(string mockBehavior)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<AbstractClass>(" + mockBehavior + @");
-                        }
-                    }
-
-                    public abstract class AbstractClass
-                    {
-                        public AbstractClass()
-                        {
-                        }
-
-                        public AbstractClass(int a)
-                        {
-                        }
-
-                        public AbstractClass(string b)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(", MockBehavior.Strict")]
-        public async Task AbstractClass_WithExpression_NoDiagnosticReported(string mockBehavior)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<AbstractClass>(sc => sc.Property == 1234" + mockBehavior + @");
-                        }
-                    }
-
-                    public abstract class AbstractClass
-                    {
-                        public int Property { get; }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(", MockBehavior.Strict")]
-        public async Task AbstractClass_WithExpression_WithMultipleConstructors_NoDiagnosticReported(string mockBehavior)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<AbstractClass>(sc => sc.Property == 1234" + mockBehavior + @");
-                        }
-                    }
-
-                    public abstract class AbstractClass
-                    {
-                        public int Property { get; }
-
-                        public AbstractClass()
-                        {
-                        }
-
-                        public AbstractClass(int a)
-                        {
-                        }
-
-                        public AbstractClass(string b)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMockOfUsage_NoDiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            string.Format(""Ignored"");     // Ignored by the analysis.
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task SealedClass_DiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<{|PosInfoMoq2009:SealedClass|}>();
-                        }
-                    }
-
-                    public sealed class SealedClass
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task SealedClass_WithExpression_DiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<{|PosInfoMoq2009:SealedClass|]>(sc => sc.Property == 1234);
-                        }
-                    }
-
-                    public sealed class SealedClass
-                    {
-                        public int Property { get; }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("MockBehavior.Strict")]
-        public async Task Struct_DiagnosticReported(string mockBehavior)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<{|PosInfoMoq2009:string|]>(" + mockBehavior + @");
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(", MockBehavior.Strict")]
-        public async Task Struct_WithExpression_DiagnosticReported(string mockBehavior)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<{|PosInfoMoq2009:string|]>(sc => sc.Length == 1234" + mockBehavior + @");
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(", MockBehavior.Strict")]
-        public async Task Struct_WithExpressionAndTypeInLambdaParameter_DiagnosticReported(string mockBehavior)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of(({|PosInfoMoq2009:string|] sc) => sc.Length == 1234" + mockBehavior + @");
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("abstract")]
-        public async Task NoParameterLessConstructor_DiagnosticReported(string classModifiers)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<{|PosInfoMoq2010:MockClass|}>();
-                        }
-                    }
-
-                    public " + classModifiers + @" class MockClass
-                    {
-                        public MockClass(int a) { }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("abstract")]
-        public async Task NoParameterLessConstructor_WithExpression_DiagnosticReported(string classModifiers)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of(({|PosInfoMoq2010:MockClass|} m) => true);
-                        }
-                    }
-
-                    public " + classModifiers + @" class MockClass
-                    {
-                        public MockClass(int a) { }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("abstract")]
-        public async Task PrivateParameterLessConstructor_DiagnosticReported(string classModifiers)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<{|PosInfoMoq2010:MockClass|}>();
-                        }
-                    }
-
-                    public " + classModifiers + @" class MockClass
-                    {
-                        private MockClass() { }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("abstract")]
-        public async Task PrivateParameterLessConstructor_WithExpression_DiagnosticReported(string classModifiers)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of(({|PosInfoMoq2010:MockClass|} m) => true);
-                        }
-                    }
-
-                    public " + classModifiers + @" class MockClass
-                    {
-                        private MockClass() { }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = Mock.Of<I>();
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
+                    {{TestTypes}}
                 }
 
-                namespace OtherNamespace
-                {
-                    public static class Mock
-                    {
-                        public static T Of<T>() { return default; }
-                    }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
