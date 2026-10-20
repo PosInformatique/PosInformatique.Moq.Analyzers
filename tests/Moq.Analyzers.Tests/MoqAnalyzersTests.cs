@@ -29,6 +29,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 public enum MockBehavior
                 {
                     Strict,
+                    Loose,
+                    Default = Loose,
                 }
 
                 public struct Times

@@ -10,371 +10,119 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
     public class MockInstanceShouldBeStrictBehaviorAnalyzerTest
     {
-        [Fact]
-        public async Task NewMock_NoMock()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var obj = new object();
-                        }
-                    }
-                }";
+        private const string TestTypes =
+            """
+            public interface I { }
 
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
+            public class C : I { }
+            """;
+
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """var obj = new object();""",
+
+            """string.Format("Ignored");""",
+
+            """var mock = new Mock<I>(MockBehavior.Strict);""",
+
+            """var mock = new Mock<I>(MockBehavior.Strict, 1, 2);""",
+
+            """var mock = new Mock<I>(() => new C(), MockBehavior.Strict);""",
+
+            """var mock = new Mock<I>((Expression<Func<I>>)null, MockBehavior.Strict);""",
+
+            """var mock = Mock.Of<I>(MockBehavior.Strict);""",
+
+            """var mock = Mock.Of<I>(i => true, MockBehavior.Strict);""",
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """var mock = {|PosInfoMoq1001:new Mock<I>(MockBehavior.Loose)|};""",
+
+            """var mock = {|PosInfoMoq1001:new Mock<I>(MockBehavior.Default)|};""",
+
+            """var mock = {|PosInfoMoq1001:new Mock<I>(MockBehavior.Loose, 1, 2)|};""",
+
+            """var mock = {|PosInfoMoq1001:new Mock<I>(MockBehavior.Default, 1, 2)|};""",
+
+            """var mock = {|PosInfoMoq1001:new Mock<I>(() => new C(), MockBehavior.Loose)|};""",
+
+            """var mock = {|PosInfoMoq1001:new Mock<I>(() => new C(), MockBehavior.Default)|};""",
+
+            """var mock = {|PosInfoMoq1001:new Mock<I>()|};""",
+
+            """var mock = {|PosInfoMoq1001:new Mock<I> { }|};""",
+
+            """var mock = {|PosInfoMoq1001:new Mock<I>(default, 1, 2)|};""",
+
+            """var mock = {|PosInfoMoq1001:Mock.Of<I>(MockBehavior.Loose)|};""",
+
+            """var mock = {|PosInfoMoq1001:Mock.Of<I>(MockBehavior.Default)|};""",
+
+            """var mock = {|PosInfoMoq1001:Mock.Of<I>(i => true, MockBehavior.Loose)|};""",
+
+            """var mock = {|PosInfoMoq1001:Mock.Of<I>(i => true, MockBehavior.Default)|};""",
+
+            """var mock = {|PosInfoMoq1001:Mock.Of<I>()|};""",
+
+            """var mock = {|PosInfoMoq1001:Mock.Of<I>(i => true)|};""",
+        ];
 
         [Theory]
-        [InlineData("")]
-        [InlineData(", 1, 2")]
-        public async Task NewMock_BehaviorStrict(string args)
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(MockBehavior.Strict" + args + @");
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NewMock_BehaviorStrict_WithFactoryLambdaArgument()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
                     using System;
                     using System.Linq.Expressions;
-                    using Moq;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>(() => new C(), MockBehavior.Strict);
-                            var mock2 = new Mock<I>((Expression<Func<I>>)null, MockBehavior.Strict);
+                            {{code}}
                         }
                     }
 
-                    public interface I
-                    {
-                    }
-
-                    public class C : I
-                    {
-                    }
-                }";
+                    {{TestTypes}}
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
-        [InlineData("Loose", "")]
-        [InlineData("Default", "")]
-        [InlineData("Loose", ", 1, 2")]
-        [InlineData("Default", ", 1, 2")]
-        public async Task NewMock_BehaviorDifferentOfStrict(string mode, string args)
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using Moq;
+                    using FakeMoqLibrary;
+                    using System;
+                    using System.Linq.Expressions;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = [|new Mock<I>(MockBehavior." + mode + args + @")|];
+                            {{code}}
                         }
                     }
 
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("Loose")]
-        [InlineData("Default")]
-        public async Task NewMock_BehaviorDifferentOfStrict_WithFactoryLambdaArgument(string mode)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = [|new Mock<I>(() => new C(), MockBehavior." + mode + @")|];
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-
-                    public class C : I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NewMock_NoBehavior()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = [|new Mock<I>()|];
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NewMock_NoBehavior_WithNullArgumentList()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = [|new Mock<I> { }|];
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NewMock_Behavior_NotMemberAccessExpression()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = [|new Mock<I>(default, 1, 2)|];
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NewMock_NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(MockBehavior.Strict);
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
+                    {{TestTypes}}
                 }
 
-                namespace OtherNamespace
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _) { }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
-
-            await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
-        }
-
-        [Fact]
-        public async Task MockOf_NoMock()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            string.Format(""Ignored"");
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("i => true, ")]
-        public async Task MockOf_BehaviorStrict(string predicate)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = Mock.Of<I>(" + predicate + @"MockBehavior.Strict);
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("", "Loose")]
-        [InlineData("", "Default")]
-        [InlineData("i => true, ", "Loose")]
-        [InlineData("i => true, ", "Default")]
-        public async Task MockOf_BehaviorDifferentOfStrict(string predicate, string mode)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = [|Mock.Of<I>(" + predicate + "MockBehavior." + mode + @")|];
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task MockOf_NoBehavior()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = [|new Mock<I>()|];
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task MockOf_NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = Mock.Of<I>(MockBehavior.Strict);
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }
-
-                namespace OtherNamespace
-                {
-                    public class Mock
-                    {
-                        public static T Of<T>(MockBehavior behavior) { return default; }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
