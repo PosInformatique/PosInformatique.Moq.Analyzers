@@ -43,6 +43,16 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                 public class SetupResult
                 {
+                    public SetupResult Callback(Action callback) { return this; }
+
+                    public SetupResult Callback<T>(Action<T> callback) { return this; }
+
+                    public SetupResult Callback<T1, T2>(Action<T1, T2> callback) { return this; }
+
+                    public SetupResult Callback<T1, T2, T3, T4>(Action<T1, T2, T3, T4> callback) { return this; }
+
+                    public void Throws(Exception exception) { }
+
                     public void Verifiable() { }
 
                     public void Verifiable(string failMessage) { }
@@ -51,6 +61,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public void Verifiable(Func<Times> times, string failMessage = null) { }
                 }
+
+                public class SetupResult<T> : SetupResult, Language.Flow.ISetup<T> { }
+
+                public class MockSequence { }
 
                 public abstract class Mock
                 {
@@ -81,7 +95,9 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public void As<TInterface>() { }
 
-                    public void Setup(Expression<Action<T>> expression) { }
+                    public Mock<T> InSequence(MockSequence sequence) { return this; }
+
+                    public SetupResult<T> Setup(Expression<Action<T>> expression) { return default; }
 
                     public SetupResult Setup<TResult>(Expression<Func<T, TResult>> expression) { return default; }
 
@@ -103,6 +119,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public void Verify(Expression<Action<T>> expression, Func<Times> times, string failMessage = null) { }
                 }
+            }
+
+            namespace FakeMoqLibrary.Language.Flow
+            {
+                public interface ISetup<T> { }
             }
 
             namespace FakeMoqLibrary.Protected
