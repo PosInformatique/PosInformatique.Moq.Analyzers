@@ -6,123 +6,112 @@
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using Microsoft.CodeAnalysis.Testing;
     using Verifier = MoqCSharpAnalyzerVerifier<CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer>;
 
     public class CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzerTest
     {
-        [Fact]
-        public async Task NoCallback_DiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
+        private const string TestTypes =
+            """
+            public interface I
+            {
+                void TestMethod();
 
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>();
-                            mock1.Setup(m => m.TestMethod({|#0:It.IsAny<string>()|#0}, {|#1:It.IsAny<int>()|#1}));
-                            mock1.Setup(m => m.TestMethod(""Ignored"", {|#2:It.IsAny<int>()|#2}));
-                            mock1.Setup(m => m.TestMethod({|#3:It.IsAny<string>()|#3}, 1234));
-                            mock1.Setup(m => m.TestMethod({|#4:It.IsAny<string>()|#4}));
-                       }
-                    }
+                void TestMethod(string a);
 
-                    public interface I
-                    {
-                        void TestMethod(string a);
+                void TestMethod(string a, int b);
+            }
+            """;
 
-                        void TestMethod(string a, int b);
-                    }
-                }";
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """
+            mock.Setup(m => m.TestMethod(It.IsAny<string>()))
+                .Callback(() => { });
+            """,
 
-            await Verifier.VerifyAnalyzerAsync(
-                source,
-                [
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithLocation(0)
-                        .WithArguments("a"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithLocation(1)
-                        .WithArguments("b"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithLocation(2)
-                        .WithArguments("b"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithLocation(3)
-                        .WithArguments("a"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithLocation(4)
-                        .WithArguments("a"),
-                ]);
-        }
+            """
+            mock.InSequence(sequence).Setup(m => m.TestMethod(It.IsAny<string>()))
+                .Callback(() => { });
+            """,
 
-        [Fact]
-        public async Task NoCallback_DiagnosticReported_WithSequence()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using System;
+            """
+            mock.Setup(m => m.TestMethod(It.IsAny<string>(), It.IsAny<int>()))
+                .Callback(() => { });
+            """,
 
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var sequence = new MockSequence();
+            """
+            mock.InSequence(sequence).Setup(m => m.TestMethod(It.IsAny<string>(), It.IsAny<int>()))
+                .Callback(() => { });
+            """,
 
-                            var mock1 = new Mock<I>();
-                            mock1.InSequence(sequence).Setup(m => m.TestMethod({|#0:It.IsAny<string>()|#0}, {|#1:It.IsAny<int>()|#1}));
-                            mock1.InSequence(sequence).Setup(m => m.TestMethod(""Ignored"", {|#2:It.IsAny<int>()|#2}));
-                            mock1.InSequence(sequence).Setup(m => m.TestMethod({|#3:It.IsAny<string>()|#3}, 1234));
-                            mock1.InSequence(sequence).Setup(m => m.TestMethod({|#4:It.IsAny<string>()|#4}));
-                       }
-                    }
+            """
+            mock.Setup(m => m.TestMethod("OK", It.IsAny<int>()))
+                .Callback(() => { });
+            """,
 
-                    public interface I
-                    {
-                        void TestMethod(string a);
+            """
+            mock.InSequence(sequence).Setup(m => m.TestMethod("OK", It.IsAny<int>()))
+                .Callback(() => { });
+            """,
 
-                        void TestMethod(string a, int b);
-                    }
-                }";
+            """
+            mock.Setup(m => m.TestMethod(It.IsAny<string>(), 1234))
+                .Callback(() => { });
+            """,
 
-            await Verifier.VerifyAnalyzerAsync(
-                source,
-                [
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithLocation(0)
-                        .WithArguments("a"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithLocation(1)
-                        .WithArguments("b"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithLocation(2)
-                        .WithArguments("b"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithLocation(3)
-                        .WithArguments("a"),
-                    new DiagnosticResult(CallBackDelegateShouldBeUsedWithItIsAnyParametersAnalyzer.Rule)
-                        .WithLocation(4)
-                        .WithArguments("a"),
-                ]);
-        }
+            """
+            mock.InSequence(sequence).Setup(m => m.TestMethod(It.IsAny<string>(), 1234))
+                .Callback(() => { });
+            """,
+
+            """mock.Setup(m => m.TestMethod());""",
+
+            """mock.InSequence(sequence).Setup(m => m.TestMethod());""",
+
+            """mock.Setup(m => m.TestMethod("OK", 1234));""",
+
+            """mock.InSequence(sequence).Setup(m => m.TestMethod("OK", 1234));""",
+
+            """
+            var strictMock = new Mock<I>(MockBehavior.Strict);
+            strictMock.Setup(m => m.TestMethod());
+            """,
+
+            """
+            var o = new object();
+            o.ToString();
+            """,
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """mock.Setup(m => m.TestMethod({|PosInfoMoq1003:It.IsAny<string>()|}, {|PosInfoMoq1003:It.IsAny<int>()|}));""",
+
+            """mock.InSequence(sequence).Setup(m => m.TestMethod({|PosInfoMoq1003:It.IsAny<string>()|}, {|PosInfoMoq1003:It.IsAny<int>()|}));""",
+
+            """mock.Setup(m => m.TestMethod("Ignored", {|PosInfoMoq1003:It.IsAny<int>()|}));""",
+
+            """mock.InSequence(sequence).Setup(m => m.TestMethod("Ignored", {|PosInfoMoq1003:It.IsAny<int>()|}));""",
+
+            """mock.Setup(m => m.TestMethod({|PosInfoMoq1003:It.IsAny<string>()|}, 1234));""",
+
+            """mock.InSequence(sequence).Setup(m => m.TestMethod({|PosInfoMoq1003:It.IsAny<string>()|}, 1234));""",
+
+            """mock.Setup(m => m.TestMethod({|PosInfoMoq1003:It.IsAny<string>()|}));""",
+
+            """mock.InSequence(sequence).Setup(m => m.TestMethod({|PosInfoMoq1003:It.IsAny<string>()|}));""",
+        ];
 
         [Theory]
-        [InlineData("")]
-        [InlineData(".InSequence(sequence)")]
-        public async Task Callback_NoDiagnosticReported(string sequence)
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
-                    using System;
 
                     public class TestClass
                     {
@@ -130,76 +119,44 @@ namespace PosInformatique.Moq.Analyzers.Tests
                         {
                             var sequence = new MockSequence();
 
-                            var mock1 = new Mock<I>();
-                            mock1" + sequence + @".Setup(m => m.TestMethod(It.IsAny<string>()))
-                                .Callback(() => { });
-                            mock1" + sequence + @".Setup(m => m.TestMethod(It.IsAny<string>(), It.IsAny<int>()))
-                                .Callback(() => { });
-                            mock1" + sequence + @".Setup(m => m.TestMethod(""OK"", It.IsAny<int>()))
-                                .Callback(() => { });
-                            mock1" + sequence + @".Setup(m => m.TestMethod(It.IsAny<string>(), 1234))
-                                .Callback(() => { });
-
-                            var mock2 = new Mock<I>();
-                            mock2" + sequence + @".Setup(m => m.TestMethod());
-
-                            var mock3 = new Mock<I>();
-                            mock3" + sequence + @".Setup(m => m.TestMethod(""OK"", 1234));
-
-                            var o = new object();
-                            o.ToString();   // Ignored
-                       }
+                            var mock = new Mock<I>();
+                            {{code}}
+                        }
                     }
 
-                    public interface I
-                    {
-                        void TestMethod();
-
-                        void TestMethod(string a);
-
-                        void TestMethod(string a, int b);
-                    }
-                }";
+                    {{TestTypes}}
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task NoMoqLibrary()
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using OtherNamespace;
+                    using FakeMoqLibrary;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>(MockBehavior.Strict);
-                            mock1.Setup(m => m.TestMethod());
+                            var sequence = new MockSequence();
+                            var mock = new Mock<I>();
+                            {{code}}
                         }
                     }
 
-                    public interface I
-                    {
-                        void TestMethod();
-                    }
+                    {{TestTypes}}
                 }
 
-                namespace OtherNamespace
-                {
-                    using System;
-
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _) { }
- 
-                        public void Setup(Action<T> act) { }
-                   }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
