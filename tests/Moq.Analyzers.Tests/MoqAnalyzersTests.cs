@@ -13,7 +13,17 @@ namespace PosInformatique.Moq.Analyzers.Tests
             namespace FakeMoqLibrary
             {
                 using System;
+                using System.Collections.Generic;
                 using System.Linq.Expressions;
+
+                public static class It
+                {
+                    public static TValue IsAny<TValue>() { return default; }
+
+                    public static TValue Is<TValue>(Expression<Func<TValue, bool>> match) { return default; }
+
+                    public static TValue Is<TValue>(TValue value, IEqualityComparer<TValue> comparer) { return default; }
+                }
 
                 public enum MockBehavior
                 {
