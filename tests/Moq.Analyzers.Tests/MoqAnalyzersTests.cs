@@ -100,6 +100,21 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public void Verify(Expression<Action<T>> expression, Func<Times> times, string failMessage = null) { }
                 }
             }
+
+            namespace FakeMoqLibrary.Protected
+            {
+                public static class ProtectedExtension
+                {
+                    public static IProtectedMock<T> Protected<T>(this Mock<T> mock) where T : class { return default; }
+                }
+
+                public interface IProtectedMock<T> where T : class
+                {
+                    void Setup(string methodName, params object[] args);
+
+                    void Setup<TResult>(string methodName, params object[] args);
+                }
+            }
             """;
     }
 }
