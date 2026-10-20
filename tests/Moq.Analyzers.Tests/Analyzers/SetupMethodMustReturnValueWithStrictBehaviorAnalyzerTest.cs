@@ -11,10 +11,297 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
     public class SetupMethodMustReturnValueWithStrictBehaviorAnalyzerTest
     {
+        private const string TestTypes =
+            """
+            public interface I
+            {
+                int TestMethod();
+
+                Task<int> TestAsyncMethod();
+
+                int TestProperty { get; set; }
+
+                int Property { get; set; }
+            }
+
+            public interface IVoid
+            {
+                void TestMethod();
+            }
+
+            public enum OtherEnum { A, B }
+
+            public class CustomMock<T>
+            {
+                public CustomMock(MockBehavior behavior) { }
+
+                public void Setup() { }
+            }
+            """;
+
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """
+            var mock = new Mock<I>(MockBehavior.Strict);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { })
+                .Returns(1234);
+            """,
+
+            """
+            var mock = new Mock<I>(MockBehavior.Strict);
+            mock.Setup(i => i.TestAsyncMethod())
+                .Callback(() => { })
+                .ReturnsAsync(1234);
+            """,
+
+            """
+            var mock = new Mock<I>(MockBehavior.Strict);
+            mock.Setup(i => i.TestProperty)
+                .Callback(() => { })
+                .Returns(1234);
+            """,
+
+            """var mock = new Mock<I>(MockBehavior.Strict);""",
+
+            """
+            Mock<I> mock;
+            mock = new Mock<I>(MockBehavior.Strict);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var original = new Mock<I>(MockBehavior.Strict);
+            Mock<I> mock = original;
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            Mock<I> mock = new Mock<I>(MockBehavior.Strict);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { })
+                .Throws(new Exception());
+            """,
+
+            """
+            Mock<I> mock = new Mock<I>(MockBehavior.Strict);
+            mock.Setup(i => i.TestAsyncMethod())
+                .Callback(() => { })
+                .ThrowsAsync(new Exception());
+            """,
+
+            """
+            var obj = new object();
+            obj.ToString();
+            """,
+
+            """
+            var action = new Action(() => { });
+            action();
+            """,
+
+            """
+            var mock = new Mock<I>(MockBehavior.Loose);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>(MockBehavior.Loose);
+            mock.Setup(i => i.TestProperty)
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>();
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>();
+            mock.Setup(i => i.TestProperty)
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>(1, 2);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>(1, 2);
+            mock.Setup(i => i.TestProperty)
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>(OtherEnum.A, 1, 2);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>(OtherEnum.A, 1, 2);
+            mock.Setup(i => i.TestProperty)
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>(MockBehavior.Loose, 1, 2);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>(MockBehavior.Loose, 1, 2);
+            mock.Setup(i => i.TestProperty)
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<IVoid>(MockBehavior.Strict);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<IVoid>(MockBehavior.Strict, 1, 2);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<IVoid>(MockBehavior.Loose);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<IVoid>(MockBehavior.Loose, 1, 2);
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<IVoid>();
+            mock.Setup(i => i.TestMethod())
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>(MockBehavior.Loose);
+            mock.Setup(i => i.Property)
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>(MockBehavior.Loose, 1, 2);
+            mock.Setup(i => i.Property)
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>();
+            mock.Setup(i => i.Property)
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>();
+            mock.Verify();
+            """,
+
+            """
+            var mock = new CustomMock<I>(MockBehavior.Strict);
+            mock.Setup();
+            """,
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """
+            var mock = new Mock<I>(MockBehavior.Strict);
+            {|PosInfoMoq2000:mock.Setup(i => i.TestMethod())|}
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>(MockBehavior.Strict);
+            {|PosInfoMoq2000:mock.Setup(i => i.TestProperty)|}
+                .Callback(() => { });
+            """,
+
+            """
+            var mock = new Mock<I>();
+            var mock1 = new Mock<I>(MockBehavior.Strict);
+            var mock2 = new Mock<I>(MockBehavior.Strict);
+            {
+                {
+                    {|PosInfoMoq2000:mock1.Setup(i => i.TestMethod())|}
+                        .Callback(() => { });
+
+                    {|PosInfoMoq2000:mock1.Setup(i => i.TestProperty)|}
+                        .Callback(() => { });
+                }
+            }
+
+            {|PosInfoMoq2000:mock2.Setup(i => i.TestMethod())|}
+                .Callback(() => { });
+
+            {|PosInfoMoq2000:mock2.Setup(i => i.TestProperty)|}
+                .Callback(() => { });
+            """,
+        ];
+
         [Fact]
-        public async Task Returns_StrictMode_NoDiagnosticReported()
+        public async Task Returns_StrictMode_InvalidReturnsType_NoDiagnosticReported()
         {
-            var source = @"
+            var source =
+                $$"""
+                namespace ConsoleApplication1
+                {
+                    using Moq;
+
+                    public class TestClass
+                    {
+                        public void TestMethod()
+                        {
+                            var mock1 = new Mock<I>(MockBehavior.Strict);
+                            mock1.Setup(i => i.TestMethod())
+                                .Callback(() => { })
+                                .Returns({|#0:"Foobar"|});
+                            mock1.Setup(i => i.TestProperty)
+                                .Callback(() => { })
+                                .Returns({|#1:"Foobar"|});
+                        }
+                    }
+
+                    public interface I
+                    {
+                        int TestMethod();
+
+                        int TestProperty { get; set; }
+                    }
+                }
+                """;
+
+            await Verifier.VerifyAnalyzerAsync(
+                source,
+                DiagnosticResult.CompilerError("CS1503").WithLocation(0).WithArguments("1", "string", "int"),
+                DiagnosticResult.CompilerError("CS1503").WithLocation(1).WithArguments("1", "string", "int"));
+        }
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
+        {
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
@@ -25,340 +312,43 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>(MockBehavior.Strict);
-                            mock1.Setup(i => i.TestMethod())
-                                .Callback(() => { })
-                                .Returns(1234);
-
-                            var mock2 = new Mock<I>(MockBehavior.Strict);
-                            mock2.Setup(i => i.TestAsyncMethod())
-                                .Callback(() => { })
-                                .ReturnsAsync(1234);
-
-                            var mock3 = new Mock<I>(MockBehavior.Strict);
-
-                            // This scenario is not supported because the declaration is separated of the initialization.
-                            // So here, no error should be raised (Missing Returns() with Strict behavior).
-                            Mock<I> mock4;
-                            mock4 = new Mock<I>(MockBehavior.Strict);
-                            mock4.Setup(i => i.TestMethod())
-                                .Callback(() => { });
-
-                            // This scenario is not supported because the declaration is separated of the initialization.
-                            // So here, no error should be raised (Missing Returns() with Strict behavior).
-                            Mock<I> mock5 = mock1;
-                            mock5.Setup(i => i.TestMethod())
-                                .Callback(() => { });
-
-                            Mock<I> mock6 = new Mock<I>(MockBehavior.Strict);
-                            mock6.Setup(i => i.TestMethod())
-                                .Callback(() => { })
-                                .Throws(new Exception());
-
-                            Mock<I> mock7 = new Mock<I>(MockBehavior.Strict);
-                            mock7.Setup(i => i.TestAsyncMethod())
-                                .Callback(() => { })
-                                .ThrowsAsync(new Exception());
-
-                            var mock8 = new Mock<I>(MockBehavior.Strict);
-                            mock8.Setup(i => i.TestProperty)
-                                .Callback(() => { })
-                                .Returns(1234);
-
-                            var obj = new object();     // Ignored because not a Mock<T>
-                            obj.ToString();
-
-                            var action = new Action(() => { });
-                            action();                   // InvocationExpression ignored
+                            {{code}}
                         }
                     }
 
-                    public interface I
-                    {
-                        int TestMethod();
-
-                        Task<int> TestAsyncMethod();
-
-                        int TestProperty { get; set; }
-                    }
-                }";
+                    {{TestTypes}}
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task Returns_StrictMode_InvalidReturnsType_NoDiagnosticReported()
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(MockBehavior.Strict);
-                            mock1.Setup(i => i.TestMethod())
-                                .Callback(() => { })
-                                .Returns({|#0:""Foobar""|#0});
-                            mock1.Setup(i => i.TestProperty)
-                                .Callback(() => { })
-                                .Returns({|#1:""Foobar""|#1});
-                        }
-                    }
-
-                    public interface I
-                    {
-                        int TestMethod();
-
-                        int TestProperty { get; set; }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(
-                source,
-                DiagnosticResult.CompilerError("CS1503").WithLocation(0).WithArguments("1", "string", "int"),
-                DiagnosticResult.CompilerError("CS1503").WithLocation(1).WithArguments("1", "string", "int"));
-        }
-
-        [Fact]
-        public async Task NoReturns_WithBlocksAndMixedBeahviors_DiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
+                    using FakeMoqLibrary;
                     using System;
+                    using System.Threading.Tasks;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock = new Mock<I>();
-
-                            var mock1 = new Mock<I>(MockBehavior.Strict);
-                            var mock2 = new Mock<I>(MockBehavior.Strict);
-                            {
-                                {
-                                    [|mock1.Setup(i => i.TestMethod())|]
-                                        .Callback(() => { });
-
-                                    [|mock1.Setup(i => i.TestProperty)|]
-                                        .Callback(() => { });
-                                }
-                            }
-
-                            [|mock2.Setup(i => i.TestMethod())|]
-                                .Callback(() => { });
-
-                            [|mock2.Setup(i => i.TestProperty)|]
-                                .Callback(() => { });
+                            {{code}}
                         }
                     }
 
-                    public interface I
-                    {
-                        int TestMethod();
-
-                        int TestProperty { get; set; }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoReturns_StrictMode_DiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(MockBehavior.Strict);
-                            [|mock1.Setup(i => i.TestMethod())|]
-                                .Callback(() => { });
-                            [|mock1.Setup(i => i.TestProperty)|]
-                                .Callback(() => { });
-                        }
-                    }
-
-                    public interface I
-                    {
-                        int TestMethod();
-
-                        int TestProperty { get; set; }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("MockBehavior.Loose")]
-        [InlineData("")]
-        [InlineData("1, 2")]
-        [InlineData("OtherEnum.A, 1, 2")]
-        [InlineData("MockBehavior.Loose, 1, 2")]
-        public async Task NoReturns_OtherMode_NoDiagnosticReported(string mockArguments)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(" + mockArguments + @");
-                            mock1.Setup(i => i.TestMethod())
-                                .Callback(() => { });
-
-                            var mock2 = new Mock<I>("" + mockArguments + @"");
-                            mock2.Setup(i => i.TestProperty)
-                                .Callback(() => { });
-                        }
-                    }
-
-                    public interface I
-                    {
-                        int TestMethod();
-
-                        int TestProperty { get; set; }
-                    }
-
-                    public enum OtherEnum { A, B }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("MockBehavior.Strict")]
-        [InlineData("MockBehavior.Strict, 1, 2")]
-        [InlineData("MockBehavior.Loose")]
-        [InlineData("MockBehavior.Loose, 1, 2")]
-        [InlineData("")]
-        public async Task NoReturns_MockSetupMethodVoid_NoDiagnosticReported(string mockArguments)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(" + mockArguments + @");
-                            mock1.Setup(i => i.TestMethod())
-                                .Callback(() => { });
-                        }
-                    }
-
-                    public interface I
-                    {
-                        void TestMethod();
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("MockBehavior.Loose")]
-        [InlineData("MockBehavior.Loose, 1, 2")]
-        [InlineData("")]
-        public async Task NoReturns_MockSetupProperty_NoDiagnosticReported(string mockArguments)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(" + mockArguments + @");
-                            mock1.Setup(i => i.Property)
-                                .Callback(() => { });
-                        }
-                    }
-
-                    public interface I
-                    {
-                        int Property { get; set; }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoSetupMethod()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>();
-                            mock1.Verify();
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(MockBehavior.Strict);
-                            mock1.Setup();
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
+                    {{TestTypes}}
                 }
 
-                namespace OtherNamespace
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _) { }
-
-                        public void Setup() { }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }

@@ -66,7 +66,11 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public void ReturnsAsync(Delegate valueFunction) { }
 
+                    public void ReturnsAsync<TResult>(TResult value) { }
+
                     public void Throws(Exception exception) { }
+
+                    public void ThrowsAsync(Exception exception) { }
 
                     public void Verifiable() { }
 
