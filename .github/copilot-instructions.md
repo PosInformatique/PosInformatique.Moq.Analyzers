@@ -1,0 +1,5 @@
+# Copilot Instructions
+
+## Project Guidelines
+- When consolidating analyzer unit tests, declare every ValidTestCases and InvalidTestCases scenario explicitly as a string in TheoryData<string> collection expressions. Do not generate cases using loops. Use multiline raw strings for multiline snippets, following SetupMustBeUsedOnlyForOverridableMembersAnalyzerTest and SetupMethodShouldSpecifyOptionalArgumentsAnalyzerTest. 
+- Use AsMustBeUsedWithInterfaceAnalyzerTest and SetupSetAnalyzerTest as references. Isolate scenarios in TheoryData<string> ValidTestCases and InvalidTestCases, use both via MemberData for Analyze and NoMoqLibrary, use raw interpolated source templates and explicit diagnostic-ID markup, reuse/extend MoqAnalyzersTests.FakeMoqLibrary, preserve coverage, and retain MarkupMode.Ignore only for no-Moq verification.
