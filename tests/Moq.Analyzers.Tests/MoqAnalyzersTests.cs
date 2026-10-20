@@ -20,7 +20,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     Strict,
                 }
 
-                public static class Mock
+                public abstract class Mock
                 {
                     public static T Of<T>() { return default; }
 
@@ -29,9 +29,13 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public static T Of<T>(Expression<Func<T, bool>> predicate) { return default; }
 
                     public static T Of<T>(Expression<Func<T, bool>> predicate, MockBehavior behavior) { return default; }
+
+                    public static void Verify(params Mock[] mocks) { }
+
+                    public static void VerifyAll(params Mock[] mocks) { }
                 }
 
-                public class Mock<T>
+                public class Mock<T> : Mock
                 {
                     public void As<TInterface>() { }
 
