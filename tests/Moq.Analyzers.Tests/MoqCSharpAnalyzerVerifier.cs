@@ -29,6 +29,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
         {
             var context = new CSharpAnalyzerTest<TAnalyzer, DefaultVerifier>();
             context.ReferenceAssemblies = ReferenceAssemblies.NetStandard.NetStandard20;
+            context.TestState.MarkupHandling = MarkupMode.Ignore;
 
             context.TestCode = source;
 

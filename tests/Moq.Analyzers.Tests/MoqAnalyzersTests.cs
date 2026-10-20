@@ -20,6 +20,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public void As<TInterface>() { }
 
                     public void Setup(Expression<Action<T>> expression) { }
+
+                    public void SetupSet(Action<T> action) { }
+
+                    public void SetupSet<TProperty>(Action<T> action) { }
+
+                    public void SetupSet<TProperty>(Func<T, TProperty> action) { }
                 }
             }
             """;
