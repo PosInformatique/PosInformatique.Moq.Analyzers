@@ -63,6 +63,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public Mock(MockBehavior behavior) { }
 
+                    public Mock(params object[] args) { }
+
+                    public Mock(MockBehavior behavior, params object[] args) { }
+
+                    public Mock(Expression<Func<T>> newExpression, MockBehavior behavior = default) { }
+
                     public void As<TInterface>() { }
 
                     public void Setup(Expression<Action<T>> expression) { }

@@ -6,37 +6,365 @@
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using Microsoft.CodeAnalysis.Testing;
     using Verifier = MoqCSharpAnalyzerVerifier<ConstructorArgumentsAnalyzer>;
 
     public class ConstructorArgumentsAnalyzerTest
     {
-        [Fact]
-        public async Task NoMock()
+        private const string TestTypes =
+            """
+            public delegate void D();
+
+            public interface I { }
+
+            public interface InterfaceWithoutConstructor { }
+
+            public class WithoutDeclaredConstructor { }
+
+            public abstract class AbstractWithoutDeclaredConstructor { }
+
+            public class WithParameterlessConstructor
+            {
+                public WithParameterlessConstructor() { }
+            }
+
+            public class WithPrivateParameterlessConstructor
+            {
+                private WithPrivateParameterlessConstructor() { }
+            }
+
+            public class MatchingConstructors
+            {
+                public MatchingConstructors(int a) { }
+
+                public MatchingConstructors(int a, string b) { }
+
+                public MatchingConstructors(int a, object b) { }
+
+                public MatchingConstructors(int a, int[] b, int c) { }
+
+                public MatchingConstructors(int a, object b, int c, System.IDisposable d) { }
+
+                public MatchingConstructors(string[] array) { }
+            }
+
+            public class WithPrivateConstructors
+            {
+                private WithPrivateConstructors(int a) { }
+
+                private WithPrivateConstructors(int a, string b) { }
+
+                private WithPrivateConstructors(int a, object b) { }
+
+                private WithPrivateConstructors(int a, int[] b, int c) { }
+
+                private WithPrivateConstructors(int a, object b, int c, System.IDisposable d) { }
+            }
+
+            public class StrictMatchingConstructors
+            {
+                public StrictMatchingConstructors(int a) { }
+
+                public StrictMatchingConstructors(int a, string b) { }
+
+                public StrictMatchingConstructors(int a, object c) { }
+
+                public StrictMatchingConstructors(int a, object b, int c, System.IDisposable d) { }
+
+                public StrictMatchingConstructors(string[] array) { }
+            }
+
+            public class MismatchingConstructors
+            {
+                public MismatchingConstructors(int a) { }
+
+                public MismatchingConstructors(int a, string b) { }
+
+                public MismatchingConstructors(int a, object c) { }
+
+                public MismatchingConstructors(int a, object b, int c, System.IDisposable d) { }
+
+                public MismatchingConstructors(string[] array, int b) { }
+            }
+
+            public class StrictMismatchingConstructors
+            {
+                public StrictMismatchingConstructors(int a) { }
+
+                public StrictMismatchingConstructors(int a, string b) { }
+
+                public StrictMismatchingConstructors(int a, object c) { }
+
+                public StrictMismatchingConstructors(string[] array, int b) { }
+            }
+
+            public class WithOptionalParameters
+            {
+                public WithOptionalParameters(int a = 0, int b = 1, int c = 2, int d = 3) { }
+            }
+
+            public class WithRequiredArguments : I
+            {
+                public WithRequiredArguments(int a) { }
+
+                public WithRequiredArguments(int a, string b) { }
+
+                public WithRequiredArguments(int a, object c) { }
+            }
+            """;
+
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """
+            var obj = new object();
+            """,
+
+            """
+            var mock = new Mock<D>();
+            """,
+
+            """
+            var mock = new Mock<I>();
+            """,
+
+            """
+            var mock = new Mock<WithParameterlessConstructor>();
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>(1);
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>(1, "B");
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>(1, null);
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>(default, "B");
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>((int)default, default);
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>(default, null, 1234);
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>(1, "An object", 3, null);
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>(1, "An object", 3, new System.IO.MemoryStream());
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>([new string[] { "A", "B" }]);
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>(new object[] { new string[] { "A", "B" } });
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>([1]);
+            """,
+
+            """
+            var mock = new Mock<MatchingConstructors>([1, "A"]);
+            """,
+
+            """
+            var mock = new Mock<WithoutDeclaredConstructor>();
+            """,
+
+            """
+            var mock = new Mock<AbstractWithoutDeclaredConstructor>();
+            """,
+
+            """
+            var mock = new Mock<InterfaceWithoutConstructor>();
+            """,
+
+            """
+            var mock = new Mock<StrictMatchingConstructors>(MockBehavior.Strict, 1, "B");
+            """,
+
+            """
+            var mock = new Mock<StrictMatchingConstructors>(MockBehavior.Strict, 1, "An object", 3, null);
+            """,
+
+            """
+            var mock = new Mock<StrictMatchingConstructors>(MockBehavior.Strict, 1, "An object", 3, new System.IO.MemoryStream());
+            """,
+
+            """
+            var mock = new Mock<StrictMatchingConstructors>(MockBehavior.Strict, [1]);
+            """,
+
+            """
+            var mock = new Mock<StrictMatchingConstructors>(MockBehavior.Strict, [1, "A"]);
+            """,
+
+            """
+            var mock = new Mock<WithoutDeclaredConstructor>(MockBehavior.Strict);
+            """,
+
+            """
+            var mock = new Mock<AbstractWithoutDeclaredConstructor>(MockBehavior.Strict);
+            """,
+
+            """
+            var mock = new Mock<InterfaceWithoutConstructor>(MockBehavior.Strict);
+            """,
+
+            """
+            var mock = new Mock<WithRequiredArguments>(() => new WithRequiredArguments(10));
+            """,
+
+            """
+            var mock = new Mock<WithRequiredArguments>(() => new WithRequiredArguments(10), MockBehavior.Strict);
+            """,
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """
+            var mock = new Mock<I>({|PosInfoMoq2004:1|}, 2);
+            """,
+
+            """
+            var mock = new Mock<I>(MockBehavior.Strict, {|PosInfoMoq2004:1|}, 2);
+            """,
+
+            """
+            var mock = new Mock<WithPrivateParameterlessConstructor>{|PosInfoMoq2011:()|};
+            """,
+
+            """
+            var mock = new Mock<WithPrivateConstructors>({|PosInfoMoq2011:1, "B"|});
+            """,
+
+            """
+            var mock = new Mock<WithPrivateConstructors>({|PosInfoMoq2011:1, null|});
+            """,
+
+            """
+            var mock = new Mock<WithPrivateConstructors>({|PosInfoMoq2011:default, "B"|});
+            """,
+
+            """
+            var mock = new Mock<WithPrivateConstructors>({|PosInfoMoq2011:(int)default, default|});
+            """,
+
+            """
+            var mock = new Mock<WithPrivateConstructors>({|PosInfoMoq2011:default, null, 1234|});
+            """,
+
+            """
+            var mock = new Mock<WithPrivateConstructors>({|PosInfoMoq2011:1, "An object", 3, null|});
+            """,
+
+            """
+            var mock = new Mock<WithPrivateConstructors>({|PosInfoMoq2011:1, "An object", 3, new System.IO.MemoryStream()|});
+            """,
+
+            """
+            var mock = new Mock<MismatchingConstructors>({|PosInfoMoq2005:1, 2, 3|});
+            """,
+
+            """
+            var mock = new Mock<MismatchingConstructors>({|PosInfoMoq2005:null|});
+            """,
+
+            """
+            var mock = new Mock<MismatchingConstructors>({|PosInfoMoq2005:"The string", 2|});
+            """,
+
+            """
+            var mock = new Mock<MismatchingConstructors>({|PosInfoMoq2005:1, 2, 3, "The string"|});
+            """,
+
+            """
+            var mock = new Mock<MismatchingConstructors>({|PosInfoMoq2005:new int[] { 1, 2 }, 1000|});
+            """,
+
+            """
+            var mock = new Mock<MismatchingConstructors>({|PosInfoMoq2005:new object[] { "A", "B" }, 1000|});
+            """,
+
+            """
+            var mock = new Mock<StrictMismatchingConstructors>{|PosInfoMoq2005:([])|};
+            """,
+
+            """
+            var mock = new Mock<WithOptionalParameters>{|PosInfoMoq2005:()|};
+            """,
+
+            """
+            var mock = new Mock<WithoutDeclaredConstructor>({|PosInfoMoq2005:1, 2|});
+            """,
+
+            """
+            var mock = new Mock<StrictMismatchingConstructors>(MockBehavior.Strict, {|PosInfoMoq2005:1, 2, 3|});
+            """,
+
+            """
+            var mock = new Mock<StrictMismatchingConstructors>(MockBehavior.Strict, {|PosInfoMoq2005:null|});
+            """,
+
+            """
+            var mock = new Mock<StrictMismatchingConstructors>(MockBehavior.Strict, {|PosInfoMoq2005:"The string", 2|});
+            """,
+
+            """
+            var mock = new Mock<StrictMismatchingConstructors>(MockBehavior.Strict, {|PosInfoMoq2005:1, 2, 3, "The string"|});
+            """,
+
+            """
+            var mock = new Mock<StrictMismatchingConstructors>(MockBehavior.Strict, {|PosInfoMoq2005:new int[] { 1, 2 }, 1000|});
+            """,
+
+            """
+            var mock = new Mock<StrictMismatchingConstructors>{|PosInfoMoq2005:(MockBehavior.Strict, [])|};
+            """,
+
+            """
+            var mock = new Mock<WithoutDeclaredConstructor>(MockBehavior.Strict, {|PosInfoMoq2005:1, 2|});
+            """,
+
+            """
+            var mock = new Mock<WithRequiredArguments>{|PosInfoMoq2005:()|};
+            """,
+
+            """
+            var mock = new Mock<WithRequiredArguments>{|PosInfoMoq2005:(MockBehavior.Strict)|};
+            """,
+
+            """
+            var mock = new Mock<{|PosInfoMoq2016:I|}>(() => new WithRequiredArguments(10));
+            """,
+
+            """
+            var mock = new Mock<{|PosInfoMoq2016:I|}>(() => new WithRequiredArguments(10), MockBehavior.Strict);
+            """,
+
+            """
+            var mock = new Mock<WithRequiredArguments>(MockBehavior.Strict, {|PosInfoMoq2005:1, 2, 3|});
+            """,
+        ];
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var obj = new object();
-                        }
-                    }
-
-                    public class C
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Interface_WithNotMockableType()
-        {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
@@ -45,812 +373,41 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>();
+                            {{code}}
                         }
                     }
 
-                    public delegate void I();
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Interface_NoMock()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var obj = new object();
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Interface_WithNoArgument()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>();
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Interface_WithoutBehaviorStrict()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>({|#0:1|}, {|#1:2|});
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(
-                source,
-                new DiagnosticResult(ConstructorArgumentsAnalyzer.ConstructorArgumentsCanBePassedToInterfaceRule)
-                    .WithLocation(0).WithArguments("1")
-                    .WithLocation(1).WithArguments("2"));
-        }
-
-        [Fact]
-        public async Task Interface_WithBehaviorStrict()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(MockBehavior.Strict, {|#0:1|}, {|#1:2|});
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(
-                source,
-                new DiagnosticResult(ConstructorArgumentsAnalyzer.ConstructorArgumentsCanBePassedToInterfaceRule)
-                    .WithLocation(0).WithArguments("1")
-                    .WithLocation(1).WithArguments("2"));
-        }
-
-        [Fact]
-        public async Task Arguments_Empty()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>();
-                        }
-                    }
-
-                    public class C
-                    {
-                        public C()
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Arguments_Empty_WithPrivateConstructor()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>{|PosInfoMoq2011:()|};
-                        }
-                    }
-
-                    public class C
-                    {
-                        private C()
-                        {
-                        }
-                    }
-                }";
+                    {{TestTypes}}
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
-        [InlineData("1")]
-        [InlineData("1, \"B\"")]
-        [InlineData("1, null")]
-        [InlineData("default, \"B\"")]
-        [InlineData("(int)default, default")]
-        [InlineData("default, null, 1234")]
-        [InlineData("1, \"An object\", 3, null")]
-        [InlineData("1, \"An object\", 3, new System.IO.MemoryStream()")]
-        [InlineData("[new string[] { \"A\", \"B\" }]")]
-        [InlineData("new object[] { new string[] { \"A\", \"B\" } }")]
-        [InlineData("[1]")]
-        [InlineData("[1, \"A\"]")]
-        public async Task Arguments_Match(string parameters)
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using Moq;
+                    using FakeMoqLibrary;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock = new Mock<C>(" + parameters + @");
+                            {{code}}
                         }
                     }
 
-                    public class C
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object b)
-                        {
-                        }
-
-                        public C(int a, int[] b, int c)
-                        {
-                        }
-
-                        public C(int a, object b, int c, System.IDisposable d)
-                        {
-                        }
-
-                        public C(string[] array)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("1, \"B\"")]
-        [InlineData("1, null")]
-        [InlineData("default, \"B\"")]
-        [InlineData("(int)default, default")]
-        [InlineData("default, null, 1234")]
-        [InlineData("1, \"An object\", 3, null")]
-        [InlineData("1, \"An object\", 3, new System.IO.MemoryStream()")]
-        public async Task Arguments_Match_WithPrivateConstructor(string parameters)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<C>({|PosInfoMoq2011:" + parameters + @"|});
-                        }
-                    }
-
-                    public class C
-                    {
-                        private C(int a)
-                        {
-                        }
-
-                        private C(int a, string b)
-                        {
-                        }
-
-                        private C(int a, object b)
-                        {
-                        }
-
-                        private C(int a, int[] b, int c)
-                        {
-                        }
-
-                        private C(int a, object b, int c, System.IDisposable d)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("class")]
-        [InlineData("abstract class")]
-        [InlineData("interface")]
-        public async Task Arguments_Match_WithNoConstructor(string type)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<ClassWithNoConstructor>();
-                        }
-                    }
-
-                    public " + type + @" ClassWithNoConstructor { }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("1, \"B\"")]
-        [InlineData("1, \"An object\", 3, null")]
-        [InlineData("1, \"An object\", 3, new System.IO.MemoryStream()")]
-        [InlineData("[1]")]
-        [InlineData("[1, \"A\"]")]
-        public async Task Arguments_Match_WithMockBehavior(string parameters)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<C>(MockBehavior.Strict, " + parameters + @");
-                       }
-                    }
-
-                    public class C
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object c)
-                        {
-                        }
-
-                        public C(int a, object b, int c, System.IDisposable d)
-                        {
-                        }
-
-                        public C(string[] array)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("class")]
-        [InlineData("abstract class")]
-        [InlineData("interface")]
-        public async Task Arguments_Match_WithMockBehavior_WithNoConstructor(string type)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<ClassWithNoConstructor>(MockBehavior.Strict);
-                       }
-                    }
-
-                    public " + type + @" ClassWithNoConstructor { }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("1, 2, 3")]
-        [InlineData("null")]
-        [InlineData("\"The string\", 2")]
-        [InlineData("1, 2, 3, \"The string\"")]
-        [InlineData("new int[] { 1, 2 }, 1000")]
-        [InlineData("new object[] { \"A\", \"B\" }, 1000")]
-        public async Task Arguments_NotMatch(string parameters)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<C>({|PosInfoMoq2005:" + parameters + @"|});
-                        }
-                    }
-
-                    public class C
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object c)
-                        {
-                        }
-
-                        public C(int a, object b, int c, System.IDisposable d)
-                        {
-                        }
-
-                        public C(string[] array, int b)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("[]")]
-        public async Task Arguments_NotMatch_EmptyArray(string parameters)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<C>{|PosInfoMoq2005:(" + parameters + @")|};
-                        }
-                    }
-
-                    public class C
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object c)
-                        {
-                        }
-
-                        public C(string[] array, int b)
-                        {
-                        }
-                    }
-               }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Arguments_WithDefaultParameters()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<C>{|PosInfoMoq2005:()|};
-                        }
-                    }
-
-                    public class C
-                    {
-                        public C(int a = 0, int b = 1, int c = 2, int d = 3)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Arguments_NotMatch_WithNoConstructor()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<ClassWithNoConstructor>({|PosInfoMoq2005:1, 2|});
-                        }
-                    }
-
-                    public class ClassWithNoConstructor { }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("1, 2, 3")]
-        [InlineData("null")]
-        [InlineData("\"The string\", 2")]
-        [InlineData("1, 2, 3, \"The string\"")]
-        [InlineData("new int[] { 1, 2 }, 1000")]
-        public async Task Arguments_NotMatch_WithMockBehavior(string parameters)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<C>(MockBehavior.Strict, {|PosInfoMoq2005:" + parameters + @"|});
-                        }
-                    }
-
-                    public class C
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object c)
-                        {
-                        }
-
-                        public C(string[] array, int b)
-                        {
-                        }
-                    }
-               }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("[]")]
-        public async Task Arguments_NotMatch_WithMockBehavior_EmptyArray(string parameters)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<C>{|PosInfoMoq2005:(MockBehavior.Strict, " + parameters + @")|};
-                        }
-                    }
-
-                    public class C
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object c)
-                        {
-                        }
-
-                        public C(string[] array, int b)
-                        {
-                        }
-                    }
-               }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Arguments_NotMatch_WithMockBehavior_WithNoConstructor()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock = new Mock<ClassWithNoConstructor>(MockBehavior.Strict, {|PosInfoMoq2005:1, 2|});
-                        }
-                    }
- 
-                    public class ClassWithNoConstructor { }
-               }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Arguments_CountNotMatch()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>{|PosInfoMoq2005:()|};
-                        }
-                    }
-
-                    public class C
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object c)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Arguments_CountNotMatch_MockBehavior()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>{|PosInfoMoq2005:(MockBehavior.Strict)|};
-                        }
-                    }
-
-                    public class C
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object c)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(", MockBehavior.Strict")]
-        public async Task Arguments_WithFactory(string behavior)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>(() => new C(10)" + behavior + @");
-                        }
-                    }
-
-                    public class C
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object c)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(", MockBehavior.Strict")]
-        public async Task Arguments_WithFactory_NotClass(string behavior)
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<{|PosInfoMoq2016:I|}>(() => new C(10)" + behavior + @");
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-
-                    public class C : I
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object c)
-                        {
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>(MockBehavior.Strict, 1, 2, 3);
-                        }
-                    }
-
-                    public class C
-                    {
-                        public C(int a)
-                        {
-                        }
-
-                        public C(int a, string b)
-                        {
-                        }
-
-                        public C(int a, object c)
-                        {
-                        }
-                    }
+                    {{TestTypes}}
                 }
 
-                namespace OtherNamespace
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _, int a, int b, int c) { }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
