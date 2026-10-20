@@ -112,6 +112,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public Mock(Expression<Func<T>> newExpression, MockBehavior behavior = default) { }
 
+                    public bool CallBase { get; set; }
+
                     public void As<TInterface>() { }
 
                     public Mock<T> InSequence(MockSequence sequence) { return this; }
@@ -137,6 +139,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public Task RaiseAsync(Action<T> eventExpression, params object[] args) { return default; }
 
                     public void Verify() { }
+
+                    public void VerifyAll() { }
 
                     public void Verify(Expression<Action<T>> expression, string failMessage = null) { }
 
