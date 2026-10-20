@@ -15,6 +15,7 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 using System;
                 using System.Collections.Generic;
                 using System.Linq.Expressions;
+                using System.Threading.Tasks;
 
                 public static class It
                 {
@@ -110,6 +111,12 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     public void SetupSet<TProperty>(Action<T> action) { }
 
                     public void SetupSet<TProperty>(Func<T, TProperty> action) { }
+
+                    public void Raise(Action<T> eventExpression, EventArgs args) { }
+
+                    public void Raise(Action<T> eventExpression, params object[] args) { }
+
+                    public Task RaiseAsync(Action<T> eventExpression, params object[] args) { return default; }
 
                     public void Verify() { }
 
