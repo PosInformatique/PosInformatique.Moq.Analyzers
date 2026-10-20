@@ -122,6 +122,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public void Verify(Expression<Action<T>> expression, string failMessage = null) { }
 
+                    public void Verify<TResult>(Expression<Func<T, TResult>> expression, string failMessage = null) { }
+
                     public void Verify(Expression<Action<T>> expression, Times times, string failMessage = null) { }
 
                     public void Verify(Expression<Action<T>> expression, Func<Times> times, string failMessage = null) { }
