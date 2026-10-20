@@ -20,6 +20,28 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     Strict,
                 }
 
+                public struct Times
+                {
+                    public static Times AtLeast(int callCount) { return default; }
+
+                    public static Times Exactly(int callCount) { return default; }
+
+                    public static Times Never() { return default; }
+
+                    public static Times Once() { return default; }
+                }
+
+                public class SetupResult
+                {
+                    public void Verifiable() { }
+
+                    public void Verifiable(string failMessage) { }
+
+                    public void Verifiable(Times times, string failMessage = null) { }
+
+                    public void Verifiable(Func<Times> times, string failMessage = null) { }
+                }
+
                 public abstract class Mock
                 {
                     public static T Of<T>() { return default; }
@@ -37,15 +59,29 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                 public class Mock<T> : Mock
                 {
+                    public Mock() { }
+
+                    public Mock(MockBehavior behavior) { }
+
                     public void As<TInterface>() { }
 
                     public void Setup(Expression<Action<T>> expression) { }
+
+                    public SetupResult Setup<TResult>(Expression<Func<T, TResult>> expression) { return default; }
 
                     public void SetupSet(Action<T> action) { }
 
                     public void SetupSet<TProperty>(Action<T> action) { }
 
                     public void SetupSet<TProperty>(Func<T, TProperty> action) { }
+
+                    public void Verify() { }
+
+                    public void Verify(Expression<Action<T>> expression, string failMessage = null) { }
+
+                    public void Verify(Expression<Action<T>> expression, Times times, string failMessage = null) { }
+
+                    public void Verify(Expression<Action<T>> expression, Func<Times> times, string failMessage = null) { }
                 }
             }
             """;
