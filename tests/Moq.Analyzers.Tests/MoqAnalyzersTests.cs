@@ -19,6 +19,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                 public static class It
                 {
+                    public class IsAnyType { }
+
                     public static TValue IsAny<TValue>() { return default; }
 
                     public static TValue Is<TValue>(Expression<Func<TValue, bool>> match) { return default; }
@@ -48,11 +50,17 @@ namespace PosInformatique.Moq.Analyzers.Tests
                 {
                     public SetupResult Callback(Action callback) { return this; }
 
+                    public SetupResult Callback(Delegate callback) { return this; }
+
                     public SetupResult Callback<T>(Action<T> callback) { return this; }
 
                     public SetupResult Callback<T1, T2>(Action<T1, T2> callback) { return this; }
 
+                    public SetupResult Callback<T1, T2, T3>(Action<T1, T2, T3> callback) { return this; }
+
                     public SetupResult Callback<T1, T2, T3, T4>(Action<T1, T2, T3, T4> callback) { return this; }
+
+                    public void Returns<TResult>(TResult value) { }
 
                     public void Throws(Exception exception) { }
 
@@ -134,7 +142,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
             namespace FakeMoqLibrary.Language.Flow
             {
-                public interface ISetup<T> { }
+                public interface ISetup<T>
+                {
+                    SetupResult Callback(System.Action callback);
+                }
             }
 
             namespace FakeMoqLibrary.Protected
