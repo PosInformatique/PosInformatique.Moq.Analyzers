@@ -10,10 +10,47 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
     public class AsMustBeUsedWithInterfaceAnalyzerTest
     {
-        [Fact]
-        public async Task AsMethod_WithInterface()
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """
+            var mock1 = new Mock<C>();
+            mock1.As<I>();
+            """,
+
+            // No As<T>() method call.
+            """
+            var mock1 = new Mock<C>();
+            mock1.Setup(m => m.Method());
+            """,
+
+            // Ignored by ExtractAsMethodType() because it is not a MemberAccessExpressionSyntax.
+            """
+            var action = new System.Action(() => { });
+            action();
+            """,
+
+            // Ignored by ExtractAsMethodType() because it is not an As<T>() symbol.
+            """
+            var c = new C();
+            c.GenericMethodNotAs<I>();
+            """,
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """
+            var mock1 = new Mock<C>();
+            mock1.As<{|PosInfoMoq2007:C|}>();
+            """,
+        ];
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
@@ -22,119 +59,59 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>();
-                            mock1.As<I>();
-                        }
-                    }
-
-                    public class C
-                    {
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task AsMethod_WithClass()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>();
-                            mock1.As<[|C2|]>();
-                        }
-                    }
-
-                    public class C
-                    {
-                    }
-
-                    public class C2
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoAsMethod()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>();
-                            mock1.Setup(m => m.Method());
-
-                            var action = new System.Action(() => { });
-                            action();   // Ignored by the ExtractAsMethodType() method because not a MemberAccessExpressionSyntax.
-
-                            var otherClass = new OtherClass();
-                            otherClass.GenericMethodNotAs<C>(); // Ignored by the ExtractAsMethodType() method because it not As<T>() symbol.
+                            {{code}}
                         }
                     }
 
                     public class C
                     {
                         public virtual void Method() { }
-                    }
 
-                    public class OtherClass
-                    {
                         public void GenericMethodNotAs<T>() { }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>();
-                            mock1.As<I>();
-                        }
                     }
 
                     public interface I
                     {
                     }
                 }
+                """;
 
-                namespace OtherNamespace
+            await Verifier.VerifyAnalyzerAsync(source);
+        }
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
+        {
+            var source =
+                $$"""
+                namespace ConsoleApplication1
                 {
-                    public class Mock<T>
+                    using FakeMoqLibrary;
+
+                    public class TestClass
                     {
-                        public void As<TInterface>() { }
+                        public void TestMethod()
+                        {
+                            {{code}}
+                        }
                     }
-                }";
+
+                    public class C
+                    {
+                        public virtual void Method() { }
+                
+                        public void GenericMethodNotAs<T>() { }
+                    }
+                
+                    public interface I
+                    {
+                    }
+                }
+
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
