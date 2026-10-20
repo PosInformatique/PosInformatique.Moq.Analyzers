@@ -85,6 +85,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                     public SetupResult Setup<TResult>(Expression<Func<T, TResult>> expression) { return default; }
 
+                    public void SetupSequence(Expression<Action<T>> expression) { }
+
+                    public void SetupSequence<TResult>(Expression<Func<T, TResult>> expression) { }
+
                     public void SetupSet(Action<T> action) { }
 
                     public void SetupSet<TProperty>(Action<T> action) { }
