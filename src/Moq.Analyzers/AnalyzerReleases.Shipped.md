@@ -1,4 +1,11 @@
-﻿## Release 2.1.0
+﻿## Release 2.2.0
+
+### New Rules
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+PosInfoMoq2020 | Compilation | Error | CallBaseMustBeUsedOnlyForOverridableMembersAnalyzer, [Documentation](https://posinformatique.github.io/PosInformatique.Moq.Analyzers/docs/Compilation/PosInfoMoq2020.html)
+
+## Release 2.1.0
 
 ### New Rules
 Rule ID | Category | Severity | Notes

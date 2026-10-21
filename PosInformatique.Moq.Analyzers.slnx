@@ -36,6 +36,7 @@
     <File Path="docs/Compilation/PosInfoMoq2017.md" />
     <File Path="docs/Compilation/PosInfoMoq2018.md" />
     <File Path="docs/Compilation/PosInfoMoq2019.md" />
+    <File Path="docs/Compilation/PosInfoMoq2020.md" />
   </Folder>
   <Folder Name="/Solution Items/docs/Design/">
     <File Path="docs/design/PosInfoMoq1000.md" />

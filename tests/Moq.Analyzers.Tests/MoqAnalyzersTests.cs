@@ -48,6 +48,8 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
                 public class SetupResult
                 {
+                    public SetupResult CallBase() { return this; }
+
                     public SetupResult Callback(Action callback) { return this; }
 
                     public SetupResult Callback(Delegate callback) { return this; }

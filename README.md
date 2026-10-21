@@ -76,4 +76,5 @@ All the rules of this category should not be disabled (or changed their severity
 | [PosInfoMoq2017: `Mock<T>.Raise()`/`RaiseAsync()` must use parameters matching the event signature.](docs/Compilation/PosInfoMoq2017.md) | The parameters passed to `Raise()` or `RaiseAsync()` must exactly match the parameters of the corresponding event delegate. |
 | [PosInfoMoq2018: The first parameter of `Raise()`/`RaiseAsync()` must be an event.](docs/Compilation/PosInfoMoq2018.md) | The first parameter passed to `Raise()` or `RaiseAsync()` must reference an **event** member of the mocked type. |
 | [PosInfoMoq2019: `RaiseAsync()` must be used only for events with async handlers (returning `Task`).](docs/Compilation/PosInfoMoq2019.md) | `Mock<T>.RaiseAsync()` must only be used with events whose delegate type returns `Task` (i.e., async events). |
+| [PosInfoMoq2020: `CallBase()` must be used only on virtual or override members.](docs/Compilation/PosInfoMoq2020.md) | `CallBase()` can be used only on `virtual` or `override` members (not standard, `abstract` or `sealed`). |
 

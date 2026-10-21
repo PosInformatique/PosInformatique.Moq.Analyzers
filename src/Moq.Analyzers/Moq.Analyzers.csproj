@@ -7,6 +7,10 @@
     <PackageProjectUrl>https://github.com/PosInformatique/PosInformatique.Moq.Analyzers</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>
+      2.2.0
+      - Add new rules:
+        - PosInfoMoq2020: CallBase() must be used only on virtual or override members.
+
       2.1.0
       - Add new rules:
         - PosInfoMoq1011: The Setup() expression must explicitly specify optional argument values.
