@@ -45,7 +45,8 @@ jobs:
           user: ${{ secrets.NUGET_USER }}
 
       - name: Publish the package to nuget.org
-        run: dotnet nuget push "src/Moq.Analyzers/bin/Release/*.nupkg" \
+        run: |
+          dotnet nuget push "src/Moq.Analyzers/bin/Release/*.nupkg" \
           --api-key "${{steps.nuget_login.outputs.NUGET_API_KEY}}" \
           --source https://api.nuget.org/v3/index.json \
           --skip-duplicate
