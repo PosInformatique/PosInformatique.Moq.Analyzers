@@ -17,6 +17,9 @@ run-name: ${{ inputs.VersionSuffix && format('{0}-{1}', inputs.VersionPrefix, in
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v7
 
