@@ -18,10 +18,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup .NET 8.x
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '8.x'
 
@@ -35,5 +35,14 @@ jobs:
           --property:VersionSuffix=${{ github.event.inputs.VersionSuffix }}
           "src/Moq.Analyzers/Moq.Analyzers.csproj"
 
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: nuget_login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Publish the package to nuget.org
-        run: dotnet nuget push "src/Moq.Analyzers/bin/Release/*.nupkg" --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push "src/Moq.Analyzers/bin/Release/*.nupkg" \
+          --api-key "${{steps.nuget_login.outputs.NUGET_API_KEY}}" \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
