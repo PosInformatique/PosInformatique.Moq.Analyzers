@@ -6,31 +6,62 @@
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using Microsoft.CodeAnalysis.Testing;
     using Verifier = MoqCSharpAnalyzerVerifier<VerifyStaticMethodsRequiresMockParametersAnalyzer>;
 
     public class VerifyStaticMethodsRequiresMockParametersAnalyzerTest
     {
-        [Fact]
-        public async Task StaticVerifyAndVerifyAllWithParameters_NoDiagnosticReported()
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """
+            var mock1 = new Mock<I>();
+            Mock.Verify(mock1);
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            Mock.VerifyAll(mock1);
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            var mock2 = new Mock<I>();
+            Mock.Verify(mock1, mock2);
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            var mock2 = new Mock<I>();
+            Mock.VerifyAll(mock1, mock2);
+            """,
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """
+            Mock.{|PosInfoMoq1008:Verify()|};
+            """,
+
+            """
+            Mock.{|PosInfoMoq1008:VerifyAll()|};
+            """,
+        ];
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
-                    using System;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>();
-                            var mock2 = new Mock<I>();
-
-                            Mock.Verify(mock1);
-                            Mock.VerifyAll(mock1);
-                            Mock.Verify(mock1, mock2);
-                            Mock.VerifyAll(mock1, mock2);
+                            {{code}}
                         }
                     }
 
@@ -38,26 +69,28 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         int TestMethod();
                     }
-                }";
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task StaticVerifyAndVerifyAllWithNoParameters_DiagnosticReported()
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using Moq;
-                    using System;
+                    using FakeMoqLibrary;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            Mock.{|#0:Verify()|#0};
-                            Mock.{|#1:VerifyAll()|#1};
+                            {{code}}
                         }
                     }
 
@@ -65,52 +98,10 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         int TestMethod();
                     }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(
-                source,
-                [
-                    new DiagnosticResult(VerifyStaticMethodsRequiresMockParametersAnalyzer.Rule)
-                        .WithLocation(0)
-                        .WithArguments("Verify"),
-                    new DiagnosticResult(VerifyStaticMethodsRequiresMockParametersAnalyzer.Rule)
-                        .WithLocation(1)
-                        .WithArguments("VerifyAll"),
-                ]);
-        }
-
-        [Fact]
-        public async Task NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                        }
-                    }
-
-                    public interface I
-                    {
-                        void Method();
-                    }
                 }
 
-                namespace OtherNamespace
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _) { }
-
-                        public void Verify(System.Action<T> _) { }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }

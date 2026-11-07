@@ -10,25 +10,50 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
     public class SetupSetAnalyzerTest
     {
-        [Fact]
-        public async Task SetupSetWithGenericArgument_NoDiagnosticReported()
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """
+            var mock1 = new Mock<I>();
+            mock1.SetupSet<int>(i => i.TestProperty = 1234);
+            """,
+
+            // Ignored because obsolete by Moq.
+            """
+            var mock1 = new Mock<I>();
+            mock1.SetupSet(i => i.TestProperty);
+            """,
+
+            // Invocation should be ignored.
+            """
+            var s = "The string";
+            s.ToString();
+            """,
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """
+            var mock1 = new Mock<I>();
+            mock1.{|PosInfoMoq1005:SetupSet|}(i => i.TestProperty = 1234);
+            """,
+        ];
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
-                    using System;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>();
-                            mock1.SetupSet<int>(i => i.TestProperty = 1234);
-                            mock1.SetupSet(i => i.TestProperty);   // Ignored because Obsolete by Moq
-
-                            var s = ""The string"";
-                            s.ToString();       // Invocation should be ignored
+                            {{code}}
                         }
                     }
 
@@ -36,71 +61,39 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         int TestProperty { get; set; }
                     }
-                }";
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task SetupSetWithNoGenericArgument_DiagnosticReported()
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using Moq;
-                    using System;
+                    using FakeMoqLibrary;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>();
-                            mock1.[|SetupSet|](i => i.TestProperty = 1234);
-
-                            var s = ""The string"";
-                            s.ToString();       // Invocation should be ignored
+                            {{code}}
                         }
                     }
 
                     public interface I
                     {
                         int TestProperty { get; set; }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>();
-                            mock1.SetupSet(i => i.Property = 1234);
-                        }
-                    }
-
-                    public interface I
-                    {
-                        int Property { get; set; }
                     }
                 }
 
-                namespace OtherNamespace
-                {
-                    public class Mock<T>
-                    {
-                        public void SetupSet(System.Action<T> _) { }
-                    }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }

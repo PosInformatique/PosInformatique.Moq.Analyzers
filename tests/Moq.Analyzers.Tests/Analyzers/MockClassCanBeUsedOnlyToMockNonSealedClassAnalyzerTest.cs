@@ -10,101 +10,87 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
     public class MockClassCanBeUsedOnlyToMockNonSealedClassAnalyzerTest
     {
-        [Fact]
-        public async Task NoSealedClass_NoDiagnosticReported()
+        private const string TestTypes =
+            """
+            public interface I { }
+
+            public class StandardClass { }
+
+            public abstract class AbstractClass { }
+
+            public sealed class SealedClass { }
+            """;
+
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """var mock = new Mock<I>();""",
+
+            """var mock = new Mock<I>(MockBehavior.Strict);""",
+
+            """var mock = new Mock<StandardClass>();""",
+
+            """var mock = new Mock<AbstractClass>();""",
+
+            """var obj = new object();""",
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """var mock = new Mock<{|PosInfoMoq2002:SealedClass|}>();""",
+
+            """var mock = new Mock<{|PosInfoMoq2002:string|}>();""",
+        ];
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
-                    using System;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>();
-
-                            var mock2 = new Mock<StandardClass>();
-
-                            var mock3 = new Mock<AbstractClass>();
-
-                            var obj = new object();     // Ignored by the analysis.
+                            {{code}}
                         }
                     }
 
-                    public interface I
-                    {
-                    }
-
-                    public class StandardClass
-                    {
-                    }
-
-                    public abstract class AbstractClass
-                    {
-                    }
-                }";
+                    {{TestTypes}}
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task SealedClass_DiagnosticReported()
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using Moq;
-                    using System;
+                    using FakeMoqLibrary;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<[|SealedClass|]>();
-                            var mock2 = new Mock<[|string|]>();
+                            {{code}}
                         }
                     }
 
-                    public sealed class SealedClass
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(MockBehavior.Strict);
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
+                    {{TestTypes}}
                 }
 
-                namespace OtherNamespace
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _) { }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }

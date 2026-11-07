@@ -10,10 +10,89 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
     public class VerifyAllShouldBeCalledAnalyzerTest
     {
-        [Fact]
-        public async Task VerifyAll_Called()
+        private const string TestTypes =
+            """
+            public interface I
+            {
+                void Method();
+            }
+
+            public class Generic<T> { }
+
+            public class MockHolder
+            {
+                public Mock<I> mock = new Mock<I>();
+            }
+            """;
+
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """
+            var mock = new Mock<I>();
+            mock.VerifyAll();
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            var mock2 = new Mock<I>();
+            Mock.VerifyAll(mock1, mock2);
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            var mock2 = new Mock<I>();
+            var mock3 = new Mock<I>();
+            mock1.VerifyAll();
+            Mock.VerifyAll(mock2, mock3);
+            """,
+
+            """
+            var mock = new Mock<I>();
+            mock.CallBase = false;
+            mock.VerifyAll();
+            """,
+
+            """new Mock<I>();""",
+
+            """new System.Action(() => { })();""",
+
+            """
+            var o = new object();
+            o.ToString();
+            """,
+
+            """
+            var o = new Generic<I>();
+            o.ToString();
+            """,
+
+            """var holder = new MockHolder();""",
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """var mock = {|PosInfoMoq1000:new Mock<I>()|};""",
+
+            """var mock = {|PosInfoMoq1000:new Mock<I>(MockBehavior.Strict)|};""",
+
+            """
+            var mock1 = {|PosInfoMoq1000:new Mock<I>()|};
+            var mock2 = {|PosInfoMoq1000:new Mock<I>()|};
+            new Mock<I>();
+            """,
+
+            """var mock = {|PosInfoMoq1000:new Mock<I>(1, 2, 3)|};""",
+
+            """var mock = {|PosInfoMoq1000:new Mock<I>("A", "B", "C")|};""",
+        ];
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
@@ -22,184 +101,41 @@ namespace PosInformatique.Moq.Analyzers.Tests
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>();
-                            
-                            var o = new object();
-                            o.ToString();
-
-                            var mock5 = new Mock<I>();
-                            var mock6 = new Mock<I>();
-
-                            new Mock<I>();  // No variable (ignored)
-
-                            new System.Action(() => { })();     // Ignored
-
-                            mock1.CallBase = false;  // Property access are ignored.
-
-                            mock1.VerifyAll();
-
-                            Mock.VerifyAll(mock5, mock6);
-                       }
+                            {{code}}
+                        }
                     }
 
-                    public interface I
-                    {
-                        void Method();
-                    }
-                }";
+                    {{TestTypes}}
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task VerifyAll_Missing_Calls()
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using Moq;
+                    using FakeMoqLibrary;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = [|new Mock<I>()|];
-                            var mock2 = [|new Mock<I>()|];
-
-                            new Mock<I>();  // No variable (ignored)
+                            {{code}}
                         }
                     }
 
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task VerifyAll_Missing_Calls_WithArguments()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = [|new Mock<I>(1, 2, 3)|];
-                            var mock2 = [|new Mock<I>(""A"", ""B"", ""C"")|];
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMock_Instance()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var o = new object();
-                            o.ToString();
-                        }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMock_Instance_OtherGenericType()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var o = new Generic<I>();
-                            o.ToString();
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
-
-                    public class Generic<T>
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Mock_NotInMethod_Ignored()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-
-                    public class TestClass
-                    {
-                        public Mock<I> mock1 = new Mock<I>();
-                    }
-
-                    public interface I
-                    {
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(MockBehavior.Strict);
-                        }
-                    }
-
-                    public interface I
-                    {
-                    }
+                    {{TestTypes}}
                 }
 
-                namespace OtherNamespace
-                {
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _) { }
-                    }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }

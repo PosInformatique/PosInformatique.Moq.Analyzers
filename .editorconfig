@@ -2,6 +2,9 @@
 
 ## StyleCop
 
+stylecop.documentation.companyName = P.O.S Informatique
+stylecop.documentation.copyrightText = Copyright (c) {companyName}. All rights reserved.
+
 # SA1600: Elements should be documented
 dotnet_diagnostic.SA1600.severity = none
 

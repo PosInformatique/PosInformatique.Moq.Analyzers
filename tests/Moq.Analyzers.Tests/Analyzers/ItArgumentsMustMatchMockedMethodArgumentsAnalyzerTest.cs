@@ -6,142 +6,163 @@
 
 namespace PosInformatique.Moq.Analyzers.Tests
 {
-    using Microsoft.CodeAnalysis.Testing;
     using Verifier = MoqCSharpAnalyzerVerifier<ItArgumentsMustMatchMockedMethodArgumentsAnalyzer>;
 
     public class ItArgumentsMustMatchMockedMethodArgumentsAnalyzerTest
     {
-        [Fact]
-        public async Task Match_NoDiagnosticReported()
+        private const string TestTypes =
+            """
+            public interface I
+            {
+                void NoParametersMethod();
+
+                void TestMethod();
+
+                void TestMethod(int? a, int b, string c);
+
+                void TestMethod(int? a, int b, string c, int d);
+
+                void TestMethodWithBaseClass(BaseClass a);
+            }
+
+            public class C
+            {
+                public static int OtherMethod() => default;
+            }
+
+            public abstract class BaseClass
+            {
+                public int Property { get; set; }
+            }
+
+            public class InheritedClass : BaseClass
+            {
+            }
+            """;
+
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.NoParametersMethod());
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethod(It.IsAny<int?>(), 1, "Ignored", C.OtherMethod()));
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethod(It.Is<int?>(p => p == 10), 1, "Ignored", C.OtherMethod()));
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethod(It.Is<int?>(10, EqualityComparer<int?>.Default), 1, "Ignored", C.OtherMethod()));
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethodWithBaseClass(null));
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethodWithBaseClass(It.IsAny<BaseClass>()));
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethodWithBaseClass(It.IsAny<InheritedClass>()));
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethodWithBaseClass(It.Is<BaseClass>(c => c.Property == 10)));
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethodWithBaseClass(It.Is<InheritedClass>(c => c.Property == 10)));
+            """,
+
+            """
+            var mock1 = new Mock<I>(MockBehavior.Strict);
+            mock1.Setup(m => m.TestMethod());
+            """,
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethod({|PosInfoMoq1006:It.IsAny<int>()|}, 1, "Ignored"));
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethod({|PosInfoMoq1006:It.Is<int>(p => p == 10)|}, 1, "Ignored"));
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Setup(m => m.TestMethod({|PosInfoMoq1006:It.Is<int>(10, EqualityComparer<int>.Default)|}, 1, "Ignored"));
+            """,
+        ];
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
-                    using System;
                     using System.Collections.Generic;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>();
-
-                            mock1.Setup(m => m.NoParametersMethod());
-                            mock1.Setup(m => m.TestMethod(It.IsAny<int?>(), 1, ""Ignored"", C.OtherMethod()));
-                            mock1.Setup(m => m.TestMethod(It.Is<int?>(p => p == 10), 1, ""Ignored"", C.OtherMethod()));
-                            mock1.Setup(m => m.TestMethod(It.Is<int?>(10, EqualityComparer<int?>.Default), 1, ""Ignored"", C.OtherMethod()));
-
-                            mock1.Setup(m => m.TestMethodWithBaseClass(null));
-                            mock1.Setup(m => m.TestMethodWithBaseClass(It.IsAny<BaseClass>()));
-                            mock1.Setup(m => m.TestMethodWithBaseClass(It.IsAny<InheritedClass>()));
-                            mock1.Setup(m => m.TestMethodWithBaseClass(It.Is<BaseClass>(c => c.Property == 10)));
-                            mock1.Setup(m => m.TestMethodWithBaseClass(It.Is<InheritedClass>(c => c.Property == 10)));
-                       }
+                            {{code}}
+                        }
                     }
 
-                    public interface I
-                    {
-                        void NoParametersMethod();
-
-                        void TestMethod(int? a, int b, string c, int d);
-
-                        void TestMethodWithBaseClass(BaseClass a);
-                    }
-
-                    public class C
-                    {
-                        public static int OtherMethod() => default;
-                    }
-
-                    public abstract class BaseClass
-                    {
-                        public int Property { get; set; }
-                    }
-
-                    public class InheritedClass : BaseClass
-                    {
-                    }
-                }";
+                    {{TestTypes}}
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task NotMatch_DiagnosticReported()
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using Moq;
-                    using System;
+                    using FakeMoqLibrary;
                     using System.Collections.Generic;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<I>();
-                            mock1.Setup(m => m.TestMethod({|#0:It.IsAny<int>()|#0}, 1, ""Ignored""));
-                            mock1.Setup(m => m.TestMethod({|#1:It.Is<int>(p => p == 10)|#1}, 1, ""Ignored""));
-                            mock1.Setup(m => m.TestMethod({|#2:It.Is<int>(10, EqualityComparer<int>.Default)|#2}, 1, ""Ignored""));
-                       }
-                    }
-
-                    public interface I
-                    {
-                        void TestMethod(int? a, int b, string c);
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(
-                source,
-                [
-                    new DiagnosticResult(ItArgumentsMustMatchMockedMethodArgumentsAnalyzer.Rule)
-                        .WithLocation(0),
-                    new DiagnosticResult(ItArgumentsMustMatchMockedMethodArgumentsAnalyzer.Rule)
-                        .WithLocation(1),
-                    new DiagnosticResult(ItArgumentsMustMatchMockedMethodArgumentsAnalyzer.Rule)
-                        .WithLocation(2),
-                ]);
-        }
-
-        [Fact]
-        public async Task NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>(MockBehavior.Strict);
-                            mock1.Setup(m => m.TestMethod());
+                            {{code}}
                         }
                     }
 
-                    public interface I
-                    {
-                        void TestMethod();
-                    }
+                    {{TestTypes}}
                 }
 
-                namespace OtherNamespace
-                {
-                    using System;
-
-                    public class Mock<T>
-                    {
-                        public Mock(MockBehavior _) { }
- 
-                        public void Setup(Action<T> act) { }
-                   }
-
-                    public enum MockBehavior { Strict, Loose }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }

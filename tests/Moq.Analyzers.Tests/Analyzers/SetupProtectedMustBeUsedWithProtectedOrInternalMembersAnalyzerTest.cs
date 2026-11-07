@@ -10,313 +10,338 @@ namespace PosInformatique.Moq.Analyzers.Tests
 
     public class SetupProtectedMustBeUsedWithProtectedOrInternalMembersAnalyzerTest
     {
-        [Fact]
-        public async Task NoDiagnosticReported()
+        private const string TestTypes =
+            """
+            public abstract class C : BaseClass
+            {
+                // Virtual
+                protected virtual void ProtectedVirtualMethod() { }
+
+                protected virtual int ProtectedVirtualMethodReturnValue() { return 10; }
+
+                protected internal virtual void ProtectedInternalVirtualMethod() { }
+
+                protected internal virtual int ProtectedInternalVirtualMethodReturnValue() { return 10; }
+
+                internal virtual void InternalVirtualMethod() { }
+
+                internal virtual int InternalVirtualMethodReturnValue() { return 10; }
+
+                // Abstract
+                protected abstract void ProtectedAbstractMethod();
+
+                protected abstract int ProtectedAbstractMethodReturnValue();
+
+                protected internal abstract void ProtectedInternalAbstractMethod();
+
+                protected internal abstract int ProtectedInternalAbstractMethodReturnValue();
+
+                internal abstract void InternalAbstractMethod();
+
+                internal abstract int InternalAbstractMethodReturnValue();
+
+                // Override
+                protected override void ProtectedOverrideMethod() { }
+
+                protected override int ProtectedOverrideMethodReturnValue() { return 10; }
+
+                protected internal override void ProtectedInternalOverrideMethod() { }
+
+                protected internal override int ProtectedInternalOverrideMethodReturnValue() { return 10; }
+
+                internal override void InternalOverrideMethod() { }
+
+                internal override int InternalOverrideMethodReturnValue() { return 10; }
+
+                public virtual void TestMethodPublic() { }
+
+                protected override sealed void TestMethod() { }
+
+                protected void NonOverridableProtectedMethod() { }
+
+                protected internal void NonOverridableProtectedInternalMethod() { }
+
+                internal void NonOverridableInternalMethod() { }
+
+                protected virtual int TestMethodProtectedReturnValue() { return 0; }
+
+                protected virtual void TestMethodProtected() { }
+            }
+
+            public abstract class BaseClass
+            {
+                protected virtual void ProtectedOverrideMethod() { }
+
+                protected virtual int ProtectedOverrideMethodReturnValue() { return 10; }
+
+                protected virtual void ProtectedMethod() { }
+
+                protected internal virtual void ProtectedInternalOverrideMethod() { }
+
+                protected internal virtual int ProtectedInternalOverrideMethodReturnValue() { return 10; }
+
+                protected internal virtual void ProtectedInternalMethod() { }
+
+                internal virtual void InternalOverrideMethod() { }
+
+                internal virtual int InternalOverrideMethodReturnValue() { return 10; }
+
+                internal virtual void InternalMethod() { }
+
+                internal virtual int InternalMethodReturnValue() { return 10; }
+
+                protected abstract void TestMethod();
+            }
+
+            public interface I
+            {
+                void TestMethodPublic();
+            }
+            """;
+
+        public static TheoryData<string> ValidTestCases =>
+        [
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("ProtectedVirtualMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("ProtectedInternalVirtualMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("InternalVirtualMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("ProtectedAbstractMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("ProtectedInternalAbstractMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("InternalAbstractMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("ProtectedMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("ProtectedOverrideMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("ProtectedInternalOverrideMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("ProtectedInternalMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("InternalMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup("InternalOverrideMethod");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>("ProtectedVirtualMethodReturnValue");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>("ProtectedInternalVirtualMethodReturnValue");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>("InternalVirtualMethodReturnValue");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>("ProtectedAbstractMethodReturnValue");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>("ProtectedInternalAbstractMethodReturnValue");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>("InternalAbstractMethodReturnValue");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>("ProtectedOverrideMethodReturnValue");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>("ProtectedInternalOverrideMethodReturnValue");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>("InternalOverrideMethodReturnValue");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>("InternalMethodReturnValue");
+            """,
+        ];
+
+        public static TheoryData<string> InvalidTestCases =>
+        [
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup({|PosInfoMoq2006:"TestMethodPublic"|});
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>({|PosInfoMoq2006:"TestMethodPublic"|});
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup({|PosInfoMoq2006:"TestMethod"|});
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>({|PosInfoMoq2006:"TestMethod"|});
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Protected().Setup({|PosInfoMoq2006:"TestMethodPublic"|});
+            """,
+
+            """
+            var mock1 = new Mock<I>();
+            mock1.Protected().Setup<int>({|PosInfoMoq2006:"TestMethodPublic"|});
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup({|PosInfoMoq2006:"NonOverridableProtectedMethod"|});
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup({|PosInfoMoq2006:"NonOverridableProtectedInternalMethod"|});
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup({|PosInfoMoq2006:"NonOverridableInternalMethod"|});
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>({|PosInfoMoq2006:"NonOverridableProtectedMethod"|});
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>({|PosInfoMoq2006:"NonOverridableProtectedInternalMethod"|});
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<int>({|PosInfoMoq2006:"NonOverridableInternalMethod"|});
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<{|PosInfoMoq2015:long|}>("TestMethodProtectedReturnValue");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().Setup<{|PosInfoMoq2015:long|}>("TestMethodProtected");
+            """,
+
+            """
+            var mock1 = new Mock<C>();
+            mock1.Protected().{|PosInfoMoq2015:Setup|}("TestMethodProtectedReturnValue");
+            """,
+        ];
+
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task Analyze(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
                     using Moq;
                     using Moq.Protected;
-                    using System;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>();
-                            mock1.Protected().Setup(""ProtectedVirtualMethod"");
-                            mock1.Protected().Setup(""ProtectedInternalVirtualMethod"");
-                            mock1.Protected().Setup(""InternalVirtualMethod"");
-                            mock1.Protected().Setup(""ProtectedAbstractMethod"");
-                            mock1.Protected().Setup(""ProtectedInternalAbstractMethod"");
-                            mock1.Protected().Setup(""InternalAbstractMethod"");
-                            mock1.Protected().Setup(""ProtectedMethod"");
-                            mock1.Protected().Setup(""ProtectedOverrideMethod"");
-                            mock1.Protected().Setup(""ProtectedInternalOverrideMethod"");
-                            mock1.Protected().Setup(""ProtectedInternalMethod"");
-                            mock1.Protected().Setup(""InternalMethod"");
-                            mock1.Protected().Setup(""InternalOverrideMethod"");
-
-                            mock1.Protected().Setup<int>(""ProtectedVirtualMethodReturnValue"");
-                            mock1.Protected().Setup<int>(""ProtectedInternalVirtualMethodReturnValue"");
-                            mock1.Protected().Setup<int>(""InternalVirtualMethodReturnValue"");
-                            mock1.Protected().Setup<int>(""ProtectedAbstractMethodReturnValue"");
-                            mock1.Protected().Setup<int>(""ProtectedInternalAbstractMethodReturnValue"");
-                            mock1.Protected().Setup<int>(""InternalAbstractMethodReturnValue"");
-                            mock1.Protected().Setup<int>(""ProtectedOverrideMethodReturnValue"");
-                            mock1.Protected().Setup<int>(""ProtectedInternalOverrideMethodReturnValue"");
-                            mock1.Protected().Setup<int>(""InternalOverrideMethodReturnValue"");
-                            mock1.Protected().Setup<int>(""InternalMethodReturnValue"");
+                            {{code}}
                         }
                     }
 
-                    public abstract class C : BaseClass
-                    {
-                        // Virtual
-                        protected virtual void ProtectedVirtualMethod() { }
-
-                        protected virtual int ProtectedVirtualMethodReturnValue() { return 10;}
-
-                        protected internal virtual void ProtectedInternalVirtualMethod() { }
-
-                        protected internal virtual int ProtectedInternalVirtualMethodReturnValue() { return 10; }
-
-                        internal virtual void InternalVirtualMethod() { }
-
-                        internal virtual int InternalVirtualMethodReturnValue() { return 10; }
-
-                        // Abstract
-                        protected abstract void ProtectedAbstractMethod();
-
-                        protected abstract int ProtectedAbstractMethodReturnValue();
-
-                        protected internal abstract void ProtectedInternalAbstractMethod();
-
-                        protected internal abstract int ProtectedInternalAbstractMethodReturnValue();
-
-                        internal abstract void InternalAbstractMethod();
-
-                        internal abstract int InternalAbstractMethodReturnValue();
-
-                        // Override
-                        protected override void ProtectedOverrideMethod() { }
-
-                        protected override int ProtectedOverrideMethodReturnValue() { return 10; }
-
-                        protected internal override void ProtectedInternalOverrideMethod() { }
-
-                        protected internal override int ProtectedInternalOverrideMethodReturnValue() { return 10; }
-
-                        internal override void InternalOverrideMethod() { }
-
-                        internal override int InternalOverrideMethodReturnValue() { return 10; }
-                    }
-
-                    public abstract class BaseClass
-                    {
-                        protected virtual void ProtectedOverrideMethod() { }
-
-                        protected virtual int ProtectedOverrideMethodReturnValue() { return 10; }
-
-                        protected virtual void ProtectedMethod() { }
-
-                        protected internal virtual void ProtectedInternalOverrideMethod() { }
-
-                        protected internal virtual int ProtectedInternalOverrideMethodReturnValue() { return 10; }
-
-                        protected internal virtual void ProtectedInternalMethod() { }
-
-                        internal virtual void InternalOverrideMethod() { }
-
-                        internal virtual int InternalOverrideMethodReturnValue() { return 10; }
-
-                        internal virtual void InternalMethod() { }
-
-                        internal virtual int InternalMethodReturnValue() { return 10; }
-                    }
-                }";
+                    {{TestTypes}}
+                }
+                """;
 
             await Verifier.VerifyAnalyzerAsync(source);
         }
 
-        [Fact]
-        public async Task PublicMethod_DiagnosticReported()
+        [Theory]
+        [MemberData(nameof(ValidTestCases))]
+        [MemberData(nameof(InvalidTestCases))]
+        public async Task NoMoqLibrary(string code)
         {
-            var source = @"
+            var source =
+                $$"""
                 namespace ConsoleApplication1
                 {
-                    using Moq;
-                    using Moq.Protected;
-                    using System;
+                    using FakeMoqLibrary;
+                    using FakeMoqLibrary.Protected;
 
                     public class TestClass
                     {
                         public void TestMethod()
                         {
-                            var mock1 = new Mock<C>();
-                            mock1.Protected().Setup({|PosInfoMoq2006:""TestMethodPublic""|});
-                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""TestMethodPublic""|});
+                            {{code}}
                         }
                     }
 
-                    public class C
-                    {
-                        public virtual void TestMethodPublic() { }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task SealedMethod_DiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using Moq.Protected;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>();
-                            mock1.Protected().Setup({|PosInfoMoq2006:""TestMethod""|});
-                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""TestMethod""|});
-                        }
-                    }
-
-                    public class C : BaseClass
-                    {
-                        protected override sealed void TestMethod() { }
-                    }
-
-                    public abstract class BaseClass
-                    {
-                        protected abstract void TestMethod();
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task Interface_DiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using Moq.Protected;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<I>();
-                            mock1.Protected().Setup({|PosInfoMoq2006:""TestMethodPublic""|});
-                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""TestMethodPublic""|});
-                        }
-                    }
-
-                    public interface I
-                    {
-                        void TestMethodPublic();
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NonOverridableMethod_DiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using Moq.Protected;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>();
-                            mock1.Protected().Setup({|PosInfoMoq2006:""NonOverridableProtectedMethod""|});
-                            mock1.Protected().Setup({|PosInfoMoq2006:""NonOverridableProtectedInternalMethod""|});
-                            mock1.Protected().Setup({|PosInfoMoq2006:""NonOverridableInternalMethod""|});
-
-                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""NonOverridableProtectedMethod""|});
-                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""NonOverridableProtectedInternalMethod""|});
-                            mock1.Protected().Setup<int>({|PosInfoMoq2006:""NonOverridableInternalMethod""|});
-                        }
-                    }
-
-                    public class C
-                    {
-                        protected void NonOverridableProtectedMethod() { }
-                        protected internal void NonOverridableProtectedInternalMethod() { }
-                        internal void NonOverridableInternalMethod() { }
-                    }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task ReturnMethodTypeNotMatching_DiagnosticReported()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using Moq;
-                    using Moq.Protected;
-                    using System;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>();
-                            mock1.Protected().Setup<{|PosInfoMoq2015:long|}>(""TestMethodProtectedReturnValue"");
-                            mock1.Protected().Setup<{|PosInfoMoq2015:long|}>(""TestMethodProtected"");
-                            mock1.Protected().{|PosInfoMoq2015:Setup|}(""TestMethodProtectedReturnValue"");
-                        }
-                    }
-
-                    public class C
-                    {
-                        protected virtual int TestMethodProtectedReturnValue() { return 0; }
-
-                        protected virtual void TestMethodProtected() { }
-                   }
-                }";
-
-            await Verifier.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task NoMoqLibrary()
-        {
-            var source = @"
-                namespace ConsoleApplication1
-                {
-                    using OtherNamespace;
-
-                    public class TestClass
-                    {
-                        public void TestMethod()
-                        {
-                            var mock1 = new Mock<C>();
-                            mock1.Protected().Setup(""NonOverridableProtectedMethod"");
-                        }
-                    }
-
-                    public class C
-                    {
-                        protected virtual void NonOverridableProtectedMethod() { }
-                    }
+                    {{TestTypes}}
                 }
 
-                namespace OtherNamespace
-                {
-                    public class Mock<T>
-                    {
-                        public Mock() { }
-
-                        public IProtected Protected() { return null; }
-                    }
-
-                    public interface IProtected
-                    {
-                        void Setup(string _);
-                    }
-                }";
+                {{MoqAnalyzersTests.FakeMoqLibrary}}
+                """;
 
             await Verifier.VerifyAnalyzerWithNoMoqLibraryAsync(source);
         }
